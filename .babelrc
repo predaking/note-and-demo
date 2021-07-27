@@ -1,0 +1,23 @@
+{
+    "presets": ["@babel/react", [
+        "@babel/env", {
+            "targets": {
+                "browsers": [
+                    "last 2 versions",
+                    "ie >= 11"
+                ]
+            },
+            "modules": "commonjs"
+        }
+    ]],
+    "plugins": [
+        [
+            "import",
+            {
+                "libraryName": "antd",
+                "libraryDirectory": "es",
+                "style": "css"
+            }
+        ]
+    ]
+}
