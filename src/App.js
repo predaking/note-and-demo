@@ -2,7 +2,10 @@ import React from 'react';
 
 export default function App() {
     return (
-        <div className="app" data-id="2222"></div>
+		<ul>
+			{
+			  	new Array(3000).fill('').map((item, index) => <li key={index}>{index}</li>)
+		    }
+		</ul>
     );
 }
-
