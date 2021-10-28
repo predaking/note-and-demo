@@ -75,6 +75,16 @@
 
 ### 杂项
 
+#### script标签的defer与async属性的用法与区别
+
+两者同为异步加载脚本，只有defer属性是等文档所有元素渲染完成之后，DOMContentLoaded事件执行之前才
+开始执行
+
+#### script标签的crossOrigin属性的作用
+
+为了能捕获到脚本内部具体的错误信息，可选值有：anonymous、use-credentials。设置该属性后脚本
+所在的服务器也要设置Access-Control-Allow-Origin属性才可以达到目的
+
 ## React
 
 ### 杂项
@@ -209,3 +219,5 @@ CRSF：跨站请求伪造
 防范：
 添加token机制，登录时服务端下发token，之后客户端每次请求都带上该token，服务器收到请求后对比token，不相同则拒绝请求
 验证referer，服务器只处理指定网站发起的请求
+
+https://blog.csdn.net/hugo233/article/details/114272109
