@@ -1,0 +1,39 @@
+html,
+body {
+	margin: 0;
+}
+
+body {
+	padding: 20px;
+}
+
+#app {
+	width: inherit;
+	height: inherit;
+}
+
+.container {
+	width: 150px;
+	display: flex;
+}
+
+.container div {
+	width: 100px;
+	height: 100px;
+	line-height: 100px;
+	text-align: center;
+	border: 1px dotted red;
+}
+
+.div-1 {
+	/* flex: 1 0 auto; */
+}
+
+.div-2 {
+	flex-shrink: 1;
+	/* flex: 1 0 auto; */
+}
+
+.div-3 {
+	/* flex: 1 0 auto; */
+}
