@@ -13,8 +13,8 @@ body {
 }
 
 .container {
-	width: 150px;
 	display: flex;
+	width: 300px;
 }
 
 .container div {
@@ -30,7 +30,6 @@ body {
 }
 
 .div-2 {
-	flex-shrink: 1;
 	/* flex: 1 0 auto; */
 }
 
