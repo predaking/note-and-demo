@@ -32,15 +32,20 @@ export default function App() {
         <>
             <div>Before</div>
             <div className="container">
-                <div className="div-1">
-                  <span>span-1</span>
-                  <span>span-2</span>
-                  <span>span-3</span>
-                </div>
-                <div className="div-2">div2</div>
-                <div className="div-3">div3</div>
+                <div className="div-1">div-1</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
+                <div className="div-2">div-2</div>
             </div>
             <div>After</div>
+            <p>333333</p>
         </>
     );
 }

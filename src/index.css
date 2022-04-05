@@ -5,6 +5,7 @@ body {
 
 body {
 	padding: 20px;
+	text-align: center;
 }
 
 #app {
@@ -14,7 +15,7 @@ body {
 
 .container {
 	display: flex;
-	width: 300px;
+	/* width: 300px; */
 }
 
 .container div {
@@ -25,12 +26,18 @@ body {
 	border: 1px dotted red;
 }
 
+img {
+	height: 100px;
+}
+
 .div-1 {
+	background-color: red;
 	/* flex: 1 0 auto; */
 }
 
 .div-2 {
-	/* flex: 1 0 auto; */
+	background-color: green;
+	flex: 0 0 auto;
 }
 
 .div-3 {

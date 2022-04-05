@@ -13,9 +13,7 @@ const server = http.createServer((req, res) => {
 		.then(data => {
 			res.setHeader('Content-Type', 'text/html;charset=utf-8');
 			res.setHeader('Access-Control-Allow-Origin', '*');
-
-
-
+			
 			const responseData = {
 				code: res.statusCode,
 				msg: http.STATUS_CODES[res.statusCode],
