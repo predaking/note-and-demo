@@ -13,33 +13,3 @@ body {
 	height: inherit;
 }
 
-.container {
-	display: flex;
-	/* width: 300px; */
-}
-
-.container div {
-	width: 100px;
-	height: 100px;
-	line-height: 100px;
-	text-align: center;
-	border: 1px dotted red;
-}
-
-img {
-	height: 100px;
-}
-
-.div-1 {
-	background-color: red;
-	/* flex: 1 0 auto; */
-}
-
-.div-2 {
-	background-color: green;
-	flex: 0 0 auto;
-}
-
-.div-3 {
-	/* flex: 1 0 auto; */
-}

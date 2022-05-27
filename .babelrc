@@ -1,15 +1,19 @@
 {
-    "presets": ["@babel/react", [
-        "@babel/env", {
-            "targets": {
-                "browsers": [
-                    "last 2 versions",
-                    "ie >= 11"
-                ]
-            },
-            "modules": "commonjs"
-        }
-    ]],
+    "presets": [
+        "@babel/react", 
+        [
+            "@babel/env", {
+                "targets": {
+                    "browsers": [
+                        "last 2 versions",
+                        "ie >= 11"
+                    ]
+                },
+                "modules": "commonjs"
+            }
+        ],
+        "@babel/typescript"
+    ],
     "plugins": [
         [
             "import",

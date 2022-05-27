@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "webpack --config webpack.prod.js",
-    "dev": "webpack-dev-server --open --hot --watch --mode development --config webpack.dev.js",
+    "dev": "webpack-dev-server --hot --watch --mode development --config webpack.dev.js",
     "server": "http-server dist",
     "test": "jest --watchAll",
     "coverage": "jest --coverage"
@@ -18,12 +18,15 @@
     "axios": "^0.21.1",
     "babel-polyfill": "^6.26.0",
     "mongodb": "^4.1.0",
+    "react-redux": "^8.0.2",
+    "redux": "^4.2.0",
     "typescript": "^4.3.5"
   },
   "devDependencies": {
     "@ant-design/icons": "^4.4.0",
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.12.1",
+    "@babel/preset-typescript": "^7.17.12",
     "@types/jest": "^26.0.23",
     "antd": "^4.12.2",
     "babel-eslint": "^10.1.0",

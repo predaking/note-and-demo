@@ -9,8 +9,20 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
+    resolve: {
+        extensions: ['.js', '.ts', '.tsx'],
+        alias: {
+            '@': path.resolve(__dirname, 'src')
+        }
+    },
     entry: {
         app: './src/index.js',
+    },
+    output: {
+        publicPath: '/',
+        filename: '[name].[contenthash].js',
+        // chunkFilename: '[name].[chunkhash].bundle.js',
+        path: path.resolve(__dirname, 'dist'),
     },
     module: {
         rules: [
@@ -30,7 +42,7 @@ module.exports = {
             //     type: 'asset/source'
             // },
             {
-                test: /\.js/,
+                test: /\.(js|jsx|ts|tsx)$/,
                 use: 'babel-loader',
                 exclude: /node_modules/
             },
@@ -70,10 +82,4 @@ module.exports = {
         //     analyzerPort: 8887,
         // }),
     ],
-    output: {
-        publicPath: '/',
-        filename: '[name].[contenthash].js',
-        // chunkFilename: '[name].[chunkhash].bundle.js',
-        path: path.resolve(__dirname, 'dist'),
-    },
 };
