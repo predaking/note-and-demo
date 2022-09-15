@@ -15,5 +15,6 @@ export interface TodoListProps {
 export interface LinkProps {
     active: boolean;
     children?: ReactElement;
+    filter: string;
     onClick?: () => void;
 }

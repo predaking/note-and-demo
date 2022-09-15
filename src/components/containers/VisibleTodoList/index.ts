@@ -18,12 +18,9 @@ const getVisibleTodos = (todos: TodoProps[], filter: string) => {
     }
 };
 
-const mapStateToProps = (state: TodoListProps) => {
-    const { todos, visibilityFilter } = state;
-    const newTodos = getVisibleTodos(todos, visibilityFilter);
-    console.log('newTodos: ', newTodos, state);
+const mapStateToProps = ({ todos }: TodoListProps, props: any) => {
     return {
-        todos: newTodos
+        todos: getVisibleTodos(todos, props.filter)
     };
 };
 

@@ -1,6 +1,5 @@
 {
     "presets": [
-        "@babel/react", 
         [
             "@babel/env", {
                 "targets": {
@@ -12,9 +11,12 @@
                 "modules": "commonjs"
             }
         ],
+        "@babel/react", 
         "@babel/typescript"
     ],
     "plugins": [
+        "@babel/plugin-transform-runtime",
+        "@babel/plugin-proposal-class-properties",
         [
             "import",
             {

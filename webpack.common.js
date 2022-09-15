@@ -70,7 +70,7 @@ module.exports = {
         }),
         new webpack.ProvidePlugin({
             React: 'react',
-            ReactDOM: 'react-dom'
+            // ReactDOM: 'react-dom'
         }),
         // new WorkboxWebpackPlugin.GenerateSW({
         //     // 保证及时更新与快速应用新的ServiceWorkers

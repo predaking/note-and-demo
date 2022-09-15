@@ -13,3 +13,21 @@ body {
 	height: inherit;
 }
 
+#gl_canvas {
+	position: absolute;
+	left: 20px;
+	top: 20px;
+	width: 400px;
+	height: 300px;
+}
+
+#test-app {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100px;
+	height: 100px;
+	background-image: url('../assets/zzz.jpg');
+	background-repeat: no-repeat;
+	background-size: cover;
+}
