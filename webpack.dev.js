@@ -4,6 +4,8 @@ const {
 const webpack = require('webpack');
 const common = require('./webpack.common');
 
+console.log('webpack: ', webpack);
+
 module.exports = merge(common, {
     devtool: 'inline-source-map',
     devServer: {

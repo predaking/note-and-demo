@@ -1,3 +1,13 @@
+# webpack 基本原理
+
+## 基本概念
+
++ compiler
+  - 概念：`Compiler`模块是 webpack 的核心模块，继承自`Tapable`类，用来注册与调用插件。
+
++ compilation
+  - 概念：`Compilation`模块是通过`Compiler`创建的对象，同样继承自`Tapable`类，`Compilation`的实例能够访问所有的模块及其依赖，它会对应用程序依赖图中所有的模块进行字面上的编译，在编译阶段，模块会被加载（load）、封存（seal）、优化（optimize）、分块（chunk）、哈希（hash）和重新创建（restore）
+
 # 构建webpack项目
 
 ## 基本构建

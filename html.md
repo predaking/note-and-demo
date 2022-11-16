@@ -132,4 +132,42 @@
 
 ## svg&canvas
 
+### svg
   在 SVG 中，允许三种图像对象存在，分别是矢量图像、点阵图像和文本
+
+#### path
+
+概念：path可以用来绘制曲线、弧线，通过d属性定义关键点的类型与坐标值，大写表示绝对坐标，小写表示相对坐标
+
+| 命令 | 含义 | 格式 |
+| - | - | - |
+| M | 移动到某点 | M x y |
+| L | 连接到某点 | L x y |
+| C | 三次贝塞尔曲线，其中p1，p2为控制点 | C x1 y1, x2 y2, x3 y3 |
+| S | 作用同上，若S之前为C或S，则p2为上一个曲线命令第二个控制点的中心对称点 | S x2 y2, x3 y3 |
+| Q | 二次贝塞尔曲线，其中p1为控制点 | Q x1 y1, x2 y2 |
+| T | 作用同上，若T之前为Q或T，则自动推算该命令控制点 | T x1 y1 |
+| A | 椭圆的一部分，<br />x-axis-rotation: 旋转角度<br />large-arc-flag: 1为要大圆，0为要小圆<br />sweep-flag: 1为顺时针，0为逆时针<br />d为结束点位置 | A rx ry x-axis-rotation large-arc-flag sweep-flag dx dy |
+
+```html
+<!-- 例：风车车 -->
+<svg>
+    <g>
+        <path d="M 0 75 Q 37.5 150, 75 75 T 150 75" stroke="yellow" fill="transparent" />
+        <path d="M 0 75 L 150 75" stroke="yellow" fill="transparent" />
+        <path d="M 75 0 Q 0 37.5, 75 75 T 75 150" stroke="yellow" fill="transparent" />
+        <path d="M 75 0, L 75 150" stroke="yellow" fill="transparent" />
+        <animateTransform 
+        attributeName="transform" 
+        attributeType="xml"
+        type="rotate"
+        from="0 75 75" 
+        to="360 75 75"
+        dur="5s" 
+        repeatCount="indefinite" 
+        />
+    </g>
+</svg>
+```
+
+
