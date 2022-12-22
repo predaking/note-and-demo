@@ -3,13 +3,12 @@ const {
 } = require('webpack-merge');
 const webpack = require('webpack');
 const common = require('./webpack.common');
-
-console.log('webpack: ', webpack);
+const path = require('path');
 
 module.exports = merge(common, {
     devtool: 'inline-source-map',
     devServer: {
-        // contentBase: './dist',
+        static: './',
         // 自动调起浏览器
         open: true,
         // 支持h5 history api及react-router路由，防止跳到404页面
@@ -19,13 +18,13 @@ module.exports = merge(common, {
         client: {
             progress: true
         },
-        proxy: {
-            '*': {
-                target: 'http://localhost:3000',
-                // 利用target指定的主域名替换默认本地域名
-                changeOrigin: true
-            },
-        },
+        // proxy: {
+        //     '*': {
+        //         target: 'http://localhost:3000',
+        //         // 利用target指定的主域名替换默认本地域名
+        //         changeOrigin: true
+        //     },
+        // },
     },
     mode: 'development',
     plugins: [

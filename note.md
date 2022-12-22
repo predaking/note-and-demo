@@ -115,6 +115,35 @@ if (mutations) {
 observer.disconnect(); 
 ```
 
+### 逻辑运算
+
+巧用逻辑运算可提高代码性能
+
+1. 用逻辑与操作代替取模运算判断奇偶
+```js
+var num = 27;
+// 与1进行逻辑与运算，结果不为0则为奇数
+if (num & 1) {
+  console.log('奇数');
+}
+```
+2. 位掩码：用于判断列表里面是否有某一项
+```js
+// 每一位掩码都是2的幂
+var OPTION_A = 1; // 00001
+var OPTION_B = 2; // 00010
+var OPTION_C = 4; // 00100
+var OPTION_D = 8; // 01000
+var OPTION_E = 16; // 10000
+
+var options = OPTION_A | OPTION_C | OPTION_D;
+
+// 判断 OPTION_B 是否在options列表中
+if (options & OPTION_B) {
+  console.log('OPTION_B in options');
+}
+```
+
 ### 杂项
 
 #### script标签的defer与async属性的用法与区别
