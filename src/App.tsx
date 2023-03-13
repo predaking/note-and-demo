@@ -8,17 +8,7 @@ import service from './util/service';
 import './index.css';
 
 const App = () => {
-    const [count, setCount] = useState(0);
-
-    const handleClick = () => {
-        // debugger;
-    }
-
-    return (
-        <div onClick={handleClick} >
-            {count}
-        </div>
-    );
+    return null;
 }
 
 export default App;

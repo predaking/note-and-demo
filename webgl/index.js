@@ -64,10 +64,42 @@ function randomInt(range) {
 
 function setGeometry(gl) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        0, 150,
-        150, 0,
-        0, 0
+        0, 0,
+        0, 300,
+        400, 0,
+        400, 0,
+        0, 300,
+        400, 300
     ]), gl.STATIC_DRAW);
+}
+
+function setColors(gl) {
+    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    //     Math.random(), Math.random(), Math.random(), 255,
+    //     Math.random(), Math.random(), Math.random(), 255,
+    //     Math.random(), Math.random(), Math.random(), 255,
+    //     Math.random(), Math.random(), Math.random(), 255,
+    //     Math.random(), Math.random(), Math.random(), 255,
+    //     Math.random(), Math.random(), Math.random(), 255,
+    // ]), gl.STATIC_DRAW);
+      // 设置两个随机颜色
+  var r1 = Math.random() * 256; // 0 到 255.99999 之间
+  var b1 = Math.random() * 256; // 这些数据
+  var g1 = Math.random() * 256; // 在存入缓冲时
+  var r2 = Math.random() * 256; // 将被截取成
+  var b2 = Math.random() * 256; // Uint8Array 类型
+  var g2 = Math.random() * 256;
+ 
+  gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Uint8Array(   // Uint8Array
+        [ r1, b1, g1, 255,
+          r1, b1, g1, 255,
+          r1, b1, g1, 255,
+          r2, b2, g2, 255,
+          r2, b2, g2, 255,
+          r2, b2, g2, 255]),
+      gl.STATIC_DRAW);
 }
 
 function main() {
@@ -79,16 +111,21 @@ function main() {
     if (!gl) {
         alert('不支持webgl');
     }
-    
+
     var program = webglUtils.createProgramFromScripts(gl, ["vertex-shader-2d", "fragment-shader-2d"]);
     
     var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
+    var colorAttributeLocation = gl.getAttribLocation(program, 'a_color');
+    
     var matrixUniformLocation = gl.getUniformLocation(program, 'u_matrix');
     
     var positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
     setGeometry(gl);
+
+    var colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    setColors(gl);
             
     var translation = [0, 0];
     var angleInRadians = 0;
@@ -123,27 +160,30 @@ function main() {
     }
     function drawScene() {
         webglUtils.resizeCanvasToDisplaySize(gl.canvas);
-        /**
-         * 渲染部分
-         */
+
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         
-        gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         
         gl.useProgram(program);
         gl.enableVertexAttribArray(positionAttributeLocation);
-
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     
         // 从缓冲中读取数据
-        var size = 2;
-        var type = gl.FLOAT;
-        var normalize = false;
+        var size = 4;
+        var type = gl.UNSIGNED_BYTE;
+        var normalize = true;
         var stride = 0;
         var offset = 0;
+
         gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
-    
+
+        gl.enableVertexAttribArray(colorAttributeLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+
+        size = 4;
+        gl.vertexAttribPointer(colorAttributeLocation, size, type, normalize, stride, offset);
+
         var matrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight);
         matrix = m3.translate(matrix, translation[0], translation[1]);
         matrix = m3.rotate(matrix, angleInRadians);
@@ -152,10 +192,9 @@ function main() {
         gl.uniformMatrix3fv(matrixUniformLocation, false, matrix);
         var primitiveType = gl.TRIANGLES;
         var offset = 0;
-        var count = 3;
+        var count = 6;
         gl.drawArrays(primitiveType, offset, count);
     }
 }
 
 main();
-

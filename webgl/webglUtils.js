@@ -52,7 +52,7 @@
     }
 
     if (!isInIFrame()) {
-        console.log("%c%s", 'color:blue;font-weight:bold;', 'for more about webgl-utils.js see:');  // eslint-disable-line
+        console.log("%c%s", 'color:yellow;font-weight:bold;', 'for more about webgl-utils.js see:');  // eslint-disable-line
         console.log("%c%s", 'color:blue;font-weight:bold;', 'https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html');  // eslint-disable-line
     }
 
@@ -91,6 +91,8 @@
         const errFn = opt_errorCallback || error;
         // Create the shader object
         const shader = gl.createShader(shaderType);
+
+        console.log(shaderSource);
 
         // Load the shader source
         gl.shaderSource(shader, shaderSource);
