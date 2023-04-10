@@ -82,27 +82,27 @@ function setColors(gl) {
     //     Math.random(), Math.random(), Math.random(), 255,
     //     Math.random(), Math.random(), Math.random(), 255,
     // ]), gl.STATIC_DRAW);
-      // 设置两个随机颜色
-  var r1 = Math.random() * 256; // 0 到 255.99999 之间
-  var b1 = Math.random() * 256; // 这些数据
-  var g1 = Math.random() * 256; // 在存入缓冲时
-  var r2 = Math.random() * 256; // 将被截取成
-  var b2 = Math.random() * 256; // Uint8Array 类型
-  var g2 = Math.random() * 256;
- 
-  gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Uint8Array(   // Uint8Array
-        [ r1, b1, g1, 255,
-          r1, b1, g1, 255,
-          r1, b1, g1, 255,
-          r2, b2, g2, 255,
-          r2, b2, g2, 255,
-          r2, b2, g2, 255]),
-      gl.STATIC_DRAW);
+    // 设置两个随机颜色
+    var r1 = Math.random() * 256; // 0 到 255.99999 之间
+    var b1 = Math.random() * 256; // 这些数据
+    var g1 = Math.random() * 256; // 在存入缓冲时
+    var r2 = Math.random() * 256; // 将被截取成
+    var b2 = Math.random() * 256; // Uint8Array 类型
+    var g2 = Math.random() * 256;
+
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Uint8Array(   // Uint8Array
+            [r1, b1, g1, 255,
+                r1, b1, g1, 255,
+                r1, b1, g1, 255,
+                r2, b2, g2, 255,
+                r2, b2, g2, 255,
+                r2, b2, g2, 255]),
+        gl.STATIC_DRAW);
 }
 
-function main() {
+function main(image) {
     /**
      * 初始化部分
      */
@@ -113,88 +113,150 @@ function main() {
     }
 
     var program = webglUtils.createProgramFromScripts(gl, ["vertex-shader-2d", "fragment-shader-2d"]);
-    
-    var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
-    var colorAttributeLocation = gl.getAttribLocation(program, 'a_color');
-    
-    var matrixUniformLocation = gl.getUniformLocation(program, 'u_matrix');
-    
+
+    var texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
+    var positionLocation = gl.getAttribLocation(program, "a_position");
+
     var positionBuffer = gl.createBuffer();
+
+    // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    setGeometry(gl);
+    // Set a rectangle the same size as the image.
+    setRectangle(gl, 0, 0, image.width, image.height);
 
-    var colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    setColors(gl);
-            
-    var translation = [0, 0];
-    var angleInRadians = 0;
-    var scale = [1, 1];
+    var texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0
+    ]), gl.STATIC_DRAW);
 
-    drawScene();
+    gl.enableVertexAttribArray(texCoordLocation);
+    gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 
-    webglLessonsUI.setupSlider("#x", {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
-    webglLessonsUI.setupSlider("#y", {value: translation[1], slide: updatePosition(1), max: gl.canvas.height});
-    webglLessonsUI.setupSlider("#angle", {slide: updateAngle, max: 360});
-    webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
-    webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
 
-    function updatePosition(index) {
-        return function(event, ui) {
-          translation[index] = ui.value;
-          drawScene();
-        };
-    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-    function updateAngle(event, ui) {
-        var angleInDegrees = 360 - ui.value;
-        angleInRadians = angleInDegrees * Math.PI / 180;
-        drawScene();
-    }
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
 
-    function updateScale(index) {
-        return function(event, ui) {
-            scale[index] = ui.value;
-            drawScene();
-        };
-    }
-    function drawScene() {
-        webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        
-        gl.useProgram(program);
-        gl.enableVertexAttribArray(positionAttributeLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    
-        // 从缓冲中读取数据
-        var size = 4;
-        var type = gl.UNSIGNED_BYTE;
-        var normalize = true;
-        var stride = 0;
-        var offset = 0;
+    // Tell WebGL how to convert from clip space to pixels
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-        gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+    // Clear the canvas
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
-        gl.enableVertexAttribArray(colorAttributeLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(program);
 
-        size = 4;
-        gl.vertexAttribPointer(colorAttributeLocation, size, type, normalize, stride, offset);
+    // Turn on the position attribute
+    gl.enableVertexAttribArray(positionLocation);
 
-        var matrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight);
-        matrix = m3.translate(matrix, translation[0], translation[1]);
-        matrix = m3.rotate(matrix, angleInRadians);
-        matrix = m3.scale(matrix, scale[0], scale[1]);
-    
-        gl.uniformMatrix3fv(matrixUniformLocation, false, matrix);
-        var primitiveType = gl.TRIANGLES;
-        var offset = 0;
-        var count = 6;
-        gl.drawArrays(primitiveType, offset, count);
+    // Bind the position buffer.
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+    // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+    var size = 2;          // 2 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floats
+    var normalize = false; // don't normalize the data
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        positionLocation, size, type, normalize, stride, offset);
+
+    // Turn on the texcoord attribute
+    gl.enableVertexAttribArray(texCoordLocation);
+
+    // bind the texcoord buffer.
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+
+    // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
+    var size = 2;          // 2 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floats
+    var normalize = false; // don't normalize the data
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        texCoordLocation, size, type, normalize, stride, offset);
+
+    // set the resolution
+    gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
+
+    // Draw the rectangle.
+    var primitiveType = gl.TRIANGLES;
+    var offset = 0;
+    var count = 6;
+    gl.drawArrays(primitiveType, offset, count);
+}
+
+function renderImage() {
+    const image = new Image();
+    image.src = '//192.168.1.12:8080/assets/yaodaoji.png';
+    image.onload = function () {
+        console.log('loaded');
+        main(image);
+    };
+    image.onerror = function (err) {
+        console.log('err: ', err);
     }
 }
 
-main();
+function drawScene() {
+    var canvas = document.querySelector('#gl_canvas');
+    var gl = canvas.getContext('webgl');
+    if (!gl) {
+        alert('不支持webgl');
+    }
+
+    var program = webglUtils.createProgramFromScripts(gl, ["vertex-shader-2d", "fragment-shader-2d"]);
+    
+    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.useProgram(program);
+
+    var positionLocation = gl.getAttribLocation(program, "a_position");
+
+    gl.enableVertexAttribArray(positionLocation);
+
+    var positionBuffer = createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+    var translation = [0, 0];
+    var width = 100;
+    var height = 30;
+    var color = [Math.random(), Math.random(), Math.random(), 1];
+
+    setRectangle(gl, translation[0], translation[1], width, height);
+
+    var size = 2;
+    var type = gl.FLOAT;
+    var normalize = false;
+    var stride = 0; 
+    var offset = 0;
+
+    gl.vertexAttribPointer(positionLocation, size, type, normalize, stride, offset);
+
+    var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+
+    gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
+}
+
+// main();
+renderImage();

@@ -8,7 +8,7 @@ import service from './util/service';
 import './index.css';
 
 const App = () => {
-    return null;
+    return <input type="range" min={0} max={1} step="any"/>;
 }
 
 export default App;
