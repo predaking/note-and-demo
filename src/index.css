@@ -13,6 +13,11 @@ body {
 	height: inherit;
 }
 
+#gl {
+	min-width: 400px;
+	min-height: 300px;
+}
+
 #gl_canvas {
 	position: absolute;
 	left: 20px;
