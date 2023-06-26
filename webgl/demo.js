@@ -55,13 +55,26 @@ function main() {
         return;
     }
 
-    gl.clearColor(1, 0, 0, 1);
+    gl.clearColor(0, 1, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     const vertexShaderSource = document.getElementById('vertex-shader').text;
     const fragmentShaderSource = document.getElementById('fragment-shader').text;
 
-    initProgram(gl, vertexShaderSource, fragmentShaderSource);
+    const program = initProgram(gl, vertexShaderSource, fragmentShaderSource);
+
+    const programInfo = {
+        program,
+        attribLocations: {
+            vertexPosition: gl.getAttribLocation(program, 'aVertexPosition'),
+        },
+        uniformLocations: {
+            modelViewMatrix: gl.getUniformLocation(program, 'uModelViewMatrix'),
+            projectionMatrix: gl.getUniformLocation(program, 'uProjectionMatrix')
+        }
+    };
+
+    
 }
 
 main();
