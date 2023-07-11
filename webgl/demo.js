@@ -1,3 +1,6 @@
+import { initPositionBuffer } from './init-buffers.js';
+import { drawScene } from './draw-scene.js';
+
 /**
  * @description 创建&加载&编译 shader
  * @param { WebGLRenderingContext } gl 
@@ -74,7 +77,8 @@ function main() {
         }
     };
 
-    
+    const buffers = initPositionBuffer(gl);
+    drawScene(gl, programInfo, buffers);
 }
 
 main();

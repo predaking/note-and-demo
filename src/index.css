@@ -14,16 +14,16 @@ body {
 }
 
 #gl {
-	min-width: 400px;
-	min-height: 300px;
+	min-width: 640px;
+	min-height: 480px;
 }
 
 #gl_canvas {
 	position: absolute;
 	left: 20px;
 	top: 20px;
-	width: 400px;
-	height: 300px;
+	width: 640px;
+	height: 480px;
 }
 
 #test-app {
