@@ -38,6 +38,9 @@ function drawScene(gl, programInfo, buffers) {
         offset
     );
     gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+
+    setColorAttribute(gl, buffers, programInfo);
+
     gl.useProgram(programInfo.program);
 
     gl.uniformMatrix4fv(
@@ -51,6 +54,32 @@ function drawScene(gl, programInfo, buffers) {
         modelViewMatrix
     );
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+/**
+ * @description 
+ * @param {WebGL2RenderingContext} gl 
+ * @param {*} buffers 
+ * @param {*} programInfo 
+ */
+function setColorAttribute(gl, buffers, programInfo) {
+    const count = 4;
+    const type = gl.FLOAT;
+    const normalize = false;
+    const stride = 0;
+    const offset = 0;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+    gl.vertexAttribPointer(
+        programInfo.attribLocations.vertexColor,
+        count,
+        type,
+        normalize,
+        stride,
+        offset
+    );
+
+    gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
 }
 
 export { drawScene };

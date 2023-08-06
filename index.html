@@ -41,18 +41,24 @@
 
         <script id="vertex-shader" type="notjs">
             attribute vec4 aVertexPosition;
+            attribute vec4 aVertexColor;
 
             uniform mat4 uModelViewMatrix;
             uniform mat4 uProjectionMatrix;
 
+            varying lowp vec4 vColor;
+
             void main() {
-                gl_Position = aVertexPosition * uModelViewMatrix * uProjectionMatrix;
+                gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+                vColor = aVertexColor;
             }
         </script>
 
         <script id="fragment-shader" type="notjs">
+            varying lowp vec4 vColor;
+
             void main() {
-                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                gl_FragColor = vColor;
             }
         </script>
     </body>

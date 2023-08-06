@@ -70,6 +70,7 @@ function main() {
         program,
         attribLocations: {
             vertexPosition: gl.getAttribLocation(program, 'aVertexPosition'),
+            vertexColor: gl.getAttribLocation(program, 'aVertexColor')
         },
         uniformLocations: {
             modelViewMatrix: gl.getUniformLocation(program, 'uModelViewMatrix'),
