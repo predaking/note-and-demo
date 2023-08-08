@@ -79,7 +79,23 @@ function main() {
     };
 
     const buffers = initPositionBuffer(gl);
-    drawScene(gl, programInfo, buffers);
+    let squareRotation = 0.0;
+    let deltaTime = 0;
+    let then = 0;
+
+    function render(now) {
+        now *= 0.001;
+        deltaTime = now - then;
+        then = now;
+
+        drawScene(gl, programInfo, buffers, squareRotation);
+
+        squareRotation += deltaTime;
+
+        requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
 }
 
 main();

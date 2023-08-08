@@ -3,8 +3,9 @@
  * @param {WebGL2RenderingContext} gl 
  * @param {*} programInfo 
  * @param {*} buffers 
+ * @param {*} squareRotation
  */
-function drawScene(gl, programInfo, buffers) {
+function drawScene(gl, programInfo, buffers, squareRotation) {
     gl.clearColor(0, 0, 0, 1);
     gl.clearDepth(1);
     gl.enable(gl.DEPTH_TEST);
@@ -21,6 +22,8 @@ function drawScene(gl, programInfo, buffers) {
 
     const modelViewMatrix = mat4.create();
     mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -6.0]);
+
+    mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation, [1, 1, 1])
 
     const count = 2;
     const type = gl.FLOAT;
