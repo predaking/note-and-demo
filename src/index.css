@@ -4,8 +4,12 @@ body {
 }
 
 body {
+	width: 100%;
+	height: 100%;
 	padding: 20px;
 	text-align: center;
+	overflow: hidden;
+	box-sizing: border-box;
 }
 
 #app {
@@ -13,17 +17,9 @@ body {
 	height: inherit;
 }
 
-#gl {
-	min-width: 640px;
-	min-height: 480px;
-}
-
+#gl,
 #gl_canvas {
-	position: absolute;
-	left: 20px;
-	top: 20px;
-	width: 640px;
-	height: 480px;
+	width: inherit;
 }
 
 #test-app {

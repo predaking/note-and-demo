@@ -1,5 +1,8 @@
 import { initPositionBuffer } from './init-buffers.js';
 import { drawScene } from './draw-scene.js';
+import util from './math.js';
+
+const { isPowerOf2 } = util;
 
 /**
  * @description 创建&加载&编译 shader
@@ -21,6 +24,63 @@ function loadShader(gl, type, source) {
     }
 
     return shader;
+}
+
+/**
+ * @description 加载纹理
+ * @param {WebGL2RenderingContext} gl 
+ * @param {string} url 
+ */
+function loadTexture(gl, url) {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const width = 1;
+    const height = 1;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    const pixel = new Uint8Array([0, 0, 255, 255]);
+
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        level,
+        internalFormat,
+        width,
+        height,
+        border,
+        srcFormat,
+        srcType,
+        pixel
+    );
+
+    const image = new Image();
+    image.crossOrigin = '';
+    image.onload = () => {
+        console.log('load');
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(
+            gl.TEXTURE_2D,
+            level,
+            internalFormat,
+            srcFormat,
+            srcType,
+            image
+        );
+
+        if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+            gl.generateMipmap(gl.TEXTURE_2D);
+        } else {
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+    }
+    image.src = url;
+
+    return texture;
 }
 
 /**
@@ -70,16 +130,22 @@ function main() {
         program,
         attribLocations: {
             vertexPosition: gl.getAttribLocation(program, 'aVertexPosition'),
-            vertexColor: gl.getAttribLocation(program, 'aVertexColor')
+            normalPosition: gl.getAttribLocation(program, 'aNormalPosition'),
+            textureCoord: gl.getAttribLocation(program, 'aTextureCoord'),
         },
         uniformLocations: {
+            normalMatrix: gl.getUniformLocation(program, 'uNormalMatrix'),
             modelViewMatrix: gl.getUniformLocation(program, 'uModelViewMatrix'),
-            projectionMatrix: gl.getUniformLocation(program, 'uProjectionMatrix')
+            projectionMatrix: gl.getUniformLocation(program, 'uProjectionMatrix'),
+            uSampler: gl.getUniformLocation(program, 'uSampler'),
         }
     };
 
     const buffers = initPositionBuffer(gl);
-    let squareRotation = 0.0;
+    const texture = loadTexture(gl, 'assets/demo.jpg');
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+    let cubeRotation = 0.0;
     let deltaTime = 0;
     let then = 0;
 
@@ -88,9 +154,9 @@ function main() {
         deltaTime = now - then;
         then = now;
 
-        drawScene(gl, programInfo, buffers, squareRotation);
+        drawScene(gl, programInfo, buffers, texture, cubeRotation);
 
-        squareRotation += deltaTime;
+        cubeRotation += deltaTime;
 
         requestAnimationFrame(render);
     }
