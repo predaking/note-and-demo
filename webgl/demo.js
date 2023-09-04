@@ -4,6 +4,8 @@ import util from './math.js';
 
 const { isPowerOf2 } = util;
 
+let copyVideo = false;
+
 /**
  * @description 创建&加载&编译 shader
  * @param { WebGLRenderingContext } gl 
@@ -56,31 +58,51 @@ function loadTexture(gl, url) {
         pixel
     );
 
-    const image = new Image();
-    image.crossOrigin = '';
-    image.onload = () => {
-        console.log('load');
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(
-            gl.TEXTURE_2D,
-            level,
-            internalFormat,
-            srcFormat,
-            srcType,
-            image
-        );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-        if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
-            gl.generateMipmap(gl.TEXTURE_2D);
-        } else {
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        }
-    }
-    image.src = url;
+    // const image = new Image();
+    // image.crossOrigin = '';
+    // image.onload = () => {
+    //     console.log('load');
+    //     gl.bindTexture(gl.TEXTURE_2D, texture);
+    //     gl.texImage2D(
+    //         gl.TEXTURE_2D,
+    //         level,
+    //         internalFormat,
+    //         srcFormat,
+    //         srcType,
+    //         image
+    //     );
+
+    //     if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+    //         gl.generateMipmap(gl.TEXTURE_2D);
+    //     } else {
+    //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    //     }
+    // }
+    // image.src = url;
 
     return texture;
+}
+
+function updateTexture(gl, texture, video) {
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        level,
+        internalFormat,
+        srcFormat,
+        srcType,
+        video,
+    );
 }
 
 /**
@@ -106,6 +128,38 @@ function initProgram(gl, vSource, fSource) {
     }
 
     return shaderProgram;
+}
+
+function setupVideo(url) {
+    const video = document.createElement('video');
+
+    let playing = false;
+    let timeupdate = false;
+
+    video.playsInline = true; // 是都允许小窗内播放
+    video.muted = true; // 是否应静音
+    video.loop = true;
+
+    video.addEventListener('playing', () => {
+        playing = true;
+        checkReady();
+    }, true);
+
+    video.addEventListener('timeupdate', () => {
+        timeupdate = true;
+        checkReady();
+    }, true);
+
+    function checkReady() {
+        if (playing && timeupdate) {
+            copyVideo = true;
+        }
+    }
+
+    video.src = url;
+    video.play();
+
+    return video;
 }
 
 function main() {
@@ -142,7 +196,9 @@ function main() {
     };
 
     const buffers = initPositionBuffer(gl);
-    const texture = loadTexture(gl, 'assets/demo.jpg');
+    // const texture = loadTexture(gl, 'assets/demo.jpg');
+    const texture = loadTexture(gl);
+    const video = setupVideo("assets/video/demo.mp4");
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
     let cubeRotation = 0.0;
@@ -153,6 +209,10 @@ function main() {
         now *= 0.001;
         deltaTime = now - then;
         then = now;
+
+        if (copyVideo) {
+            updateTexture(gl, texture, video);
+        }
 
         drawScene(gl, programInfo, buffers, texture, cubeRotation);
 
