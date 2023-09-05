@@ -10,11 +10,7 @@
         <meta name="theme-color" content="blue">
         <meta name="color-scheme" content="light">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
-        <script src="./webgl/demo.js" defer type="module"></script>
-        <script src="./webgl/webglUtils.js"></script>
-        <script src="./webgl/m3.js"></script>
-        <script src="./webgl/webglLessonsUI.js"></script>
-        <link href="./src/index.css" rel="stylesheet" />
+        <script src="./webgl/externals/m3.js"></script>
     </head>
 
     <style>
@@ -23,17 +19,10 @@
 
     <body>
         <div id="gl">
-            <canvas id="gl_canvas" width="1200" height="640"></canvas>
-            <div id="uiContainer">
-                <div id="ui">
-                    <div id="x"></div>
-                    <div id="y"></div>
-                    <div id="angle"></div>
-                    <div id="scaleX"></div>
-                    <div id="scaleY"></div>
-                </div>
-            </div>
+            <canvas id="gl_canvas-video-texture" width="1200" height="640"></canvas>
+            <canvas id="gl_canvas-dot" width="1200" height="640"></canvas>
         </div>
+
         <div id="app">
         </div>
 

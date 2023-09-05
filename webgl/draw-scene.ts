@@ -5,7 +5,7 @@
  * @param {*} buffers 
  * @param {*} cubeRotation
  */
-function drawScene(gl, programInfo, buffers, texture, cubeRotation) {
+function drawScene(gl: WebGL2RenderingContext, programInfo, buffers, texture, cubeRotation) {
     gl.clearColor(0, 0, 0, 0.9);
     gl.clearDepth(1);
     gl.enable(gl.DEPTH_TEST);

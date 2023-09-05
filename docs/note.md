@@ -231,6 +231,13 @@ console.log('script end')
 declare var __DEV__: boolean;
 ```
 
+### 类型强制转换
+
+1. 因为某些内置对象自带一些属性和方法，因此为了能正确使用他们需要做相应的类型强制转换
+```js
+const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-dot');
+```
+
 ## 数据库
 
 + 事务（transaction）的四大原则（ACID）：

@@ -4,16 +4,15 @@ import AddTodo from './components/containers/AddTodo';
 import VisibleTodoList from './components/containers/VisibleTodoList';
 import Footer from './components/Footer';
 import service from './util/service';
+import webgl from '../webgl';
 
 import './index.css';
 
 const App = () => {
+    useEffect(() => {
+        webgl.main();
+    }, []);
     return null;
 }
 
 export default App;
-
-/**
- * client.js
- * hook.js 安装hook到全局window，它是一个事件触发器
- */
