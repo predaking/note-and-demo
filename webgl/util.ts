@@ -109,7 +109,7 @@ function updateTexture(gl, texture, video) {
  * @param {*} vSource 
  * @param {*} fSource 
  */
-function initProgram(gl, vSource, fSource) {
+function initProgram(gl: WebGL2RenderingContext, vSource, fSource) {
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vSource);
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fSource);
 
