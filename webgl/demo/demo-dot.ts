@@ -7,13 +7,12 @@ function main() {
         return;
     }
 
-    gl.clearColor(0, 0, 0, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
     const VSHADER_SOURCE = `
+        attribute vec4 a_Position;
+        attribute float g_PointSize;
         void main() {
-            gl_Position = vec4(0, 0, 0, 1);
-            gl_PointSize = 5.0;
+            gl_Position = a_Position;
+            gl_PointSize = g_PointSize;
         }
     `;
 
@@ -26,9 +25,38 @@ function main() {
     const vertexShader = initShaders(gl, VSHADER_SOURCE, gl.VERTEX_SHADER);
     const fragmentShader = initShaders(gl, FSHADER_SOURCE, gl.FRAGMENT_SHADER);
 
-    initProgram(gl, vertexShader!, fragmentShader!);
-    gl.drawArrays(gl.POINTS, 0, 1);
-    console.log(vertexShader, fragmentShader);
+    const program = <WebGLProgram>initProgram(gl, vertexShader!, fragmentShader!);
+
+    const aPosition = gl.getAttribLocation(program, 'a_Position');
+    const gPointSize = gl.getAttribLocation(program, 'g_PointSize');
+
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.vertexAttrib3f(aPosition, 0, 0, 0);
+    gl.vertexAttrib1f(gPointSize, 10.0);
+
+    const points:Array<number> = [];
+    
+    const handleClick = (e: MouseEvent, canvas: HTMLCanvasElement, gl: WebGLRenderingContext, aPosition: number) => {
+        const { left, top } = (<HTMLCanvasElement>e.target).getBoundingClientRect();
+        const x = ((e.clientX - left) - (canvas.width / 2)) / (canvas.width / 2);
+        const y = ((canvas.height / 2) - (e.clientY - top)) / (canvas.height / 2);
+        points.push(x, y);
+
+        console.log('e: ', x, y);
+
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        for (let i = 0; i < points.length; i += 2) {
+            gl.vertexAttrib3f(aPosition, points[i], points[i + 1], 0);
+            gl.drawArrays(gl.POINTS, 0, 1);
+        }
+    };
+
+    canvas.onmousedown = function(e: MouseEvent) { 
+        handleClick(e, canvas, gl, aPosition); 
+    };
 }
 
 /**
