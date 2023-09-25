@@ -24,6 +24,8 @@ webgl 每次绘制需要两个着色器：顶点着色器 与 片段着色器，
 2. `Uniforms`全局变量：在一次绘制中对所有顶点保持一致的值
 3. `Varyings`可变量：用于从顶点着色器传值到片段着色器
 
-## varying、attribute 与 uniform 的区别
+## GLSL
 
-+ varying
+### 精度
+
++ 精度限定词：约定变量的范围（极值）与精度。例: `precision mediump float` 表示采取中等精度。

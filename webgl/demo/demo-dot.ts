@@ -17,8 +17,10 @@ function main() {
     `;
 
     const FSHADER_SOURCE = `
+        precision mediump float;
+        uniform vec4 u_FragColor;
         void main() {
-            gl_FragColor = vec4(0, 1, 0, 1);
+            gl_FragColor = u_FragColor;
         }
     `;
 
@@ -30,33 +32,45 @@ function main() {
     const aPosition = gl.getAttribLocation(program, 'a_Position');
     const gPointSize = gl.getAttribLocation(program, 'g_PointSize');
 
+    const uFragColor = <WebGLUniformLocation>gl.getUniformLocation(program, 'u_FragColor');
+
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.vertexAttrib3f(aPosition, 0, 0, 0);
-    gl.vertexAttrib1f(gPointSize, 10.0);
+    gl.vertexAttrib1f(gPointSize, 3.0);
+    gl.uniform3f(uFragColor, 1, 0, 0);
 
     const points:Array<number> = [];
-    
-    const handleClick = (e: MouseEvent, canvas: HTMLCanvasElement, gl: WebGLRenderingContext, aPosition: number) => {
-        const { left, top } = (<HTMLCanvasElement>e.target).getBoundingClientRect();
-        const x = ((e.clientX - left) - (canvas.width / 2)) / (canvas.width / 2);
-        const y = ((canvas.height / 2) - (e.clientY - top)) / (canvas.height / 2);
-        points.push(x, y);
+    let isMoving = false;
 
-        console.log('e: ', x, y);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    
+    const handleMove = (e: TouchEvent, canvas: HTMLCanvasElement, gl: WebGLRenderingContext, aPosition: number, uFragColor: WebGLUniformLocation) => {
+        if (!isMoving) {
+            return;
+        }
+
+        const { left, top } = (<HTMLCanvasElement>e.target).getBoundingClientRect();
+        const x = ((e.touches[0].clientX - left) - (canvas.width / 2)) / (canvas.width / 2);
+        const y = ((canvas.height / 2) - (e.touches[0].clientY - top)) / (canvas.height / 2);
+        points.push(x, y);
 
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         for (let i = 0; i < points.length; i += 2) {
             gl.vertexAttrib3f(aPosition, points[i], points[i + 1], 0);
+            gl.uniform4f(uFragColor, Math.random(), Math.random(), Math.random(), 1.0);
             gl.drawArrays(gl.POINTS, 0, 1);
         }
     };
 
-    canvas.onmousedown = function(e: MouseEvent) { 
-        handleClick(e, canvas, gl, aPosition); 
+    canvas.ontouchmove = function(e: TouchEvent) {
+        handleMove(e, canvas, gl, aPosition, uFragColor); 
     };
+
+    canvas.ontouchstart = function() { isMoving = true; }
+    canvas.ontouchend = function() { isMoving = false; }
 }
 
 /**

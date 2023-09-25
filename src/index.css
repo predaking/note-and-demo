@@ -16,9 +16,12 @@ body {
 	height: inherit;
 }
 
-#gl,
-canvas {
+#gl {
 	width: inherit;
+}
+
+canvas {
+	width: 1200px;
 }
 
 #test-app {
