@@ -6,7 +6,7 @@ import {
     loadTexture,
     updateTexture,
     setupVideo
-} from '../util';
+} from '../util-old';
 
 function main() {
     /** @type { HTMLCanvasElement } */
