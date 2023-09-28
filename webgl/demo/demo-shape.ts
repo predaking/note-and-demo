@@ -51,7 +51,9 @@ function main() {
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aPosition);
 
-    let angle = 30;
+    let timer = 0;
+    let angle = 0;
+    let translateX = 1.0;
 
     const animate = () => {
         if (angle === 360) {
@@ -60,17 +62,21 @@ function main() {
 
         const matrix = new Matrix();
 
-        gl.uniformMatrix4fv(uTransition, false, matrix.setRotate(angle));
+        // gl.uniformMatrix4fv(uTransition, false, matrix.translate(translateX, 0, 0).elements);
+        gl.uniformMatrix4fv(uTransition, false, matrix.rotate(angle, 0, 0, 1).scale(translateX, translateX, translateX).elements);
 
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
 
         angle += 0.5;
+        translateX = Math.random();
 
-        requestAnimationFrame(animate);
+        // timer = requestAnimationFrame(animate);
     }
 
-    requestAnimationFrame(animate);
+    setInterval(animate, 1000);
+
+    // timer = requestAnimationFrame(animate);
 }
 
 export default main;
