@@ -6,6 +6,16 @@ export default class Matrix {
         0, 0, 0, 1
     ]);
 
+    reset() {
+        this.elements = new Float32Array([
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ]);
+        return this;
+    }
+
     _multiply(mt: Float32Array) {
         const ins = this.elements;
         let tmp0, tmp1, tmp2, tmp3;
