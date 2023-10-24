@@ -5,7 +5,7 @@ const VERTEX_SOURCE = `
     attribute vec4 a_Position;
     attribute vec4 a_Color;
     varying vec4 v_Color;
-    uniform mat4 u_ViewMatrix;
+
     void main() {
         gl_Position = a_Position;
         v_Color = a_Color;
@@ -50,6 +50,10 @@ function main() {
 
     const aPosition = gl.getAttribLocation(program, 'a_Position');
     const aColor = gl.getAttribLocation(program, 'a_Color');
+    // const uViewMatrix = gl.getUniformLocation(program, 'u_ViewMatrix');
+
+    // const viewMatrix = new Matrix();
+    // gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.lookAt(0.20, 0.25, 0.25, 0, 0, 0, 0, 1, 0).elements)
 
     const data = new Float32Array([
         0, 0.5, -0.4, 0.4, 1.0, 0.4, 

@@ -22,7 +22,7 @@ export default class Matrix {
 
         for (let i = 0; i < 4; ++i) {
             tmp0 = ins[i],
-            tmp1 = ins[i + 4];
+                tmp1 = ins[i + 4];
             tmp2 = ins[i + 8];
             tmp3 = ins[i + 12];
 
@@ -94,6 +94,12 @@ export default class Matrix {
         return this;
     }
 
+    /**
+     * @description 缩放
+     * @param rx 
+     * @param ry 
+     * @param rz 
+     */
     scale(rx: number, ry: number, rz: number) {
         const mt = new Float32Array([
             rx, 0, 0, 0,
@@ -104,5 +110,54 @@ export default class Matrix {
 
         this._multiply(mt);
         return this;
+    }
+
+    lookAt(eyeX: number, eyeY: number, eyeZ: number, centerX: number, centerY: number, centerZ: number, upX: number, upY: number, upZ: number) {
+        var e, fx, fy, fz, rlf, sx, sy, sz, rls, ux, uy, uz;
+
+        fx = centerX - eyeX;
+        fy = centerY - eyeY;
+        fz = centerZ - eyeZ;
+
+        rlf = 1 / Math.sqrt(fx * fx + fy * fy + fz * fz);
+        fx *= rlf;
+        fy *= rlf;
+        fz *= rlf;
+
+        sx = fy * upZ - fz * upY;
+        sy = fz * upX - fx * upZ;
+        sz = fx * upY - fy * upX;
+
+        rls = 1 / Math.sqrt(sx * sx + sy * sy + sz * sz);
+        sx *= rls;
+        sy *= rls;
+        sz *= rls;
+
+        ux = sy * fz - sz * fy;
+        uy = sz * fx - sx * fz;
+        uz = sx * fy - sy * fx;
+
+        e = new Float32Array();
+        e[0] = sx;
+        e[1] = ux;
+        e[2] = -fx;
+        e[3] = 0;
+
+        e[4] = sy;
+        e[5] = uy;
+        e[6] = -fy;
+        e[7] = 0;
+
+        e[8] = sz;
+        e[9] = uz;
+        e[10] = -fz;
+        e[11] = 0;
+
+        e[12] = 0;
+        e[13] = 0;
+        e[14] = 0;
+        e[15] = 1;
+
+        return this.translate(-eyeX, -eyeY, -eyeZ);
     }
 }
