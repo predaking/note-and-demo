@@ -72,10 +72,10 @@ function main() {
 
     initBuffer(gl, data);
         
-    gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, FSIZE * COUNT, 0);
+    gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, FSIZE * 6, 0);
     gl.enableVertexAttribArray(aPosition);
 
-    gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, FSIZE * COUNT, FSIZE * 3);
+    gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
     gl.enableVertexAttribArray(aColor);
 
     gl.drawArrays(gl.TRIANGLES, 0, COUNT);
