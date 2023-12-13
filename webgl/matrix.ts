@@ -137,7 +137,7 @@ export default class Matrix {
         uy = sz * fx - sx * fz;
         uz = sx * fy - sy * fx;
 
-        e = new Float32Array();
+        e = new Float32Array(16);
         e[0] = sx;
         e[1] = ux;
         e[2] = -fx;
@@ -158,6 +158,6 @@ export default class Matrix {
         e[14] = 0;
         e[15] = 1;
 
-        return this.translate(-eyeX, -eyeY, -eyeZ);
+        return this._multiply(e).translate(-eyeX, -eyeY, -eyeZ);
     }
 }

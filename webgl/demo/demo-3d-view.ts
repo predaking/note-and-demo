@@ -4,11 +4,11 @@ import Matrix from "../matrix";
 const VERTEX_SOURCE = `
     attribute vec4 a_Position;
     attribute vec4 a_Color;
-    uniform mat4 u_ViewMatrix;
+    uniform mat4 u_ViewModelMatrix;
     varying vec4 v_Color;
 
     void main() {
-        gl_Position = u_ViewMatrix * a_Position;
+        gl_Position = u_ViewModelMatrix * a_Position;
         v_Color = a_Color;
     }
 `;
@@ -51,10 +51,7 @@ function main() {
 
     const aPosition = gl.getAttribLocation(program, 'a_Position');
     const aColor = gl.getAttribLocation(program, 'a_Color');
-    const uViewMatrix = gl.getUniformLocation(program, 'u_ViewMatrix');
-
-    const viewMatrix = new Matrix();
-    gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.lookAt(0.20, 0.25, 0.25, 0, 0, 0, 0, 1, 0).elements)
+    const uViewModelMatrix = gl.getUniformLocation(program, 'u_ViewModelMatrix');
 
     const data = new Float32Array([
         0, 0.5, -0.4, 0.4, 1.0, 0.4, 
@@ -79,7 +76,30 @@ function main() {
     gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
     gl.enableVertexAttribArray(aColor);
 
-    gl.drawArrays(gl.TRIANGLES, 0, COUNT);
+    const modelMatrix = new Matrix();
+    
+    let eyeX = 0.20, eyeY = 0.25, eyeZ = 0.25;
+    
+    const draw = () => {
+        modelMatrix.reset();
+        gl.uniformMatrix4fv(uViewModelMatrix, false, modelMatrix.rotate(-10.0, 0, 0, 1).lookAt(eyeX, eyeY, eyeZ, 0, 0, 0, 0, 1, 0).elements);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, COUNT);
+    }
+
+    draw();
+
+    document.addEventListener('keydown', (e) => {
+        if (e.keyCode === 37) {
+            eyeX += 0.01;
+            draw();
+        }
+
+        if (e.keyCode === 39) {
+            eyeX -= 0.01;
+            draw();
+        }
+    });
 }
 
 export default main;
