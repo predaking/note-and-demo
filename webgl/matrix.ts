@@ -112,6 +112,18 @@ export default class Matrix {
         return this;
     }
 
+    /**
+     * @description 视图变换
+     * @param eyeX 
+     * @param eyeY 
+     * @param eyeZ 
+     * @param centerX 
+     * @param centerY 
+     * @param centerZ 
+     * @param upX 
+     * @param upY 
+     * @param upZ 
+     */
     lookAt(eyeX: number, eyeY: number, eyeZ: number, centerX: number, centerY: number, centerZ: number, upX: number, upY: number, upZ: number) {
         var e, fx, fy, fz, rlf, sx, sy, sz, rls, ux, uy, uz;
 
@@ -159,5 +171,51 @@ export default class Matrix {
         e[15] = 1;
 
         return this._multiply(e).translate(-eyeX, -eyeY, -eyeZ);
+    }
+
+    /**
+     * @description 正交（正射）投影
+     * @param right 
+     * @param left 
+     * @param bottom 
+     * @param top 
+     * @param near 
+     * @param far 
+     */
+    ortho(right: number, left: number, bottom: number, top: number, near: number, far: number) {
+        var e, rw, rh, rd;
+
+        if (left === right || bottom === top || near === far) {
+            throw 'null frustum';
+        }
+
+        rw = 1 / (right - left);
+        rh = 1 / (top - bottom);
+        rd = 1 / (far - near);
+
+        e = new Float32Array(16);
+
+        e[0] = 2 * rw;
+        e[1] = 0;
+        e[2] = 0;
+        e[3] = 0;
+
+        e[4] = 0;
+        e[5] = 2 * rh;
+        e[6] = 0;
+        e[7] = 0;
+
+        e[8] = 0;
+        e[9] = 0;
+        e[10] = -2 * rd;
+        e[11] = 0;
+
+        e[12] = -(right + left) * rw;
+        e[13] = -(top + bottom) * rh;
+        e[14] = -(far + near) * rd;
+        e[15] = 1;
+
+        this._multiply(e);
+        return this;
     }
 }

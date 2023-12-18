@@ -4,11 +4,11 @@ import Matrix from "../matrix";
 const VERTEX_SOURCE = `
     attribute vec4 a_Position;
     attribute vec4 a_Color;
-    uniform mat4 u_ViewModelMatrix;
+    uniform mat4 u_ProjMatrix;
     varying vec4 v_Color;
 
     void main() {
-        gl_Position = u_ViewModelMatrix * a_Position;
+        gl_Position = u_ProjMatrix * a_Position;
         v_Color = a_Color;
     }
 `;
@@ -51,7 +51,7 @@ function main() {
 
     const aPosition = gl.getAttribLocation(program, 'a_Position');
     const aColor = gl.getAttribLocation(program, 'a_Color');
-    const uViewModelMatrix = gl.getUniformLocation(program, 'u_ViewModelMatrix');
+    const uProjMatrix = gl.getUniformLocation(program, 'u_ProjMatrix');
 
     const data = new Float32Array([
         0, 0.5, -0.4, 0.4, 1.0, 0.4, 
@@ -76,13 +76,13 @@ function main() {
     gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
     gl.enableVertexAttribArray(aColor);
 
-    const modelMatrix = new Matrix();
+    const projMatrix = new Matrix();
     
-    let eyeX = 0.20, eyeY = 0.25, eyeZ = 0.25;
+    let g_near = 0.0, g_far = 0.5;
     
     const draw = () => {
-        modelMatrix.reset();
-        gl.uniformMatrix4fv(uViewModelMatrix, false, modelMatrix.rotate(-10.0, 0, 0, 1).lookAt(eyeX, eyeY, eyeZ, 0, 0, 0, 0, 1, 0).elements);
+        // projMatrix.reset();
+        gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.ortho(-1, 1, -1, 1, g_near, g_far).elements);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, COUNT);
     }
@@ -91,12 +91,22 @@ function main() {
 
     document.addEventListener('keydown', (e) => {
         if (e.keyCode === 37) {
-            eyeX += 0.01;
+            g_near -= 0.01;
             draw();
         }
 
         if (e.keyCode === 39) {
-            eyeX -= 0.01;
+            g_near += 0.01;
+            draw();
+        }
+
+        if (e.keyCode === 38) {
+            g_far += 0.01;
+            draw();
+        }
+
+        if (e.keyCode === 40) {
+            g_far -= 0.01;
             draw();
         }
     });
