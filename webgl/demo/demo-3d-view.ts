@@ -1,14 +1,19 @@
 import { initProgram, initShaders } from "../util";
 import Matrix from "../matrix";
+import math from "../math";
+
+const { convertTo2DArray } = math;
 
 const VERTEX_SOURCE = `
     attribute vec4 a_Position;
     attribute vec4 a_Color;
+    uniform mat4 u_ModelMatrix;
     uniform mat4 u_ProjMatrix;
+    uniform mat4 u_ViewMatrix;
     varying vec4 v_Color;
 
     void main() {
-        gl_Position = u_ProjMatrix * a_Position;
+        gl_Position = u_ModelMatrix * a_Position;
         v_Color = a_Color;
     }
 `;
@@ -51,18 +56,23 @@ function main() {
 
     const aPosition = gl.getAttribLocation(program, 'a_Position');
     const aColor = gl.getAttribLocation(program, 'a_Color');
+
+    const uModelMatrix = gl.getUniformLocation(program, 'u_ModelMatrix');
+    const uViewMatrix = gl.getUniformLocation(program, 'u_ViewMatrix');
     const uProjMatrix = gl.getUniformLocation(program, 'u_ProjMatrix');
 
     const data = new Float32Array([
-        0, 0.5, -0.4, 0.4, 1.0, 0.4, 
-        -0.5, -0.5, -0.4, 0.4, 1.0, 0.4,
-        0.5, -0.5, -0.4, 1.0, 0.4, 0.4,
-        0.5, 0.4, -0.2, 1.0, 0.4, 0.4,
-        -0.5, 0.4, -0.2, 1.0, 1.0, 0.4,
-        0.0, -0.6, -0.2, 1.0, 1.0, 0.4,
-        0.0, 0.5, 0.0, 0.4, 0.4, 1.0,
-        -0.5, -0.5, 0.0, 0.4, 0.4, 1.0,
-        0.5, -0.5, 0.0, 1.0, 0.4, 0.4,
+        0.0, 1.0, -4.0, 0.4, 1.0, 0.4, 
+        -0.5, -1.0, -4.0, 0.4, 1.0, 0.4,
+        0.5, -1.0, -4.0, 1.0, 0.4, 0.4,
+
+        0.0, 1.0, -2.0, 1.0, 1.0, 0.4,
+        -0.5, -1.0, -2.0, 1.0, 1.0, 0.4,
+        0.5, -1.0, -2.0, 1.0, 0.4, 0.4,
+
+        0.0, 1.0, 0.0, 0.4, 0.4, 1.0,
+        -0.5, -1.0, 0.0, 0.4, 0.4, 1.0,
+        0.5, -1.0, 0.0, 1.0, 0.4, 0.4,
     ]);
 
     const FSIZE = data.BYTES_PER_ELEMENT;
@@ -76,40 +86,50 @@ function main() {
     gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
     gl.enableVertexAttribArray(aColor);
 
+    const modelMatrix = new Matrix();
+    const viewMatrix = new Matrix();
     const projMatrix = new Matrix();
     
-    let g_near = 0.0, g_far = 0.5;
+    let g_near = 0.00, g_far = 0.50;
     
     const draw = () => {
-        // projMatrix.reset();
-        gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.ortho(-1, 1, -1, 1, g_near, g_far).elements);
+        const mtx: Float32Array = modelMatrix.perspective(30, canvas.width / canvas.height, 1, 100).lookAt(0, 0, 5, 0, 0, -100, 0, 1, 0).translate(0.75, 0, 0).elements;
+
+        gl.uniformMatrix4fv(uModelMatrix, false, mtx);
+        gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.lookAt(0, 0, 5, 0, 0, -100, 0, 1, 0).elements);
+        gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.perspective(30, canvas.width / canvas.height, 1, 100).elements);
+
+        console.table(convertTo2DArray(Array.from(mtx), 4));
+
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, COUNT);
+        // gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.perspective(30, canvas.width / canvas.height, 1, 100).lookAt(0, 0, 5, 0, 0, -100, 0, 1, 0).translate(-0.75, 0, 0).elements);
+        // gl.drawArrays(gl.TRIANGLES, 0, COUNT);
     }
 
     draw();
 
-    document.addEventListener('keydown', (e) => {
-        if (e.keyCode === 37) {
-            g_near -= 0.01;
-            draw();
-        }
+    // document.addEventListener('keydown', (e) => {
+    //     if (e.keyCode === 37) {
+    //         g_near -= 0.01;
+    //         draw();
+    //     }
 
-        if (e.keyCode === 39) {
-            g_near += 0.01;
-            draw();
-        }
+    //     if (e.keyCode === 39) {
+    //         g_near += 0.01;
+    //         draw();
+    //     }
 
-        if (e.keyCode === 38) {
-            g_far += 0.01;
-            draw();
-        }
+    //     if (e.keyCode === 38) {
+    //         g_far += 0.01;
+    //         draw();
+    //     }
 
-        if (e.keyCode === 40) {
-            g_far -= 0.01;
-            draw();
-        }
-    });
+    //     if (e.keyCode === 40) {
+    //         g_far -= 0.01;
+    //         draw();
+    //     }
+    // });
 }
 
 export default main;
