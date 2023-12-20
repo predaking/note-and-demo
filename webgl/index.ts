@@ -2,7 +2,8 @@
 // import drawDot from './demo/demo-dot';
 // import drawShape from './demo/demo-shape';
 // import drawTexture from './demo/demo-texture';
-import draw3dView from './demo/demo-3d-view';
+// import draw3dView from './demo/demo-3d-view';
+import draw3dCube from './demo/demo-cube';
 
 
 const webgl = {
@@ -11,7 +12,8 @@ const webgl = {
         // drawDot();
         // drawShape();
         // drawTexture();
-        draw3dView();
+        // draw3dView();
+        draw3dCube();
     }
 }
 

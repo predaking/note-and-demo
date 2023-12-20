@@ -16,7 +16,7 @@ export default class Matrix {
         return this;
     }
 
-    _multiply(mt: Float32Array) {
+    multiply(mt: Float32Array) {
         const ins = this.elements;
         let tmp0, tmp1, tmp2, tmp3;
 
@@ -36,20 +36,33 @@ export default class Matrix {
     }
 
     /**
-     * @description 平移
+     * @description 右乘平移矩阵
      * @param {number} tx 
      * @param {number} ty 
      * @param {number} tz 
      */
     translate(tx: number, ty: number, tz: number) {
-        const mt = new Float32Array([
-            1, 0, 0, tx,
-            0, 1, 0, ty,
-            0, 0, 1, tz,
-            0, 0, 0, 1
-        ]);
+        const e = this.elements;
+        e[12] += e[0] * tx + e[4] * ty + e[8]  * tz;
+        e[13] += e[1] * tx + e[5] * ty + e[9]  * tz;
+        e[14] += e[2] * tx + e[6] * ty + e[10] * tz;
+        e[15] += e[3] * tx + e[7] * ty + e[11] * tz;
+        return this;
+    }
 
-        this._multiply(mt);
+    /**
+     * @description 平移矩阵
+     * @param {number} tx 
+     * @param {number} ty 
+     * @param {number} tz 
+     */
+    setTranslate(tx: number, ty: number, tz: number) {
+        this.elements = new Float32Array([
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            tx, ty, tz, 1
+        ]);
         return this;
     }
 
@@ -90,7 +103,7 @@ export default class Matrix {
             0, 0, 0, 1
         ]);
 
-        this._multiply(mt);
+        this.elements = mt;
         return this;
     }
 
@@ -124,7 +137,7 @@ export default class Matrix {
      * @param upY 
      * @param upZ 
      */
-    lookAt(eyeX: number, eyeY: number, eyeZ: number, centerX: number, centerY: number, centerZ: number, upX: number, upY: number, upZ: number) {
+    setLookAt(eyeX: number, eyeY: number, eyeZ: number, centerX: number, centerY: number, centerZ: number, upX: number, upY: number, upZ: number) {
         var e, fx, fy, fz, rlf, sx, sy, sz, rls, ux, uy, uz;
 
         fx = centerX - eyeX;
@@ -149,28 +162,14 @@ export default class Matrix {
         uy = sz * fx - sx * fz;
         uz = sx * fy - sy * fx;
 
-        e = new Float32Array(16);
-        e[0] = sx;
-        e[1] = ux;
-        e[2] = -fx;
-        e[3] = 0;
+        this.elements = new Float32Array([
+            sx, ux, -fx, 0,
+            sy, uy, -fy, 0,
+            sz, uz, -fz, 0,
+            0, 0, 0, 1
+        ]);
 
-        e[4] = sy;
-        e[5] = uy;
-        e[6] = -fy;
-        e[7] = 0;
-
-        e[8] = sz;
-        e[9] = uz;
-        e[10] = -fz;
-        e[11] = 0;
-
-        e[12] = 0;
-        e[13] = 0;
-        e[14] = 0;
-        e[15] = 1;
-
-        return this._multiply(e).translate(-eyeX, -eyeY, -eyeZ);
+        return this.translate(-eyeX, -eyeY, -eyeZ);
     }
 
     /**
@@ -226,7 +225,7 @@ export default class Matrix {
      * @param near 近裁剪面
      * @param far 远裁剪面
      */
-    perspective(fovy: number, aspect: number, near: number, far: number) {
+    setPerspective(fovy: number, aspect: number, near: number, far: number) {
         var e, rd, s, ct;
 
         if (near === far || aspect === 0) {
@@ -248,29 +247,13 @@ export default class Matrix {
         rd = 1 / (far - near);
         ct = Math.cos(fovy) / s;
 
-        e = new Float32Array(16);
+        this.elements = new Float32Array([
+            ct / aspect, 0, 0, 0,
+            0, ct, 0, 0,
+            0, 0, -(far + near) * rd, -1,
+            0, 0, -2 * near * far * rd, 0
+        ]);
 
-        e[0] = ct / aspect;
-        e[1] = 0;
-        e[2] = 0;
-        e[3] = 0;
-
-        e[4] = 0;
-        e[5] = ct;
-        e[6] = 0;
-        e[7] = 0;
-
-        e[8] = 0;
-        e[9] = 0;
-        e[10] = -(far + near) * rd;
-        e[11] = -1;
-
-        e[12] = 0;
-        e[13] = 0;
-        e[14] = -2 * near * far * rd;
-        e[15] = 0;
-
-        this._multiply(e);
         return this;
     }
 }

@@ -13,7 +13,7 @@ const VERTEX_SOURCE = `
     varying vec4 v_Color;
 
     void main() {
-        gl_Position = u_ModelMatrix * a_Position;
+        gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
         v_Color = a_Color;
     }
 `;
@@ -91,20 +91,24 @@ function main() {
     const projMatrix = new Matrix();
     
     let g_near = 0.00, g_far = 0.50;
+
+    const _modelMatrix = modelMatrix.setTranslate(0.75, 0, 0).elements;
+    const _viewMatrix = viewMatrix.setLookAt(0, 0, 5, 0, 0, -100, 0, 1, 0).elements;
+    const _projMatrix = projMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100).elements;
     
     const draw = () => {
-        const mtx: Float32Array = modelMatrix.perspective(30, canvas.width / canvas.height, 1, 100).lookAt(0, 0, 5, 0, 0, -100, 0, 1, 0).translate(0.75, 0, 0).elements;
+        gl.uniformMatrix4fv(uModelMatrix, false, _modelMatrix);
+        gl.uniformMatrix4fv(uViewMatrix, false, _viewMatrix);
+        gl.uniformMatrix4fv(uProjMatrix, false, _projMatrix);
 
-        gl.uniformMatrix4fv(uModelMatrix, false, mtx);
-        gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.lookAt(0, 0, 5, 0, 0, -100, 0, 1, 0).elements);
-        gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.perspective(30, canvas.width / canvas.height, 1, 100).elements);
-
-        console.table(convertTo2DArray(Array.from(mtx), 4));
+        console.table(convertTo2DArray(_modelMatrix));
+        console.table(convertTo2DArray(_viewMatrix));
+        console.table(convertTo2DArray(_projMatrix));
 
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, COUNT);
-        // gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.perspective(30, canvas.width / canvas.height, 1, 100).lookAt(0, 0, 5, 0, 0, -100, 0, 1, 0).translate(-0.75, 0, 0).elements);
-        // gl.drawArrays(gl.TRIANGLES, 0, COUNT);
+        gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.setTranslate(-0.75, 0, 0).elements);
+        gl.drawArrays(gl.TRIANGLES, 0, COUNT);
     }
 
     draw();

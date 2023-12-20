@@ -11,8 +11,8 @@ const math = {
      * @param arr 
      * @param cols 
      */
-    convertTo2DArray(arr: Array<any>, cols: number) {
-        return arr.slice(0, cols).map(function (_, i) {
+    convertTo2DArray(arr: Float32Array, cols: number = 4) {
+        return Array.from(arr).slice(0, cols).map(function (_, i) {
             return arr.slice(i * cols, i * cols + cols);
         });
     }
