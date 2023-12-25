@@ -1,4 +1,4 @@
-export default class Matrix {
+export class Matrix {
     elements = new Float32Array([
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -6,7 +6,7 @@ export default class Matrix {
         0, 0, 0, 1
     ]);
 
-    reset() {
+    public reset() {
         this.elements = new Float32Array([
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -16,7 +16,7 @@ export default class Matrix {
         return this;
     }
 
-    multiply(mt: Float32Array) {
+    public multiply(mt: Float32Array) {
         const ins = this.elements;
         let tmp0, tmp1, tmp2, tmp3;
 
@@ -41,7 +41,7 @@ export default class Matrix {
      * @param {number} ty 
      * @param {number} tz 
      */
-    translate(tx: number, ty: number, tz: number) {
+    public translate(tx: number, ty: number, tz: number) {
         const e = this.elements;
         e[12] += e[0] * tx + e[4] * ty + e[8]  * tz;
         e[13] += e[1] * tx + e[5] * ty + e[9]  * tz;
@@ -56,7 +56,7 @@ export default class Matrix {
      * @param {number} ty 
      * @param {number} tz 
      */
-    setTranslate(tx: number, ty: number, tz: number) {
+    public setTranslate(tx: number, ty: number, tz: number) {
         this.elements = new Float32Array([
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -70,7 +70,7 @@ export default class Matrix {
      * @description 旋转
      * @param {number} angle 旋转角度
      */
-    rotate(angle: number, x: 0 | 1, y: 0 | 1, z: 0 | 1) {
+    public rotate(angle: number, x: 0 | 1, y: 0 | 1, z: 0 | 1) {
         if (x + y + z !== 1) {
             console.error('no target axis');
             return this;
@@ -113,7 +113,7 @@ export default class Matrix {
      * @param ry 
      * @param rz 
      */
-    scale(rx: number, ry: number, rz: number) {
+    public scale(rx: number, ry: number, rz: number) {
         const mt = new Float32Array([
             rx, 0, 0, 0,
             0, ry, 0, 0,
@@ -121,7 +121,7 @@ export default class Matrix {
             0, 0, 0, 1
         ]);
 
-        this._multiply(mt);
+        this.multiply(mt);
         return this;
     }
 
@@ -137,7 +137,7 @@ export default class Matrix {
      * @param upY 
      * @param upZ 
      */
-    setLookAt(eyeX: number, eyeY: number, eyeZ: number, centerX: number, centerY: number, centerZ: number, upX: number, upY: number, upZ: number) {
+    public setLookAt(eyeX: number, eyeY: number, eyeZ: number, centerX: number, centerY: number, centerZ: number, upX: number, upY: number, upZ: number) {
         var e, fx, fy, fz, rlf, sx, sy, sz, rls, ux, uy, uz;
 
         fx = centerX - eyeX;
@@ -181,7 +181,7 @@ export default class Matrix {
      * @param near 
      * @param far 
      */
-    ortho(right: number, left: number, bottom: number, top: number, near: number, far: number) {
+    public ortho(right: number, left: number, bottom: number, top: number, near: number, far: number) {
         var e, rw, rh, rd;
 
         if (left === right || bottom === top || near === far) {
@@ -214,7 +214,7 @@ export default class Matrix {
         e[14] = -(far + near) * rd;
         e[15] = 1;
 
-        this._multiply(e);
+        this.multiply(e);
         return this;
     }
 
@@ -225,7 +225,7 @@ export default class Matrix {
      * @param near 近裁剪面
      * @param far 远裁剪面
      */
-    setPerspective(fovy: number, aspect: number, near: number, far: number) {
+    public setPerspective(fovy: number, aspect: number, near: number, far: number) {
         var e, rd, s, ct;
 
         if (near === far || aspect === 0) {
@@ -253,6 +253,93 @@ export default class Matrix {
             0, 0, -(far + near) * rd, -1,
             0, 0, -2 * near * far * rd, 0
         ]);
+
+        return this;
+    }
+
+    public setInverseOf(m: Matrix) {
+        var i, s, d, inv, det;
+
+        s = m.elements;
+        d = this.elements;
+        inv = new Float32Array(16);
+    
+        inv[0] = s[5] * s[10] * s[15] - s[5] * s[11] * s[14] - s[9] * s[6] * s[15]
+            + s[9] * s[7] * s[14] + s[13] * s[6] * s[11] - s[13] * s[7] * s[10];
+        inv[4] = -s[4] * s[10] * s[15] + s[4] * s[11] * s[14] + s[8] * s[6] * s[15]
+            - s[8] * s[7] * s[14] - s[12] * s[6] * s[11] + s[12] * s[7] * s[10];
+        inv[8] = s[4] * s[9] * s[15] - s[4] * s[11] * s[13] - s[8] * s[5] * s[15]
+            + s[8] * s[7] * s[13] + s[12] * s[5] * s[11] - s[12] * s[7] * s[9];
+        inv[12] = -s[4] * s[9] * s[14] + s[4] * s[10] * s[13] + s[8] * s[5] * s[14]
+            - s[8] * s[6] * s[13] - s[12] * s[5] * s[10] + s[12] * s[6] * s[9];
+    
+        inv[1] = -s[1] * s[10] * s[15] + s[1] * s[11] * s[14] + s[9] * s[2] * s[15]
+            - s[9] * s[3] * s[14] - s[13] * s[2] * s[11] + s[13] * s[3] * s[10];
+        inv[5] = s[0] * s[10] * s[15] - s[0] * s[11] * s[14] - s[8] * s[2] * s[15]
+            + s[8] * s[3] * s[14] + s[12] * s[2] * s[11] - s[12] * s[3] * s[10];
+        inv[9] = -s[0] * s[9] * s[15] + s[0] * s[11] * s[13] + s[8] * s[1] * s[15]
+            - s[8] * s[3] * s[13] - s[12] * s[1] * s[11] + s[12] * s[3] * s[9];
+        inv[13] = s[0] * s[9] * s[14] - s[0] * s[10] * s[13] - s[8] * s[1] * s[14]
+            + s[8] * s[2] * s[13] + s[12] * s[1] * s[10] - s[12] * s[2] * s[9];
+    
+        inv[2] = s[1] * s[6] * s[15] - s[1] * s[7] * s[14] - s[5] * s[2] * s[15]
+            + s[5] * s[3] * s[14] + s[13] * s[2] * s[7] - s[13] * s[3] * s[6];
+        inv[6] = -s[0] * s[6] * s[15] + s[0] * s[7] * s[14] + s[4] * s[2] * s[15]
+            - s[4] * s[3] * s[14] - s[12] * s[2] * s[7] + s[12] * s[3] * s[6];
+        inv[10] = s[0] * s[5] * s[15] - s[0] * s[7] * s[13] - s[4] * s[1] * s[15]
+            + s[4] * s[3] * s[13] + s[12] * s[1] * s[7] - s[12] * s[3] * s[5];
+        inv[14] = -s[0] * s[5] * s[14] + s[0] * s[6] * s[13] + s[4] * s[1] * s[14]
+            - s[4] * s[2] * s[13] - s[12] * s[1] * s[6] + s[12] * s[2] * s[5];
+    
+        inv[3] = -s[1] * s[6] * s[11] + s[1] * s[7] * s[10] + s[5] * s[2] * s[11]
+            - s[5] * s[3] * s[10] - s[9] * s[2] * s[7] + s[9] * s[3] * s[6];
+        inv[7] = s[0] * s[6] * s[11] - s[0] * s[7] * s[10] - s[4] * s[2] * s[11]
+            + s[4] * s[3] * s[10] + s[8] * s[2] * s[7] - s[8] * s[3] * s[6];
+        inv[11] = -s[0] * s[5] * s[11] + s[0] * s[7] * s[9] + s[4] * s[1] * s[11]
+            - s[4] * s[3] * s[9] - s[8] * s[1] * s[7] + s[8] * s[3] * s[5];
+        inv[15] = s[0] * s[5] * s[10] - s[0] * s[6] * s[9] - s[4] * s[1] * s[10]
+            + s[4] * s[2] * s[9] + s[8] * s[1] * s[6] - s[8] * s[2] * s[5];
+    
+        det = s[0] * inv[0] + s[1] * inv[4] + s[2] * inv[8] + s[3] * inv[12];
+        if (det === 0) {
+            return this;
+        }
+    
+        det = 1 / det;
+        for (i = 0; i < 16; i++) {
+            d[i] = inv[i] * det;
+        }
+    
+        return this;
+    }
+
+    public _setInverseOf(m: Matrix) {
+        
+    }
+}
+
+export class Vector3 {
+    elements = new Float32Array(3);
+    
+    constructor(vector3: number[]) {
+        this.elements[0] = vector3[0];
+        this.elements[1] = vector3[1];
+        this.elements[2] = vector3[2];
+    }
+
+    /**
+     * @description 三维向量归一化
+     */
+    public normalize() {
+        const v0 = this.elements[0];
+        const v1 = this.elements[1];
+        const v2 = this.elements[2];
+
+        const base = Math.sqrt(v0 * v0 + v1 * v1 + v2 * v2);
+
+        this.elements[0] = v0 / base;
+        this.elements[1] = v1 / base;
+        this.elements[2] = v2 / base;
 
         return this;
     }
