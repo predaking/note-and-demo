@@ -1,5 +1,5 @@
 import { initProgram, initShaders } from "../util";
-import Matrix from "../matrix";
+import { Matrix } from "../matrix";
 import math from "../math";
 
 const { convertTo2DArray } = math;

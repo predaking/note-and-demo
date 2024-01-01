@@ -8,17 +8,21 @@ const VERTEX_SOURCE = `
     attribute vec4 a_Position;
     attribute vec4 a_Color;
     attribute vec4 a_Normal;
+    uniform vec4 u_NormalMatrix;
     uniform mat4 u_ModelMatrix;
     uniform mat4 u_ProjMatrix;
     uniform mat4 u_ViewMatrix;
     uniform vec3 u_LightColor;
+    uniform vec3 u_LightPosition;
     uniform vec3 u_AmbientLight;
     uniform vec3 u_LightDirection;
     varying vec4 v_Color;
 
     void main() {
         gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
-        vec3 normal = normalize(vec3(a_Normal));
+        vec3 normal = normalize(vec3(u_NormalMatrix * a_Normal));
+        vec4 vertexPosition = u_ModelMatrix * a_Position;
+        vec3 lightDirection = normalize(u_LightPosition - vec3(vertexPosition));
         float nDotL = max(dot(u_LightDirection, normal), 0.0);
         vec3 diffuse = u_LightColor * vec3(a_Color) * nDotL;
         vec3 ambient = u_AmbientLight * a_Color.rgb;
@@ -67,10 +71,12 @@ function main() {
     const aColor = gl.getAttribLocation(program, 'a_Color');
     const aNormal = gl.getAttribLocation(program, 'a_Normal');
 
+    const uNormalMatrix = gl.getUniformLocation(program, 'u_NormalMatrix');
     const uModelMatrix = gl.getUniformLocation(program, 'u_ModelMatrix');
     const uViewMatrix = gl.getUniformLocation(program, 'u_ViewMatrix');
     const uProjMatrix = gl.getUniformLocation(program, 'u_ProjMatrix');
     const uLightColor = gl.getUniformLocation(program, 'u_LightColor');
+    const uLightPosition = gl.getUniformLocation(program, 'u_LightPosition');
     const uAmbientLight = gl.getUniformLocation(program, 'u_AmbientLight');
     const uLightDirection = gl.getUniformLocation(program, 'u_LightDirection');
 
@@ -132,27 +138,34 @@ function main() {
     const modelMatrix = new Matrix();
     const viewMatrix = new Matrix();
     const projMatrix = new Matrix();
+    const normalMatrix = new Matrix();
     
-    let _modelMatrix = modelMatrix.setTranslate(0.75, 0, 0).elements;
+    // modelMatrix.setTranslate(0, 1, 0);
+    modelMatrix.setRotate(90, 0, 1, 0);
+    // modelMatrix.rotate(0, 0, 0, 1);
     let angle = 360;
-    const _viewMatrix = viewMatrix.setLookAt(3, 5, 7, 0, 0, 0, 0, 1, 0).elements;
-    const _projMatrix = projMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100).elements;
+    viewMatrix.setLookAt(6, 6, 14, 0, 0, 0, 0, 1, 0);
+    projMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100);
+    normalMatrix.setInverseOf(modelMatrix);
+    normalMatrix.transpose();
     
     const draw = () => {
         requestAnimationFrame(draw);
         if (angle < 0) {
             angle = 360;
         }
-        _modelMatrix = modelMatrix.rotate(angle--, 0, 1, 0).elements;
+        modelMatrix.rotate(angle--, 0, 1, 0);
         
         gl.uniform3f(uLightColor, 1.0, 1.0, 1.0);
-        gl.uniform3f(uAmbientLight, 0.1, 0.1, 0.1);
+        gl.uniform3f(uLightPosition, 2.3, 4.0, 3.5);
+        gl.uniform3f(uAmbientLight, 0.2, 0.2, 0.2);
         const lightDirection = new Vector3([0.5, 3.0, 4.0]);
         lightDirection.normalize();
         gl.uniform3fv(uLightDirection, lightDirection.elements);
-        gl.uniformMatrix4fv(uModelMatrix, false, _modelMatrix);
-        gl.uniformMatrix4fv(uViewMatrix, false, _viewMatrix);
-        gl.uniformMatrix4fv(uProjMatrix, false, _projMatrix);
+        gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements);
+        gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
+        gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
+        gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
 
         // console.table(convertTo2DArray(_modelMatrix));
         // console.table(convertTo2DArray(_viewMatrix));
@@ -166,3 +179,4 @@ function main() {
 }
 
 export default main;
+

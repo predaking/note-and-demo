@@ -1,5 +1,5 @@
 import { initProgram, initShaders } from "../util";
-import Matrix from "../matrix";
+import { Matrix } from "../matrix";
 
 const VERTEX_SOURCE = `
     attribute vec4 a_Position;
