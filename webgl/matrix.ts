@@ -16,22 +16,53 @@ export class Matrix {
         return this;
     }
 
-    public multiply(mt: Float32Array) {
-        const ins = this.elements;
-        let tmp0, tmp1, tmp2, tmp3;
+    /**
+     * @description 矩阵复制
+     */
+    public set(mt: Matrix) {
+        var i, s, d;
 
-        for (let i = 0; i < 4; ++i) {
-            tmp0 = ins[i],
-                tmp1 = ins[i + 4];
-            tmp2 = ins[i + 8];
-            tmp3 = ins[i + 12];
-
-            ins[i] = mt[0] * tmp0 + mt[1] * tmp1 + mt[2] * tmp2 + mt[3] * tmp3;
-            ins[i + 4] = mt[4] * tmp0 + mt[5] * tmp1 + mt[6] * tmp2 + mt[7] * tmp3;
-            ins[i + 8] = mt[8] * tmp0 + mt[9] * tmp1 + mt[10] * tmp2 + mt[11] * tmp3;
-            ins[i + 12] = mt[12] * tmp0 + mt[13] * tmp1 + mt[14] * tmp2 + mt[15] * tmp3;
+        s = mt.elements;
+        d = this.elements;
+    
+        if (s === d) {
+            return;
         }
+    
+        for (i = 0; i < 16; ++i) {
+            d[i] = s[i];
+        }
+    
+        return this;
+    }
 
+    public multiply(mt: Matrix) {
+        var i, e, a, b, ai0, ai1, ai2, ai3;
+
+        // Calculate e = a * b
+        e = this.elements;
+        a = this.elements;
+        b = mt.elements;
+    
+        // If e equals b, copy b to temporary matrix.
+        if (e === b) {
+            b = new Float32Array(16);
+            for (i = 0; i < 16; ++i) {
+                b[i] = e[i];
+            }
+        }
+    
+        for (i = 0; i < 4; i++) {
+            ai0 = a[i];
+            ai1 = a[i + 4];
+            ai2 = a[i + 8];
+            ai3 = a[i + 12];
+            e[i] = ai0 * b[0] + ai1 * b[1] + ai2 * b[2] + ai3 * b[3];
+            e[i + 4] = ai0 * b[4] + ai1 * b[5] + ai2 * b[6] + ai3 * b[7];
+            e[i + 8] = ai0 * b[8] + ai1 * b[9] + ai2 * b[10] + ai3 * b[11];
+            e[i + 12] = ai0 * b[12] + ai1 * b[13] + ai2 * b[14] + ai3 * b[15];
+        }
+    
         return this;
     }
 
@@ -246,6 +277,22 @@ export class Matrix {
         ]);
 
         return this.translate(-eyeX, -eyeY, -eyeZ);
+    }
+
+        /**
+     * @description 视图变换
+     * @param eyeX 
+     * @param eyeY 
+     * @param eyeZ 
+     * @param centerX 
+     * @param centerY 
+     * @param centerZ 
+     * @param upX 
+     * @param upY 
+     * @param upZ 
+     */
+    public lookAt(eyeX: number, eyeY: number, eyeZ: number, centerX: number, centerY: number, centerZ: number, upX: number, upY: number, upZ: number) {
+        return this.multiply(new Matrix().setLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ));
     }
 
     /**

@@ -5,36 +5,40 @@ import math from "../math";
 const { convertTo2DArray } = math;
 
 const VERTEX_SOURCE = `
-    attribute vec4 a_Position;
+    varying vec3 v_Position;
+    varying vec3 v_Normal;
+    varying vec4 v_Color;
     attribute vec4 a_Color;
     attribute vec4 a_Normal;
-    uniform vec4 u_NormalMatrix;
+    attribute vec4 a_Position;
+    uniform mat4 u_MvpMatrix;
+    uniform mat4 u_NormalMatrix;
     uniform mat4 u_ModelMatrix;
-    uniform mat4 u_ProjMatrix;
-    uniform mat4 u_ViewMatrix;
-    uniform vec3 u_LightColor;
-    uniform vec3 u_LightPosition;
-    uniform vec3 u_AmbientLight;
-    uniform vec3 u_LightDirection;
-    varying vec4 v_Color;
-
+    
     void main() {
-        gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
-        vec3 normal = normalize(vec3(u_NormalMatrix * a_Normal));
-        vec4 vertexPosition = u_ModelMatrix * a_Position;
-        vec3 lightDirection = normalize(u_LightPosition - vec3(vertexPosition));
-        float nDotL = max(dot(u_LightDirection, normal), 0.0);
-        vec3 diffuse = u_LightColor * vec3(a_Color) * nDotL;
-        vec3 ambient = u_AmbientLight * a_Color.rgb;
-        v_Color = vec4(diffuse + ambient, a_Color.a);
+        gl_Position = u_MvpMatrix * a_Position;
+        v_Normal = normalize(vec3(u_NormalMatrix * a_Normal));
+        v_Position = u_ModelMatrix * a_Position;
+        v_Color = a_Color;
     }
 `;
 
 const FRAGMENT_SOURCE = `
     precision mediump float;
+    varying vec3 v_Position;
+    varying vec3 v_Normal;
     varying vec4 v_Color;
+    uniform vec3 u_LightColor;
+    uniform vec3 u_LightPosition;
+    uniform vec3 u_AmbientLight;
+
     void main() {
-        gl_FragColor = v_Color;
+        vec3 normal = normalize(v_Normal);
+        vec3 lightDirection = normalize(u_LightPosition - v_Position);
+        float nDotL = max(dot(lightDirection, normal), 0.0);
+        vec3 diffuse = u_LightColor * vec3(v_Color) * nDotL;
+        vec3 ambient = u_AmbientLight * v_Color.rgb;
+        gl_FragColor = vec4(diffuse + ambient, v_Color.a);
     }
 `;
 
@@ -73,12 +77,10 @@ function main() {
 
     const uNormalMatrix = gl.getUniformLocation(program, 'u_NormalMatrix');
     const uModelMatrix = gl.getUniformLocation(program, 'u_ModelMatrix');
-    const uViewMatrix = gl.getUniformLocation(program, 'u_ViewMatrix');
-    const uProjMatrix = gl.getUniformLocation(program, 'u_ProjMatrix');
     const uLightColor = gl.getUniformLocation(program, 'u_LightColor');
     const uLightPosition = gl.getUniformLocation(program, 'u_LightPosition');
     const uAmbientLight = gl.getUniformLocation(program, 'u_AmbientLight');
-    const uLightDirection = gl.getUniformLocation(program, 'u_LightDirection');
+    const uMvpMatrix = gl.getUniformLocation(program, 'u_MvpMatrix');
 
     const data = new Float32Array([
         1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,
@@ -136,43 +138,46 @@ function main() {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
     const modelMatrix = new Matrix();
-    const viewMatrix = new Matrix();
-    const projMatrix = new Matrix();
+    const mvpMatrix = new Matrix();
     const normalMatrix = new Matrix();
+    const _mvpMatrix = new Matrix();
     
-    // modelMatrix.setTranslate(0, 1, 0);
     modelMatrix.setRotate(90, 0, 1, 0);
-    // modelMatrix.rotate(0, 0, 0, 1);
+    gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements);
+
     let angle = 360;
-    viewMatrix.setLookAt(6, 6, 14, 0, 0, 0, 0, 1, 0);
-    projMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100);
+
+    mvpMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100);
+    mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0);
+    mvpMatrix.multiply(modelMatrix);
+    gl.uniformMatrix4fv(uMvpMatrix, false, mvpMatrix.elements);
+
     normalMatrix.setInverseOf(modelMatrix);
     normalMatrix.transpose();
+    gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
     
     const draw = () => {
-        requestAnimationFrame(draw);
-        if (angle < 0) {
-            angle = 360;
-        }
-        modelMatrix.rotate(angle--, 0, 1, 0);
-        
         gl.uniform3f(uLightColor, 1.0, 1.0, 1.0);
-        gl.uniform3f(uLightPosition, 2.3, 4.0, 3.5);
+        gl.uniform3f(uLightPosition, 0.0, 4.0, 5.0);
         gl.uniform3f(uAmbientLight, 0.2, 0.2, 0.2);
-        const lightDirection = new Vector3([0.5, 3.0, 4.0]);
-        lightDirection.normalize();
-        gl.uniform3fv(uLightDirection, lightDirection.elements);
-        gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements);
-        gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
-        gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
-        gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
-
-        // console.table(convertTo2DArray(_modelMatrix));
-        // console.table(convertTo2DArray(_viewMatrix));
-        // console.table(convertTo2DArray(_projMatrix));
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.drawElements(gl.TRIANGLES, COUNT, gl.UNSIGNED_BYTE, 0);
+
+        if (angle < 0) {
+            angle = 360;
+        }
+
+        modelMatrix.setRotate(angle--, 0, 1, 0);
+        _mvpMatrix.set(mvpMatrix)?.multiply(modelMatrix);
+        gl.uniformMatrix4fv(uMvpMatrix, false, _mvpMatrix.elements);
+        gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements);
+
+        normalMatrix.setInverseOf(modelMatrix);
+        normalMatrix.transpose();
+        gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
+
+        requestAnimationFrame(draw);
     }
 
     draw();
