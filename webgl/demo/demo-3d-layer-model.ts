@@ -50,8 +50,64 @@ function initBuffer(gl: WebGLRenderingContext, data: Float32Array) {
     return buffer;
 }
 
+let ANGLE_STEP = 3.0;
+let g_arm1Angle = 90.0;
+let g_joint1Angle = 0.0;
+
+let g_modelMatrix = new Matrix();
+let g_mvpMatrix = new Matrix();
+
+let g_normalMatrix = new Matrix();
+
+function drawBox(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpMatrix: Matrix, uNormalMatrix: Matrix) {
+    g_mvpMatrix.set(viewProMatrix);
+    g_mvpMatrix.multiply(g_modelMatrix);
+    gl.uniformMatrix4fv(uMvpMatrix, false, g_modelMatrix.elements);
+
+    g_normalMatrix.setInverseOf(g_modelMatrix);
+    g_normalMatrix.transpose();
+    gl.uniformMatrix4fv(uNormalMatrix, false, g_normalMatrix.elements);
+    gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+}
+
+function draw(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpMatrix: Matrix, uNormalMatrix: Matrix) {
+    let arm1Length = 10.0;
+    g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
+    g_modelMatrix.rotate(g_arm1Angle, 0.0, 1.0, 0.0);
+    drawBox(gl, n, viewProMatrix, uMvpMatrix, uNormalMatrix);
+
+    g_modelMatrix.translate(0.0, arm1Length, 0.0);
+    g_modelMatrix.rotate(g_joint1Angle, 0.0, 0.0, 1.0);
+    g_modelMatrix.scale(1.3, 1.0, 1.3);
+    drawBox(gl, n, viewProMatrix, uMvpMatrix, uNormalMatrix);
+}
+
+function keydown(e: KeyboardEvent, gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpMatrix: Matrix, uNormalMatrix: Matrix) {
+    switch (e.keyCode) {
+        case 38: 
+            if (g_joint1Angle < 135) {
+                g_joint1Angle += ANGLE_STEP;
+            }
+            break;
+        case 40:
+            if (g_joint1Angle > -135) {
+                g_joint1Angle -= ANGLE_STEP;
+            }
+            break;
+        case 39:
+            g_arm1Angle = (g_arm1Angle - ANGLE_STEP) % 360;
+            break;
+        case 37:
+            g_arm1Angle = (g_arm1Angle + ANGLE_STEP) % 360;
+            break;
+        default: return;
+    }
+
+    draw(gl, n, viewProMatrix, uMvpMatrix, uNormalMatrix);
+}
+
 function main() {
-    const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-3d-light');
+    const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-3d-layer-model');
 
     const gl = <WebGLRenderingContext>canvas.getContext('webgl');
 
@@ -144,40 +200,43 @@ function main() {
 
     let angle = 360;
 
-    mvpMatrix.setPerspective(30, canvas.width / canvas.height, 1, 100);
-    mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0);
-    mvpMatrix.multiply(modelMatrix);
-    gl.uniformMatrix4fv(uMvpMatrix, false, mvpMatrix.elements);
+    const viewProjMatrix = new Matrix();
+    viewProjMatrix.setPerspective(50, canvas.width / canvas.height, 1, 100);
+    viewProjMatrix.lookAt(20, 10, 30, 0, 0, 0, 0, 1, 0);
 
     normalMatrix.setInverseOf(modelMatrix);
     normalMatrix.transpose();
     gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
     
-    const draw = () => {
-        gl.uniform3f(uLightColor, 1.0, 1.0, 1.0);
-        gl.uniform3f(uLightPosition, -4.0, 0.0, 5.0);
-        gl.uniform3f(uAmbientLight, 0.2, 0.2, 0.2);
+    // const draw = () => {
+    //     gl.uniform3f(uLightColor, 1.0, 1.0, 1.0);
+    //     gl.uniform3f(uLightPosition, -4.0, 0.0, 5.0);
+    //     gl.uniform3f(uAmbientLight, 0.2, 0.2, 0.2);
 
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.drawElements(gl.TRIANGLES, COUNT, gl.UNSIGNED_BYTE, 0);
+    //     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    //     gl.drawElements(gl.TRIANGLES, COUNT, gl.UNSIGNED_BYTE, 0);
 
-        if (angle < 0) {
-            angle = 360;
-        }
+    //     if (angle < 0) {
+    //         angle = 360;
+    //     }
 
-        modelMatrix.setRotate(angle--, 0, 1, 0);
-        _mvpMatrix.set(mvpMatrix)?.multiply(modelMatrix);
-        gl.uniformMatrix4fv(uMvpMatrix, false, _mvpMatrix.elements);
-        gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements);
+    //     modelMatrix.setRotate(angle--, 0, 1, 0);
+    //     _mvpMatrix.set(mvpMatrix)?.multiply(modelMatrix);
+    //     gl.uniformMatrix4fv(uMvpMatrix, false, _mvpMatrix.elements);
+    //     gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements);
 
-        normalMatrix.setInverseOf(modelMatrix);
-        normalMatrix.transpose();
-        gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
+    //     normalMatrix.setInverseOf(modelMatrix);
+    //     normalMatrix.transpose();
+    //     gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
 
-        requestAnimationFrame(draw);
+    //     requestAnimationFrame(draw);
+    // }
+
+    document.onkeydown = function (e: KeyboardEvent) {
+        keydown(e, gl, COUNT, viewProjMatrix, uMvpMatrix, uNormalMatrix);
     }
 
-    draw();
+    draw(gl, COUNT, viewProjMatrix, uMvpMatrix, uNormalMatrix);
 }
 
 export default main;

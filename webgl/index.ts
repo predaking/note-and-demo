@@ -4,8 +4,8 @@
 // import drawTexture from './demo/demo-texture';
 // import draw3dView from './demo/demo-3d-view';
 // import draw3dCube from './demo/demo-3d-cube';
-import draw3dLight from './demo/demo-3d-light';
-
+// import draw3dLight from './demo/demo-3d-light';
+import draw3dLayerModel from './demo/demo-3d-layer-model';
 
 const webgl = {
     main() {
@@ -15,7 +15,8 @@ const webgl = {
         // drawTexture();
         // draw3dView();
         // draw3dCube();
-        draw3dLight();
+        // draw3dLight();
+        draw3dLayerModel();
     }
 }
 
