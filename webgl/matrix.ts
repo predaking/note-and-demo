@@ -43,7 +43,7 @@ export class Matrix {
         e = this.elements;
         a = this.elements;
         b = mt.elements;
-    
+
         // If e equals b, copy b to temporary matrix.
         if (e === b) {
             b = new Float32Array(16);
@@ -102,40 +102,7 @@ export class Matrix {
      * @param {number} angle 旋转角度
      */
     public rotate(angle: number, x: 0 | 1, y: 0 | 1, z: 0 | 1) {
-        if (x + y + z !== 1) {
-            console.error('no target axis');
-            return this;
-        }
-
-        let mt = new Float32Array();
-
-        const radian = angle / 180 * Math.PI;
-        const cos = Math.cos(radian);
-        const sin = Math.sin(radian);
-
-        if (z === 1) mt = new Float32Array([
-            cos, sin, 0, 0,
-            -sin, cos, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        ]);
-
-        if (y === 1) mt = new Float32Array([
-            cos, 0, sin, 0,
-            0, 1, 0, 0,
-            -sin, 0, cos, 0,
-            0, 0, 0, 1
-        ]);
-
-        if (x === 1) mt = new Float32Array([
-            1, 0, 0, 0,
-            0, cos, sin, 0,
-            0, -sin, cos, 0,
-            0, 0, 0, 1
-        ]);
-
-        this.elements = mt;
-        return this;
+        return this.multiply(new Matrix().setRotate(angle, x, y, z));
     }
 
     public setRotate(angle: number, x: number, y: number, z: number) {
@@ -221,14 +188,19 @@ export class Matrix {
      * @param rz 
      */
     public scale(rx: number, ry: number, rz: number) {
-        const mt = new Float32Array([
-            rx, 0, 0, 0,
-            0, ry, 0, 0,
-            0, 0, rz, 0,
-            0, 0, 0, 1
-        ]);
-
-        this.multiply(mt);
+        const e = this.elements;
+        e[0] *= rx;
+        e[4] *= ry;
+        e[8] *= rz;
+        e[1] *= rx;
+        e[5] *= ry;
+        e[9] *= rz;
+        e[2] *= rx;
+        e[6] *= ry;
+        e[10] *= rz;
+        e[3] *= rx;
+        e[7] *= ry;
+        e[11] *= rz;
         return this;
     }
 

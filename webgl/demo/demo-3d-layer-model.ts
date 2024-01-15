@@ -31,10 +31,10 @@ const FRAGMENT_SOURCE = `
 
     void main() {
         vec3 normal = normalize(v_Normal);
-        vec3 lightDirection = normalize(u_LightPosition - v_Position);
+        vec3 lightDirection = normalize(vec3(0.0, 0.5, 0.7) - v_Position);
         float nDotL = max(dot(lightDirection, normal), 0.0);
-        vec3 diffuse = u_LightColor * vec3(v_Color) * nDotL;
-        vec3 ambient = u_AmbientLight * v_Color.rgb;
+        vec3 diffuse = vec3(1.0, 1.0, 1.0) * vec3(v_Color) * nDotL;
+        vec3 ambient = vec3(0.2, 0.2, 0.2) * v_Color.rgb;
         gl_FragColor = vec4(diffuse + ambient, v_Color.a);
     }
 `;
@@ -62,7 +62,7 @@ let g_normalMatrix = new Matrix();
 function drawBox(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpMatrix: Matrix, uNormalMatrix: Matrix) {
     g_mvpMatrix.set(viewProMatrix);
     g_mvpMatrix.multiply(g_modelMatrix);
-    gl.uniformMatrix4fv(uMvpMatrix, false, g_modelMatrix.elements);
+    gl.uniformMatrix4fv(uMvpMatrix, false, g_mvpMatrix.elements);
 
     g_normalMatrix.setInverseOf(g_modelMatrix);
     g_normalMatrix.transpose();
@@ -71,6 +71,7 @@ function drawBox(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uM
 }
 
 function draw(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpMatrix: Matrix, uNormalMatrix: Matrix) {
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     let arm1Length = 10.0;
     g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
     g_modelMatrix.rotate(g_arm1Angle, 0.0, 1.0, 0.0);
@@ -135,14 +136,23 @@ function main() {
     const uAmbientLight = gl.getUniformLocation(program, 'u_AmbientLight');
     const uMvpMatrix = gl.getUniformLocation(program, 'u_MvpMatrix');
 
+    // const data = new Float32Array([
+    //     1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,
+    //     1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0,
+    //     1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0,
+    //     -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0,
+    //     -1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0,
+    //     1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0,
+    // ]);
+
     const data = new Float32Array([
-        1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0,
-        1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0,
-        -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0,
-        -1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0,
-        1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0,
-    ]);
+        1.5, 10.0, 1.5, -1.5, 10.0, 1.5, -1.5,  0.0, 1.5,  1.5,  0.0, 1.5, // v0-v1-v2-v3 front
+        1.5, 10.0, 1.5,  1.5,  0.0, 1.5,  1.5,  0.0,-1.5,  1.5, 10.0,-1.5, // v0-v3-v4-v5 right
+        1.5, 10.0, 1.5,  1.5, 10.0,-1.5, -1.5, 10.0,-1.5, -1.5, 10.0, 1.5, // v0-v5-v6-v1 up
+       -1.5, 10.0, 1.5, -1.5, 10.0,-1.5, -1.5,  0.0,-1.5, -1.5,  0.0, 1.5, // v1-v6-v7-v2 left
+       -1.5,  0.0,-1.5,  1.5,  0.0,-1.5,  1.5,  0.0, 1.5, -1.5,  0.0, 1.5, // v7-v4-v3-v2 down
+        1.5,  0.0,-1.5, -1.5,  0.0,-1.5, -1.5, 10.0,-1.5,  1.5, 10.0,-1.5  // v4-v7-v6-v5 back
+    ])
 
     const colors = new Float32Array([
         0.4, 0.4, 1.0, 0.4, 0.4, 1.0, 0.4, 0.4, 1.0, 0.4, 0.4, 1.0, 
@@ -190,54 +200,18 @@ function main() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
-    const modelMatrix = new Matrix();
-    const mvpMatrix = new Matrix();
-    const normalMatrix = new Matrix();
-    const _mvpMatrix = new Matrix();
-    
-    modelMatrix.setRotate(90, 0, 1, 0);
-    gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements);
-
-    let angle = 360;
-
     const viewProjMatrix = new Matrix();
     viewProjMatrix.setPerspective(50, canvas.width / canvas.height, 1, 100);
     viewProjMatrix.lookAt(20, 10, 30, 0, 0, 0, 0, 1, 0);
 
-    normalMatrix.setInverseOf(modelMatrix);
-    normalMatrix.transpose();
-    gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
-    
-    // const draw = () => {
-    //     gl.uniform3f(uLightColor, 1.0, 1.0, 1.0);
-    //     gl.uniform3f(uLightPosition, -4.0, 0.0, 5.0);
-    //     gl.uniform3f(uAmbientLight, 0.2, 0.2, 0.2);
-
-    //     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //     gl.drawElements(gl.TRIANGLES, COUNT, gl.UNSIGNED_BYTE, 0);
-
-    //     if (angle < 0) {
-    //         angle = 360;
-    //     }
-
-    //     modelMatrix.setRotate(angle--, 0, 1, 0);
-    //     _mvpMatrix.set(mvpMatrix)?.multiply(modelMatrix);
-    //     gl.uniformMatrix4fv(uMvpMatrix, false, _mvpMatrix.elements);
-    //     gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix.elements);
-
-    //     normalMatrix.setInverseOf(modelMatrix);
-    //     normalMatrix.transpose();
-    //     gl.uniformMatrix4fv(uNormalMatrix, false, normalMatrix.elements);
-
-    //     requestAnimationFrame(draw);
-    // }
-
     document.onkeydown = function (e: KeyboardEvent) {
-        keydown(e, gl, COUNT, viewProjMatrix, uMvpMatrix, uNormalMatrix);
+        keydown(e, gl, COUNT, viewProjMatrix, uMvpMatrix as Matrix, uNormalMatrix as Matrix);
     }
 
-    draw(gl, COUNT, viewProjMatrix, uMvpMatrix, uNormalMatrix);
+    draw(gl, COUNT, viewProjMatrix, uMvpMatrix as Matrix, uNormalMatrix as Matrix);
 }
 
 export default main;
+
+
 
