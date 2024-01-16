@@ -50,16 +50,40 @@ function initBuffer(gl: WebGLRenderingContext, data: Float32Array) {
     return buffer;
 }
 
+let g_matrixStack: Matrix[] = [];
+function pushMatrix (mt: Matrix) {
+    const _mt = new Matrix(mt);
+    g_matrixStack.push(_mt);
+}
+
+function popMatrix (): Matrix {
+    return g_matrixStack.pop() as Matrix;
+}
+
 let ANGLE_STEP = 3.0;
 let g_arm1Angle = 90.0;
-let g_joint1Angle = 0.0;
+let g_joint1Angle = 45.0;
+let g_joint2Angle = 0.0;
+let g_joint3Angle = 0.0;
 
 let g_modelMatrix = new Matrix();
 let g_mvpMatrix = new Matrix();
 
 let g_normalMatrix = new Matrix();
 
-function drawBox(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpMatrix: Matrix, uNormalMatrix: Matrix) {
+function drawBox(
+    gl: WebGLRenderingContext, 
+    n: number, 
+    width: number,
+    height: number,
+    depth: number,
+    viewProMatrix: Matrix, 
+    uMvpMatrix: Matrix, 
+    uNormalMatrix: Matrix
+) {
+    pushMatrix(g_modelMatrix);
+    const base = Math.sqrt(width * width + height * height + depth * depth);
+    g_modelMatrix.scale(width / base, height/ base, depth / base);
     g_mvpMatrix.set(viewProMatrix);
     g_mvpMatrix.multiply(g_modelMatrix);
     gl.uniformMatrix4fv(uMvpMatrix, false, g_mvpMatrix.elements);
@@ -68,19 +92,39 @@ function drawBox(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uM
     g_normalMatrix.transpose();
     gl.uniformMatrix4fv(uNormalMatrix, false, g_normalMatrix.elements);
     gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+    g_modelMatrix = popMatrix();
 }
 
 function draw(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpMatrix: Matrix, uNormalMatrix: Matrix) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    let arm1Length = 10.0;
+
+    let baseHeight = 2.0;
     g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
+    // g_modelMatrix.rotate(g_arm1Angle, 0.0, 1.0, 0.0);
+    drawBox(gl, n, 10.0, baseHeight, 10.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
+    
+    let arm1Length = 10.0;
+    g_modelMatrix.translate(0.0, baseHeight, 0.0);
     g_modelMatrix.rotate(g_arm1Angle, 0.0, 1.0, 0.0);
-    drawBox(gl, n, viewProMatrix, uMvpMatrix, uNormalMatrix);
+    // g_modelMatrix.scale(1.3, 1.0, 1.3);
+    drawBox(gl, n, 3.0, arm1Length, 3.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
 
     g_modelMatrix.translate(0.0, arm1Length, 0.0);
     g_modelMatrix.rotate(g_joint1Angle, 0.0, 0.0, 1.0);
-    g_modelMatrix.scale(1.3, 1.0, 1.3);
-    drawBox(gl, n, viewProMatrix, uMvpMatrix, uNormalMatrix);
+    // g_modelMatrix.scale(1.3, 1.0, 1.3);
+    drawBox(gl, n, 3.0, arm1Length, 3.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
+
+    let palmLength = 2.0;
+    g_modelMatrix.translate(0.0, palmLength, 0.0);
+    pushMatrix(g_modelMatrix);
+    g_modelMatrix.translate(0.0, 0.0, 2.0);
+    g_modelMatrix.rotate(g_joint3Angle, 1.0, 0.0, 0.0);
+    drawBox(gl, n, 1.0, 2.0, 1.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
+    g_modelMatrix = popMatrix();
+
+    g_modelMatrix.translate(0.0, 0.0, -2.0);
+    g_modelMatrix.rotate(-g_joint3Angle, 1.0, 0.0, 0.0);
+    drawBox(gl, n, 1.0, 2.0, 1.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
 }
 
 function keydown(e: KeyboardEvent, gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpMatrix: Matrix, uNormalMatrix: Matrix) {
@@ -93,6 +137,22 @@ function keydown(e: KeyboardEvent, gl: WebGLRenderingContext, n: number, viewPro
         case 38:
             if (g_joint1Angle > -135) {
                 g_joint1Angle -= ANGLE_STEP;
+            }
+            break;
+        case 90:
+            g_joint2Angle = (g_joint2Angle + ANGLE_STEP) % 360;
+            break;
+        case 88:
+            g_joint2Angle = (g_joint2Angle - ANGLE_STEP) % 360;
+            break;
+        case 86:
+            if (g_joint3Angle < 60) {
+                g_joint3Angle = (g_joint3Angle + ANGLE_STEP) % 360;
+            }
+            break;
+        case 67:
+            if (g_joint3Angle > -60) {
+                g_joint3Angle = (g_joint3Angle - ANGLE_STEP) % 360;
             }
             break;
         case 37:
@@ -108,7 +168,7 @@ function keydown(e: KeyboardEvent, gl: WebGLRenderingContext, n: number, viewPro
 }
 
 function main() {
-    const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-3d-layer-model');
+    const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-3d-multi-layer-model');
 
     const gl = <WebGLRenderingContext>canvas.getContext('webgl');
 

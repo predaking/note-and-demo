@@ -6,6 +6,20 @@ export class Matrix {
         0, 0, 0, 1
     ]);
 
+    constructor(mt?: Matrix) {
+        let i, s, d;
+        if (mt && typeof mt === 'object' && mt.hasOwnProperty('elements')) {
+            s = mt.elements;
+            d = new Float32Array(16);
+            for (i = 0; i < 16; ++i) {
+                d[i] = s[i];
+            }
+            this.elements = d;
+        } else {
+            this.elements = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+        }
+    }
+
     public reset() {
         this.elements = new Float32Array([
             1, 0, 0, 0,
