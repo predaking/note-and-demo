@@ -83,7 +83,7 @@ function drawBox(
 ) {
     pushMatrix(g_modelMatrix);
     const base = Math.sqrt(width * width + height * height + depth * depth);
-    g_modelMatrix.scale(width / base, height/ base, depth / base);
+    g_modelMatrix.scale(width / base, height / base, depth / base);
     g_mvpMatrix.set(viewProMatrix);
     g_mvpMatrix.multiply(g_modelMatrix);
     gl.uniformMatrix4fv(uMvpMatrix, false, g_mvpMatrix.elements);
@@ -109,13 +109,19 @@ function draw(gl: WebGLRenderingContext, n: number, viewProMatrix: Matrix, uMvpM
     // g_modelMatrix.scale(1.3, 1.0, 1.3);
     drawBox(gl, n, 3.0, arm1Length, 3.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
 
+    let arm2Length = 10.0;
     g_modelMatrix.translate(0.0, arm1Length, 0.0);
     g_modelMatrix.rotate(g_joint1Angle, 0.0, 0.0, 1.0);
     // g_modelMatrix.scale(1.3, 1.0, 1.3);
-    drawBox(gl, n, 3.0, arm1Length, 3.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
+    drawBox(gl, n, 4.0, arm2Length, 4.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
 
     let palmLength = 2.0;
+    g_modelMatrix.translate(0.0, arm2Length, 0.0);
+    g_modelMatrix.rotate(g_joint2Angle, 0.0, 1.0, 0.0);
+    drawBox(gl, n, 2.0, palmLength, 6.0, viewProMatrix, uMvpMatrix, uNormalMatrix);
+
     g_modelMatrix.translate(0.0, palmLength, 0.0);
+
     pushMatrix(g_modelMatrix);
     g_modelMatrix.translate(0.0, 0.0, 2.0);
     g_modelMatrix.rotate(g_joint3Angle, 1.0, 0.0, 0.0);
