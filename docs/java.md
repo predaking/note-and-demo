@@ -62,3 +62,20 @@ public class Main {
 - 继承自HashMap，区别在于能够实现有序
 - 实现基于重写HashMap的实体类Entry，将HashMap的数据组成一个双向链表
 - 可根据插入顺序或访问顺序实现迭代顺序的改变，这可以通过设置accessOrder为true触发
+
+```java
+    public void practiceHashMap () {
+        HashMap<Integer, Integer> hashMap = new LinkedHashMap<>(10, 0.75f, true);
+        hashMap.put(3, 25);
+        hashMap.put(1, 27);
+        hashMap.put(7, 10);
+        hashMap.put(4, 30);
+
+        hashMap.get(1);
+
+        // 3 7 4 1
+        for (Map.Entry e: hashMap.entrySet()) {
+            System.out.print(e.getKey() + " ");
+        }
+    }
+```

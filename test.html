@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head></head>
+    <style>
+        .drop,
+        .drag {
+            width: 100px;
+            height: 100px;
+            background-color: red;
+            position: absolute;
+        }
+
+        .drag {
+            top: 300px;
+        }
+    </style>
+    <body>
+        <div class="drop"></div>
+        <div class="drag" draggable="true"></div>
+        <script>
+            const drop = document.querySelector('.drop');
+            const drag = document.querySelector('.drag');
+            drag.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', 'drag');
+                console.log('dragstart: ', e);
+            });
+            // drag.addEventListener('drag', (e) => {
+            //     console.log('drag: ', e);
+            // });
+            drag.addEventListener('dragend', (e) => {
+                console.log('dragend: ', e);
+            });
+            drop.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            // drop.addEventListener('dragenter', (e) => {
+            //     e.preventDefault();
+            //     console.log('dragenter: ', e);
+            // });
+            // drop.addEventListener('dragleave', (e) => {
+            //     console.log('dragleave: ', e);
+            // });
+            drop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                console.log('drop: ', e);
+                const data = e.dataTransfer.getData('text/plain');
+                if (data === 'drag') {
+                    drop.style.backgroundColor = 'blue';
+                }
+            });
+        </script>
+    </body>
+</html>
