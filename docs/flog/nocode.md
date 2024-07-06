@@ -108,6 +108,7 @@ export default Picker = (props) => {
 
 ```jsx
 import UIEditorRender from 'lowcodeUI/editor';
+import { uuid } from 'utils';
 
 export default Operator = ({
     componentsData, // 标识当前编辑区已有的组件
@@ -116,7 +117,33 @@ export default Operator = ({
     ...other
 }) => {
     const [, droper] = useDrop({
-        
+        accept: 'Component',
+        drop: (item, monitor) => {
+            /** 获取当前拖拽点的位置（pointEnd），这是一个监控拖拽事件并返回拖拽点相对于客户端（浏览器视窗）的位置信息的函数。 */
+            const pointEnd = monitor.getSourceClientOffset();
+            /** ...计算父组件也即舞台顶部的top值 */
+            /**
+             * 变量y计算了拖拽点相对于舞台顶部的垂直位置，如果拖拽点位于舞台顶部之上，则y为0，否则为拖拽点的y坐标减去舞台顶部的y坐标。
+             */
+            const gridY = pointEnd.y < top ? 0 : pointEnd.y - top;
+
+            const gridlayout = {
+                i: `x-${uuid()}`, // 通过
+                x: 0,
+                y: gridY,
+                w: LAYOUT_STYLE.COLS,
+                h: item.gridlayout.h,
+                isBounded: true,
+            };
+
+            /** 更新打当前组件属性 */
+            const currentComponent = {
+                ...item,
+                gridlayout
+            };
+
+            updateCurrentCompEffect(currentComponent);
+        }
     });
 
     // 处理用户拖拽结束后的组件顺序
@@ -132,7 +159,7 @@ export default Operator = ({
     }
 
     return (
-        <div >
+        <div>
             <UIEditorRender 
                 componentsData={componentsData}
                 updateComponentsData={updateComponentsData}
@@ -145,3 +172,48 @@ export default Operator = ({
 }
 ```
 
+```jsx
+import CompLoaderEngine from './render.engine';
+import GridLayout from 'react-grid-layout';
+
+export default EditorRenderUI = ({
+    componentsData,
+    updateComponentsData,
+    updateCurrentCompEffect,
+    dragStop
+}) => {
+    const layouts = componentsData.map((item) => ({
+        ...item.gridlayout
+    }));
+
+    // 识别当前正在拖拽的组件
+    const onDragStart = (layout, oldItem, newItem) => {
+        if (!newItem.moved) {
+            const currentComponent = componentsData.find((item) => {
+                return item.id === newItem.i.split('-')[1];
+            });
+            updateCurrentCompEffect({ ...currentComponent });
+        }
+    };
+
+    return (
+        <GridLayout
+            className='layout'
+            layout={layouts}
+            isResizeable={false}
+            onDragStart={onDragStart}
+            onDragStop={dragStop}
+        >
+            {
+                componentsData.map((item) => (
+                    <CompLoaderEngine
+                        id={item.id}
+                        config={item.config}
+                        componentPathUrl={item.componentUrl}
+                    />
+                ))
+            }
+        </GridLayout>
+    )
+}
+```
