@@ -446,3 +446,9 @@ https://blog.csdn.net/hugo233/article/details/114272109
 + 性能优化（缓存策略、合并&减少http请求、按需加载、预加载、分包加载、首屏渲染、CDN）
 + 工具链（脚手架、组件库、部署平台、监控报警平台）
 
+### 微前端方案
+
++ iframe
++ Web Components
++ ESM
++ qiankun

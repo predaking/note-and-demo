@@ -19,7 +19,7 @@ import { useDrag } from 'react-dnd';
 
 export default DragCompOption = (props) => {
     const { 
-        terminalType, 
+        terminalType, // 用于区分是移动端还是 pc 端。1 为移动端，2 为 pc 端。
         keys, 
         ...resetProps 
     } = props;
@@ -217,3 +217,131 @@ export default EditorRenderUI = ({
     )
 }
 ```
+
+### 属性配置区（props）
+
+编辑区中的任何组件被点击激活后，右侧同时弹出对应的属性配置，主要用到的是组件中的`schema`属性。
+
+核心代码如下：
+
+```jsx
+import { Form } from 'antd';
+import ColorPicker from '../components/editor.form/editor.form.color';
+
+export default Props = ({
+    currentComponent,
+    updateCurrentComponentEffect,
+    terminalType
+}) => {
+    const ratio = terminalType / 2;
+
+    const [form] = Form.useForm();
+
+    const onFinish = (values) => {
+        if (values.config) {
+            const currentComponent = { ...values };
+            updateCurrentComponentEffect(currentComponent);
+        }
+    };
+
+    const onValuesChange = (changeValue) => {
+        currentComponent.config = form.getFieldsValue();
+        // 如果组件属性中包含背景图片的配置，需要在上传图片之后计算新的组件宽高，以便能在编辑区正常展示
+        if (changeValue.backgroundImage) {
+            const img = new Image();
+            img.onload = () => {
+                const componentSize = { width: img.width * ratio, height: img.height * ratio };
+                currentComponent.config.componentSize = componentSize;
+                currentComponent.gridlayout.h = img.height * ratio;
+            }
+        }
+        onFinish(currentComponent);
+    };
+
+    return (
+        <Form
+            form={form}
+            initialValues={currentComponent.config}
+            onValuesChange={onValuesChange}
+            onFinish={onFinish}
+        >
+            {
+                currentComponent.schema.map((item, idx) => (
+                    <>
+                        {
+                            item.forms.map((schema) => (
+                                {
+                                    schema.type === 'UICOLOR' && (
+                                        <Form.Item
+                                            name={schema.key}
+                                        >
+                                            <ColorPicker />
+                                        </Form.Item>
+                                    )
+                                    {/* ...同上的方式，枚举其他类型并匹配相应的组件 */}
+                                }
+                            ))
+                        }
+                    </>
+                ))
+            }
+        </Form>
+    )
+}
+```
+
+## 其他
+
+### 组件
+
+这部分介绍下可被用于拖拽到编辑区的组件是如何将上述内容中涉及到的`props`和`schema`等属性结合到一起的。
+
+首先定义一个用于导出组件的文件`export.js`：
+
+```jsx
+const componentsList = [
+    // ...只列举了双端的图片组件用于说明
+    'image.normal.wap',
+    'image.normal.pc',
+];
+
+/**
+ * @description 该方法是按照组件的路径将相应的 props 属性导入到一块儿形成一个对象返回
+ */
+const getComponentPropsByKey = (componentUrl) => {
+    const componentProps = require(`../components/${componentUrl}/props`).default;
+    const { schema, terminalType } = componentProps;
+    const { config } = schema;
+    return { componentProps, schema, terminalType, config, componentUrl };
+}
+
+export default components = componentsList.map((componentUrl) => {
+    const { componentProps } = getComponentPropsByKey(componentUrl);
+    return {
+        ...componentProps,
+        componentUrl
+    };
+})
+```
+
+接下来看如何应用上述`export.js`文件，回顾`Picker`组件头部导入语句：
+
+```jsx
+import lowcodeComponents from 'lowcodeUI/components';
+```
+
+其中的`lowcodeUI`其实是模块联邦统一定义的 name。意味着上述`lowcodeComponents`是从模块联邦的生产者中导入的。它与`export.js`是如何结合起来的？这需要另外一个配置属性`exposes`：
+
+```js
+exposes: {
+    './components': path.resolve(
+        __dirname,
+        '../src/core/comp/export.js',
+    ),
+}
+```
+
+接下来介绍模块联邦相关配置。
+
+### 模块联邦（ModuleFederationPlugin）
+
