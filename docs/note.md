@@ -310,7 +310,9 @@ const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-dot');
     + 使用内容分发网络CDN
     + 用http2代替http1
 
-  + 压缩字体文件 
+  + 资源预加载（link标签rel属性配置`preconnect`或者`dns-prefetch`）
+
+  + 压缩字体文件
 
 ### http各版本区别
 
