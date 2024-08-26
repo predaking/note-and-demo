@@ -13,19 +13,23 @@
 
 在js中浮点数使用IEEE754双精度标准表示的，十进制小数相加是要转化为二进制进行存储与计算的，此时某些小数就无法完整的用二进制表示，类似整数1/3除不尽一样，就会出现精度问题。
 
+#### isNaN 与 Number.isNaN 有何区别
+
+`isNaN`在判断是否为`NaN`时，会先转化为`number`型再去判断，容易曲解其本来的作用。而`Number.isNaN`更严谨的进行直接判断，参数是`NaN`就是`true`，否则为`false`。
+
 ### Array
 
 #### 数组api列表
 
 + 数组创建&类型：
-  - `Array.from`：用于将类数组或者可迭代对象（Iterator）转化为一个 Array 型实例。
-  - `Array.of`：用于创建一个数组实例而不需要考虑参数个数及类型。
-  - `Array.isArray`：判断所传参数是否为数组类型。
+  + `Array.from`：用于将类数组或者可迭代对象（Iterator）转化为一个 Array 型实例。
+  + `Array.of`：用于创建一个数组实例而不需要考虑参数个数及类型。
+  + `Array.isArray`：判断所传参数是否为数组类型。
 + 数组添加&删除
-  - `push`：数组尾部添加元素，返回添加后的数组长度。
-  - `pop`：数组尾部移除元素，返回移除的元素。
-  - `shift`：数组头部移除元素，返回移除的元素。
-  - `unshift`：数组头部添加元素，返回添加后的数组长度。
+  + `push`：数组尾部添加元素，返回添加后的数组长度。
+  + `pop`：数组尾部移除元素，返回移除的元素。
+  + `shift`：数组头部移除元素，返回移除的元素。
+  + `unshift`：数组头部添加元素，返回添加后的数组长度。
 
 #### 改变原数组
 
@@ -58,6 +62,7 @@
 `toSorted`
 
 #### 可能改变原数组
+
 `forEach`
 
 ### String
@@ -82,61 +87,12 @@
 
 函数式编程中，改变或变更叫做 mutation，这种改变的结果叫做“副作用”（side effect）。 理想情况下，函数应该是不会产生任何副作用的 pure function
 
-### DOM
-
-#### MutationObserver
-
-`MutationObserver`可以监听 DOM 树的变化，前身是`Mutation Events`，该功能是 DOM3 Events 规范的一部分。
-
-**用法**： 可通过该构造函数创建一个实例，并且构造函数接收一个在 DOM 发生改变时候触发的回调函数，回调函数可接收两个参数：`mutations`收集 DOM 发生改变的集合，`observer`指向该实例。
-
-`MutationObserver`实例有三个实例方法：
-
-+ `observe`: 开始监听，并且接受两个参数：
-  + `targetNode`: 要监听变化的目标节点
-  + `options`: 监听配置项，可以在此设置监听规则，常见比如`childList: true`，表示监听子节点变化
-
-+ `takeRecords`: 返回已监听但并未被实例的回调函数处理的所有匹配的 DOM 改变的列表，使变更队列保持为空。常见适用场景是在断开监听前获取到所有未处理的变更，以便在停止监听后作相应的处理。
-
-+ `disconnect`: 断开监听
-
-```javascript
-const node = document.querySelector("#test");
-
-// 修改DOM节点
-const handleClick = function () {
-    const div = document.createElement("div");
-    const text = document.createTextNode("div");
-    node.appendChild(div);
-    div.appendChild(text);
-}
-
-const observerOptions = {
-    childList: true,
-    attributes: true
-};
-
-const callback = function (mutations) {
-    console.log(mutations);
-}
-
-const observer = new MutationObserver(callback);
-observer.observe(node, observerOptions);
-
-const mutations = observer.takeRecords();
-
-if (mutations) {
-    callback(mutations);
-}           
-
-observer.disconnect(); 
-```
-
 ### 位运算
 
 巧用位运算可提高代码性能
 
 1. 用与操作代替取模运算判断奇偶
+
 ```js
 var num = 27;
 // 与1进行按位与运算，结果不为0则为奇数
@@ -144,7 +100,9 @@ if (num & 1) {
   console.log('奇数');
 }
 ```
+
 2. 位掩码：用于判断列表里面是否有某一项
+
 ```js
 // 每一位掩码都是2的幂
 var OPTION_A = 1; // 00001
@@ -235,6 +193,20 @@ console.log('script end')
 所以需要进行尾调用优化，使得每次调用都用内层调用替换外层调用，这样始终只需存储一条调用记录，但是
 只是在严格模式下生效，因为非严格模式下会有arguments与func.caller记录调用信息。
 尾递归可以通过添加参数默认值、函数柯里化等方式实现
+
+### delete
+
+`delete`关键字返回值为`boolearn`类型，表示是否删除成功。无法删除通过`var`、`let`、`const`声明的变量。
+
+例：
+
+```js
+const name = 'Lydia';
+age = 21;
+
+console.log(delete name); // false
+console.log(delete age); // true
+```
   
 ## typescript
 
@@ -251,6 +223,7 @@ declare var __DEV__: boolean;
 ### 类型强制转换
 
 1. 因为某些内置对象自带一些属性和方法，因此为了能正确使用他们需要做相应的类型强制转换
+
 ```js
 const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-dot');
 ```
@@ -310,7 +283,7 @@ const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-dot');
     + 使用内容分发网络CDN
     + 用http2代替http1
 
-  + 资源预加载（link标签rel属性配置`preconnect`或者`dns-prefetch`）
+  + DNS预解析（link标签rel属性配置`preconnect`或者`dns-prefetch`）
 
   + 压缩字体文件
 
@@ -355,6 +328,8 @@ const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-dot');
 
 ### DNS解析过程
 
+浏览器缓存 -> 系统缓存 -> 路由器缓存 -> ISP运营商DNS缓存 -> 根域名服务器 -> 顶级域名服务器 -> 主（权限）域名服务器
+
 + 浏览器要将域名解析为IP地址，首先向本地DNS发起请求，本地DNS查询缓存，若没有找到，则下一步
 + 本地DNS依次向根DNS服务器、顶级DNS服务器、权限DNS服务器发起请求，获取网站服务器的IP地址
 + 本地DNS服务器将获取到的IP地址返回给浏览器，之后浏览器向该IP地址发起请求并得到资源
@@ -362,6 +337,7 @@ const canvas = <HTMLCanvasElement>document.getElementById('gl_canvas-dot');
 ### 内容分发网络（CDN）与DNS解析
 
 CDN的目的是在不同位置部署服务器的情况下让用户能够访问最近的服务器从而缩短请求时间
+
 1. 如果部署了GSLB（全局负载均衡系统），那么DNS解析过程中最后权限服务器返回的是该GSLB的IP地址，
 2. 随后GSLB根据本地DNS服务器的IP地址确定用户所处的位置，指定离其最近的SLB（本地负载均衡系统）
 集群进一步进行DNS解析，并将其IP地址返回给本地DNS服务器
@@ -379,7 +355,7 @@ CDN的目的是在不同位置部署服务器的情况下让用户能够访问�
 
 + expires(http1.0): 资源过期的绝对时间
   
-+ cache-control(http1.1): 
++ cache-control(http1.1):
   + max-age: 缓存持续时间（单位：秒）
   + public: 资源可被客户端与代理服务器缓存
   + private: 资源只允许客户端缓存
@@ -413,21 +389,22 @@ token，不相同则拒绝请求
 cookie设置httpOnly，所有来自客户端脚本的访问都会被禁止
 验证referer，服务器只处理指定网站发起的请求
 
-https://blog.csdn.net/hugo233/article/details/114272109
+<https://blog.csdn.net/hugo233/article/details/114272109>
 
 ### 进程与线程
 
-+ 进程：程序执行的最小单位
++ 进程：程序执行的最小单位，是系统进行资源分配和调度的一个独立单位
 + 线程：进程执行的最小单位
 
 + 进程与进程之间相互独立，有各自的内存空间
 + 进程由一个或多个线程组成，多个线程之间共享该进程内存
 
 + 浏览器进程：
-  + 主进程
+  + 主进程（负责菜单栏、标题栏、前进后退等）
   + 插件进程
   + GPU进程
   + 渲染进程（浏览器内核）
+  + 网络进程
 
 + 浏览器线程：
   + GUI渲染线程

@@ -1,54 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head></head>
-    <style>
-        .drop,
-        .drag {
-            width: 100px;
-            height: 100px;
-            background-color: red;
-            position: absolute;
-        }
+    <head>
+        <script src="./data.js"></script>
+        <style>
+            .container {
+                display: flex;
+                gap: 30px;
+                flex-wrap: wrap;
 
-        .drag {
-            top: 300px;
-        }
-    </style>
-    <body>
-        <div class="drop"></div>
-        <div class="drag" draggable="true"></div>
-        <script>
-            const drop = document.querySelector('.drop');
-            const drag = document.querySelector('.drag');
-            drag.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', 'drag');
-                console.log('dragstart: ', e);
-            });
-            // drag.addEventListener('drag', (e) => {
-            //     console.log('drag: ', e);
-            // });
-            drag.addEventListener('dragend', (e) => {
-                console.log('dragend: ', e);
-            });
-            drop.addEventListener('dragover', (e) => {
-                e.preventDefault();
-            });
+                .img {
+                    width: 400px;
+                    height: 400px;
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
 
-            // drop.addEventListener('dragenter', (e) => {
-            //     e.preventDefault();
-            //     console.log('dragenter: ', e);
-            // });
-            // drop.addEventListener('dragleave', (e) => {
-            //     console.log('dragleave: ', e);
-            // });
-            drop.addEventListener('drop', (e) => {
-                e.preventDefault();
-                console.log('drop: ', e);
-                const data = e.dataTransfer.getData('text/plain');
-                if (data === 'drag') {
-                    drop.style.backgroundColor = 'blue';
+                    img {
+                        width: 100%;
+                    }
                 }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container"></div>
+
+        <script>
+            const parent = document.querySelector('.container');
+            const fragment = document.createDocumentFragment();
+            const images = [];
+
+            data.forEach((url) => {
+                const img = document.createElement('img');
+                const _parent = document.createElement('div');
+                _parent.classList.add('img');
+                img.setAttribute('data-src', url);
+                images.push(img);
+                _parent.appendChild(img);
+                fragment.append(_parent);
             });
+            parent.append(fragment);
+
+            const config = {
+                rootMargin: '0px',
+                threshold: 0.5
+            };
+
+            const observer = new IntersectionObserver((entries, self) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const src = img.dataset.src;
+                        if (src) {
+                            img.src = src;
+                            img.removeAttribute('data-src');
+                        }
+                        self.unobserve(entry.target);
+                    }
+                });
+            }, config);
+
+            images.forEach((img) => observer.observe(img));
         </script>
     </body>
 </html>
