@@ -1,8 +1,10 @@
-## 技术栈
+## 简介
 
-`react-hooks` + `react-redux` + `react-router` + `typescript` + `webpack`
+大杂烩
 
 ## 启动项目
 
 + `npm i`
 + `npm run dev`
+
+## 其他

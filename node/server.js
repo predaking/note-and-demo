@@ -16,3 +16,17 @@ const init = () => {
 }
 
 init();
+
+/**
+ * user
+ * 
+ * id name password count 
+ * 
+ * card
+ * 
+ * name country quality skill left top right bottom userName
+ * 
+ * skill 
+ * 
+ * id name 
+ */

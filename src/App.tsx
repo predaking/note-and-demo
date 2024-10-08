@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import webgl from '../webgl';
-import Chat from '@/chat';
-
-console.log('chat: ', Chat);
+import Chat from '@/components/chat';
+import Register from '@/components/register';
 
 import './index.css';
 
@@ -13,7 +12,8 @@ const App = () => {
 
     return (
         <div>
-            <Chat />
+            <Register />
+            {/* <Chat /> */}
         </div>
     );
 }

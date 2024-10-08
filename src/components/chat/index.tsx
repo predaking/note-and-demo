@@ -8,11 +8,13 @@ const Chat = () => {
     const ws = useRef<any>(null);
 
     useEffect(() => {
-        const _ws = new WebSocket('ws://localhost:8888');
-        _ws.onmessage = (e) => {
-            setMsg(e.data);
-        }
-        ws.current = _ws;
+        // const _ws = new WebSocket('ws://localhost:8888', {
+            
+        // });
+        // _ws.onmessage = (e) => {
+        //     setMsg(e.data);
+        // }
+        // ws.current = _ws;
     }, []);
 
     const sendMsg = () => {
