@@ -1,11 +1,14 @@
 const express = require("express");
 const mysql = require('mysql');
 const cors = require('cors');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 
 const { result } = require('./enums');
-const password = require('./password');
+const password = require('../password');
 
 const identityKey = 'skey';
 
@@ -15,15 +18,20 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: 'http://localhost:8080',
-    credentials: true
+    origin: 'https://localhost:8080',
+    credentials: true,
 }));
+
 app.use(session({
     name: identityKey,
     secret: 'predaking',
+    resave: false,
     store: new FileStore(),
+    saveUninitialized: false,
     cookie: {
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: false,
+        httpOnly: false,
     },
 }));
 
@@ -102,6 +110,7 @@ app.post('/login', async (req, res) => {
             return;
         }
         req.session.loginUser = user[0];
+        console.log('session: ', req.session);
         res.json({
             ...result,
             msg: '登录成功'
@@ -110,6 +119,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/isLogin', (req, res) => {
+    console.log('session: ', req.session);
     if (req.session.loginUser) {
         res.json({
             ...result,
@@ -124,7 +134,14 @@ app.get('/isLogin', (req, res) => {
     }
 });
 
-app.listen(port, () => {
+const _options = {
+    key: fs.readFileSync(path.resolve(__dirname, '../server.key')),
+    cert: fs.readFileSync(path.resolve(__dirname, '../server.crt'))
+};
+
+const server = http.createServer(_options, app);
+
+server.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
 

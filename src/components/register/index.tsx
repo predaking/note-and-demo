@@ -11,7 +11,7 @@ const Register = () => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        // isLogin();
+        isLogin();
     }, []);
 
     const isLogin = async () => {

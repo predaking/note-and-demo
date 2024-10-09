@@ -17,9 +17,13 @@ export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: 
     })
 }
 
-export const request = (url: string, data?: any, method: string = 'GET') => {
+export const request = (url: string, data: any = {}, method: string = 'GET') => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
+        xhr.open(method, `${host}${url}`, true);
+        xhr.withCredentials = true;
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhr.send(JSON.stringify(data));
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const res = JSON.parse(xhr.response);
@@ -29,14 +33,11 @@ export const request = (url: string, data?: any, method: string = 'GET') => {
                 } else {
                     resolve(res);
                 }
-            } else {
-                console.log('err: ', xhr.response);
-                reject(xhr.response);
             }
         };
-        xhr.open(method, `${host}${url}`, true);
-        xhr.withCredentials = true;
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify(data));
+        xhr.onerror = (err) => {
+            console.log('err: ', err);
+            reject(err);
+        }
     });
 };
