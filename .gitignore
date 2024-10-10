@@ -2,3 +2,5 @@ node_modules
 ./build
 dist
 password.js
+openssl.cnf
+private

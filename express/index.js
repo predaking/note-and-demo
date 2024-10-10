@@ -1,11 +1,12 @@
 const express = require("express");
 const mysql = require('mysql');
 const cors = require('cors');
-const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const session = require('express-session');
-const FileStore = require('session-file-store')(session);
+const redis = require('redis');
+const RedisStore = require('connect-redis').default;
 
 const { result } = require('./enums');
 const password = require('../password');
@@ -15,32 +16,51 @@ const identityKey = 'skey';
 const app = express();
 const port = 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const sqlOptions = {
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password,
+    database: 'predaking'
+}
+
+const connect = mysql.createConnection(sqlOptions);
+
+const redisClient = redis.createClient({
+    url: 'redis://localhost:6379'
+});
+
+redisClient.on('error', (err) => {
+    console.log('redis error: ', err);
+});
+
+redisClient.on('connect', () => {
+    console.log('redis connected');
+});
+
+redisClient.connect();
+
 app.use(cors({
     origin: 'https://localhost:8080',
     credentials: true,
 }));
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(session({
     name: identityKey,
     secret: 'predaking',
     resave: false,
-    store: new FileStore(),
+    store: new RedisStore({
+        client: redisClient,
+    }),
     saveUninitialized: false,
     cookie: {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         secure: false,
-        httpOnly: false,
     },
 }));
-
-const connect = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password,
-    database: 'predaking'
-});
 
 connect.connect((err) => {
     if (err) {
@@ -110,7 +130,6 @@ app.post('/login', async (req, res) => {
             return;
         }
         req.session.loginUser = user[0];
-        console.log('session: ', req.session);
         res.json({
             ...result,
             msg: '登录成功'
@@ -135,17 +154,14 @@ app.get('/isLogin', (req, res) => {
 });
 
 const _options = {
-    key: fs.readFileSync(path.resolve(__dirname, '../server.key')),
-    cert: fs.readFileSync(path.resolve(__dirname, '../server.crt'))
+    key: fs.readFileSync(path.resolve(__dirname, '../predaking.key')),
+    cert: fs.readFileSync(path.resolve(__dirname, '../predaking.crt'))
 };
 
-const server = http.createServer(_options, app);
+const server = https.createServer(_options, app);
 
 server.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server is running at https://localhost:${port}`);
 });
-
-
-
 
 
