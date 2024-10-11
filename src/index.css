@@ -5,12 +5,14 @@ body {
 
 body {
 	width: 100%;
-	height: 100%;
+	height: calc(100vh - 80px);
+	padding: 0 20px;
+	overflow-x: hidden;
 }
 
 #app {
+	margin-top: 80px;
 	width: inherit;
-	height: inherit;
 }
 
 #gl {

@@ -2,6 +2,7 @@ const express = require("express");
 const mysql = require('mysql');
 const cors = require('cors');
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const session = require('express-session');
@@ -41,7 +42,7 @@ redisClient.on('connect', () => {
 redisClient.connect();
 
 app.use(cors({
-    origin: 'https://localhost:8080',
+    origin: 'http://localhost:8080',
     credentials: true,
 }));
 
@@ -55,6 +56,7 @@ app.use(session({
     store: new RedisStore({
         client: redisClient,
     }),
+    sameSite: 'lax',
     saveUninitialized: false,
     cookie: {
         maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -153,15 +155,32 @@ app.get('/isLogin', (req, res) => {
     }
 });
 
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            res.json({
+                ...result,
+                code: 1,
+                msg: '退出登录失败'
+            });
+            return;
+        }
+        res.json({
+            ...result,
+            msg: '退出登录成功'
+        });
+    });
+});
+
 const _options = {
     key: fs.readFileSync(path.resolve(__dirname, '../predaking.key')),
     cert: fs.readFileSync(path.resolve(__dirname, '../predaking.crt'))
 };
 
-const server = https.createServer(_options, app);
+const server = http.createServer(_options, app);
 
 server.listen(port, () => {
-    console.log(`Server is running at https://localhost:${port}`);
+    console.log(`Server is running at http://localhost:${port}`);
 });
 
 

@@ -1,6 +1,6 @@
 import { message } from "antd";
 
-const host = 'https://localhost:3000';
+const host = 'http://localhost:3000';
 
 export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: any) => {
     return new Promise((resolve, reject) => {

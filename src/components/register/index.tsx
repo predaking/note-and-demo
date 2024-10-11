@@ -16,7 +16,8 @@ const Register = () => {
 
     const isLogin = async () => {
         try {
-            await request('/isLogin');
+            const res = await request('/isLogin');
+            console.log(res);
             setOpen(false);
         } catch (e) {
             setOpen(true);
