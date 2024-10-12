@@ -1,4 +1,7 @@
-import React, { useReducer, createContext } from 'react';
+import React, { useReducer, createContext, useContext } from 'react';
+import { actionTypes } from '@/constant';
+
+const { SET_USERINFO } = actionTypes;
 
 interface ActionType {
     type: string;
@@ -6,22 +9,24 @@ interface ActionType {
 }
 
 const initValue = {
-    userInfo: {}
+    userInfo: null
 };
 
 const reducer = (state: any, action: ActionType) => {
     switch (action.type) {
-        case 'setUserInfo':
+        case SET_USERINFO:
             return { ...state, userInfo: action.userInfo };
         default:
             return state;
     }
 };
 
+const Context = createContext<{state: typeof initValue; dispatch: React.Dispatch<ActionType>} | undefined>(undefined);
+
+const useGlobalContext = () => useContext(Context) || { state: initValue, dispatch: () => {} };
+
 const Provider = ({ children }: { children: any }) => {
     const [state, dispatch] = useReducer(reducer, initValue);
-
-    const Context = createContext(state);
 
     return (
         <Context.Provider
@@ -36,7 +41,6 @@ const Provider = ({ children }: { children: any }) => {
 };
 
 export {
-    state,
-    dispatch,
+    useGlobalContext,
     Provider
 };

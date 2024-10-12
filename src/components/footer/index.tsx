@@ -10,7 +10,13 @@ const Footer = () => {
         <footer
             className={cx('footer')}
         >
-            ©2024 predaking
+            ©2024 predaking&nbsp;
+            <a 
+                href='https://beian.miit.gov.cn'
+                target='_blank'
+            >
+                京ICP备2024090417号-1
+            </a>
         </footer>
     );
 }

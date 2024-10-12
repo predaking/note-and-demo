@@ -19,3 +19,7 @@ export const emojiRanges = [
     [0x1F780, 0x1F7FF], // Geometric Shapes Extended
     [0x1F800, 0x1F8FF], // Supplemental Arrows-C
 ];
+
+export const actionTypes = {
+    SET_USERINFO: 'SET_USERINFO'
+};

@@ -3,11 +3,13 @@ const mysql = require('mysql');
 const cors = require('cors');
 const https = require('https');
 const http = require('http');
+const Ws = require('ws');
 const fs = require('fs');
 const path = require('path');
 const session = require('express-session');
 const redis = require('redis');
 const RedisStore = require('connect-redis').default;
+const socket = require('../socket/server');
 
 const { result } = require('./enums');
 const password = require('../password');
@@ -41,6 +43,20 @@ redisClient.on('connect', () => {
 
 redisClient.connect();
 
+const sessionParser = session({
+    name: identityKey,
+    secret: 'predaking',
+    resave: false,
+    store: new RedisStore({
+        client: redisClient,
+    }),
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: false,
+    },
+});
+
 app.use(cors({
     origin: 'http://localhost:8080',
     credentials: true,
@@ -49,20 +65,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(session({
-    name: identityKey,
-    secret: 'predaking',
-    resave: false,
-    store: new RedisStore({
-        client: redisClient,
-    }),
-    sameSite: 'lax',
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        secure: false,
-    },
-}));
+app.use(sessionParser);
 
 connect.connect((err) => {
     if (err) {
@@ -71,6 +74,29 @@ connect.connect((err) => {
         console.log('mysql connected');
     }
 });
+
+const _options = {
+    key: fs.readFileSync(path.resolve(__dirname, '../predaking.key')),
+    cert: fs.readFileSync(path.resolve(__dirname, '../predaking.crt'))
+};
+
+const server = http.createServer(_options, app);
+const wss = new Ws.Server({ clientTracking: true, noServer: true });
+
+server.on('upgrade', (req, socket, head) => {
+    sessionParser(req, {}, () => {
+        if (!req.session.loginUser) {
+            socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+            socket.destroy();
+            return;
+        }
+        wss.handleUpgrade(req, socket, head, (ws) => {
+            wss.emit('connection', ws, req);
+        });
+    });
+});
+
+socket.init(wss);
 
 const execute = (sql) => {
     return new Promise((resolve, reject) => {
@@ -171,13 +197,6 @@ app.get('/logout', (req, res) => {
         });
     });
 });
-
-const _options = {
-    key: fs.readFileSync(path.resolve(__dirname, '../predaking.key')),
-    cert: fs.readFileSync(path.resolve(__dirname, '../predaking.crt'))
-};
-
-const server = http.createServer(_options, app);
 
 server.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);

@@ -1,14 +1,26 @@
 import React from 'react';
-import { Input } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Avatar, Input } from 'antd';
+import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import classNames from 'classnames';
+import { Link, useLocation } from 'react-router-dom';
+import { useGlobalContext } from '@/store';
 
 import styles from './index.styl';
-import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 const Header = () => {
+    const { state } = useGlobalContext();
+    const { userInfo } = state;
+
+    const {
+        avatar
+    } = userInfo || {};
+
+    const location = useLocation();
+
+    const showAvatar = location.pathname !== '/' && userInfo;
+
     return (
         <header
             className={cx('header')}
@@ -33,7 +45,16 @@ const Header = () => {
                     <li>其他</li>
                 </ul>
             </nav>
-            <div></div>
+            {
+                showAvatar && (
+                    <Avatar 
+                        className={cx('avatar')}
+                        icon={<UserOutlined />} 
+                        src={avatar || null}
+                        alt='avatar'
+                    />
+                )
+            }
         </header>
     );
 };

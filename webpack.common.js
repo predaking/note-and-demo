@@ -4,7 +4,7 @@ const {
     BundleAnalyzerPlugin
 } = require('webpack-bundle-analyzer');
 // const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
-// const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const webpack = require('webpack');
 
@@ -43,7 +43,9 @@ module.exports = {
             // },
             {
                 test: /\.(js|jsx|ts|tsx)$/,
-                use: 'babel-loader',
+                use: {
+                    loader: 'babel-loader'
+                },
                 exclude: /node_modules/
             },
             {
@@ -58,7 +60,7 @@ module.exports = {
                 use: [
                     'style-loader',
                     'css-loader',
-                    'stylus-loader'
+                    'stylus-loader',
                 ]
             }
         ],
@@ -78,8 +80,8 @@ module.exports = {
         //     skipWaiting: true,
         // }),
 
-        // new BundleAnalyzerPlugin({
-        //     analyzerPort: 8887,
-        // }),
+        new BundleAnalyzerPlugin({
+            analyzerPort: 8887,
+        }),
     ],
 };

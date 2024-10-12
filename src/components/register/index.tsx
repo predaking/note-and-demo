@@ -2,13 +2,25 @@ import React, { useState, useEffect } from "react";
 import { Modal, Form, Input, Button, message } from "antd";
 import { request } from "@/service";
 import classnames from "classnames";
+import { useGlobalContext } from "@/store";
+import { actionTypes } from "@/constant";
+
 import styles from "./index.styl";
 
 const cx = classnames.bind(styles);
 
+const { SET_USERINFO } = actionTypes;
+
+interface ResultType {
+    code: number;
+    data: any;
+    message: string;
+}
+
 const Register = () => {
     const [open, setOpen] = useState<boolean>(false);
     const [form] = Form.useForm();
+    const { state, dispatch } = useGlobalContext();
 
     useEffect(() => {
         isLogin();
@@ -16,8 +28,8 @@ const Register = () => {
 
     const isLogin = async () => {
         try {
-            const res = await request('/isLogin');
-            console.log(res);
+            const res: any = await request('/isLogin');
+            dispatch({ type: SET_USERINFO, userInfo: res.data });
             setOpen(false);
         } catch (e) {
             setOpen(true);

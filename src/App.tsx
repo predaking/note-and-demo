@@ -1,29 +1,23 @@
-import React, { Suspense, createContext } from 'react';
+import React, { Suspense } from 'react';
 import { useRoutes } from 'react-router-dom';
 import routes from './routes';
 import Header from './components/header';
 import Footer from './components/footer';
-import { state, dispatch } from './store';
+import { Provider } from './store';
 
 import './index.css';
 
 const App = () => {
     const router = useRoutes(routes);
-    const Context = createContext(state);
 
     return (
-        <Context.Provider 
-            value={{
-                state,
-                dispatch
-            }}
-        >
+        <Provider>
             <Suspense fallback={<div>Loading...</div>}>
                 {router}
             </Suspense>
             <Header />
             <Footer />
-        </Context.Provider>
+        </Provider>
     );
 }
 
