@@ -27,10 +27,10 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.jpg|png|jpeg|gif/,
+                test: /\.(jpg|png|jpeg|gif)$/i,
                 type: 'asset/resource',
                 generator: {
-                    filename: 'static/images/[hash]',
+                    filename: 'static/images/[name].[hash][ext]',
                 }
             },
             // {
