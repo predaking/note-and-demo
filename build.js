@@ -1,0 +1,1 @@
+// scp -r ./dist/* root@8.152.160.122:/usr/share/nginx/html/
