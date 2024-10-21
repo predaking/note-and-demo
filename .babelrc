@@ -22,7 +22,7 @@
             {
                 "libraryName": "antd",
                 "libraryDirectory": "es",
-                "style": "css"
+                "style": "scss"
             }
         ]
     ]

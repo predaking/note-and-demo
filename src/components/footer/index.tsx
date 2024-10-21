@@ -1,17 +1,14 @@
 import React from 'react';
-import classNames from 'classnames';
 import icon from '../../../assets/icon.png';
-import styles from './index.styl';
-
-const cx = classNames.bind(styles);
+import styles from './index.module.scss';
 
 const Footer = () => {
     return (
         <footer
-            className={cx('footer')}
+            className={styles.footer}
         >
             <div
-                className={cx('copy-right')}
+                className={styles['copy-right']}
             >
                 ©2024 predaking&nbsp;
             </div>
@@ -22,10 +19,10 @@ const Footer = () => {
                 京ICP备2024090417号-1
             </a>
             <div
-                className={cx('record')}
+                className={styles.record}
             >
                 <img 
-                    className={cx('icon')}
+                    className={styles.icon}
                     src={icon}
                 />
                 <a 

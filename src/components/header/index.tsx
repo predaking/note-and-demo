@@ -1,13 +1,10 @@
 import React from 'react';
 import { Avatar, Input } from 'antd';
 import { SearchOutlined, UserOutlined } from '@ant-design/icons';
-import classNames from 'classnames';
 import { Link, useLocation } from 'react-router-dom';
 import { useGlobalContext } from '@/store';
 
-import styles from './index.styl';
-
-const cx = classNames.bind(styles);
+import styles from './index.module.scss';
 
 const Header = () => {
     const { state } = useGlobalContext();
@@ -23,17 +20,17 @@ const Header = () => {
 
     return (
         <header
-            className={cx('header')}
+            className={styles.header}
         >
-            <div className={cx('logo')}>
+            <div className={styles.logo}>
                 <Link to='/'>欢迎👏🏻</Link>
             </div>
             <Input 
-                className={cx('search')}
+                className={styles.search}
                 placeholder='全站搜索（暂未开放）' 
                 prefix={
                     <SearchOutlined
-                        className={cx('search-icon')}
+                        className={styles['search-icon']}
                     />
                 }
             />
@@ -48,7 +45,7 @@ const Header = () => {
             {
                 showAvatar && (
                     <Avatar 
-                        className={cx('avatar')}
+                        className={styles.avatar}
                         icon={<UserOutlined />} 
                         src={avatar || null}
                         alt='avatar'

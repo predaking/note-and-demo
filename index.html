@@ -20,20 +20,20 @@
     <body>
         <div id="app">
         </div>
-        <script type="module" src="./src/App.tsx" />
-        <!-- <div id="gl">
-            <canvas id="gl_canvas-3d-multi-layer-model" width="1200" height="640"></canvas>
-            <canvas id="gl_canvas-3d-layer-model" width="1200" height="640"></canvas>
-            <canvas id="gl_canvas-3d-light" width="1200" height="640"></canvas>
-            <canvas id="gl_canvas-3d-cube" width="1200" height="640"></canvas>
-            <canvas id="gl_canvas-3d-view" width="1200" height="640"></canvas>
-            <canvas id="gl_canvas-texture" width="1200" height="640"></canvas>
-            <canvas id="gl_canvas-video-texture" width="1200" height="640"></canvas>
-            <canvas id="gl_canvas-dot" width="1200" height="640"></canvas>
-            <canvas id="gl_canvas-shape" width="1200" height="640"></canvas>
-        </div> -->
+        <script type="module" src="./src/index.tsx" />
+        // <div id="gl">
+        //     <canvas id="gl_canvas-3d-multi-layer-model" width="1200" height="640"></canvas>
+        //     <canvas id="gl_canvas-3d-layer-model" width="1200" height="640"></canvas>
+        //     <canvas id="gl_canvas-3d-light" width="1200" height="640"></canvas>
+        //     <canvas id="gl_canvas-3d-cube" width="1200" height="640"></canvas>
+        //     <canvas id="gl_canvas-3d-view" width="1200" height="640"></canvas>
+        //     <canvas id="gl_canvas-texture" width="1200" height="640"></canvas>
+        //     <canvas id="gl_canvas-video-texture" width="1200" height="640"></canvas>
+        //     <canvas id="gl_canvas-dot" width="1200" height="640"></canvas>
+        //     <canvas id="gl_canvas-shape" width="1200" height="640"></canvas>
+        // </div>
 
-        <!-- <script id="vertex-shader" type="notjs">
+        <script id="vertex-shader" type="notjs">
             attribute vec4 aVertexPosition;
             attribute vec3 aNormalPosition;
             attribute vec2 aTextureCoord;
@@ -72,7 +72,7 @@
                 highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
                 gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
             }
-        </script> -->
+        </script>
     </body>
 </html>
 

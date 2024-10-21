@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Input, Button, message } from "antd";
 import { request } from "@/service";
-import classnames from "classnames";
 import { useGlobalContext } from "@/store";
 import { actionTypes } from "@/constant";
 
-import styles from "./index.styl";
-
-const cx = classnames.bind(styles);
+import styles from "./index.module.scss";
 
 const { SET_USERINFO } = actionTypes;
 
@@ -80,7 +77,7 @@ const Register = () => {
                 <Form.Item
                 >
                     <Button.Group
-                        className={cx('btn-group')}
+                        className={styles['btn-group']}
                     >
                         <Button
                             type="primary"
