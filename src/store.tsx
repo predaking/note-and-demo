@@ -1,4 +1,4 @@
-import React, { useReducer, createContext, useContext } from 'react';
+import React, { useReducer, createContext, useContext, ReactNode } from 'react';
 import { actionTypes } from '@/constant';
 
 const { SET_USERINFO } = actionTypes;
@@ -25,7 +25,7 @@ const Context = createContext<{state: typeof initValue; dispatch: React.Dispatch
 
 const useGlobalContext = () => useContext(Context) || { state: initValue, dispatch: () => {} };
 
-const Provider = ({ children }: { children: any }) => {
+const Provider = ({ children } : { children: any }): JSX.Element => {
     const [state, dispatch] = useReducer(reducer, initValue);
 
     return (

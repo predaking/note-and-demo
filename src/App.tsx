@@ -7,7 +7,7 @@ import { Provider } from './store';
 
 import './index.css';
 
-const App = () => {
+const App: React.FC = () => {
     const router = useRoutes(routes);
 
     return (

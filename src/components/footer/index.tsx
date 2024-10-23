@@ -2,7 +2,7 @@ import React from 'react';
 import icon from '../../../assets/icon.png';
 import styles from './index.module.scss';
 
-const Footer = () => {
+const Footer: React.FC = () => {
     return (
         <footer
             className={styles.footer}

@@ -2,6 +2,7 @@ const clients = new Set();
 
 const broadcast = (user) => {
     for (const client of clients) {
+        console.log('client: ', client);
         client.ws.send(`${user.name}已加入`);
     }
 };

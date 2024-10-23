@@ -5,7 +5,7 @@ import styles from './index.module.scss';
 
 const { getEmojis } = util;
 
-const Emoji = () => {
+const Emoji: React.FC = () => {
     const emojis = useMemo(() => getEmojis(), []);
 
     return (

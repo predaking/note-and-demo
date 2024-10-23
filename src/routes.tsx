@@ -1,8 +1,9 @@
 import React, { lazy } from 'react';
+import { RouteObject } from 'react-router-dom';
 const Index = lazy(() => import('./pages/Index'));
 const Entertainment = lazy(() => import('./pages/Entertainment'));
 
-const routes = [
+const routes: RouteObject[] = [
     {
         path: '/',
         element: <Index />

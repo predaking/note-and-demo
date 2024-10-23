@@ -1,7 +1,6 @@
-import React from 'react';
 import Emoji from '@/components/emoji';
 
-const Index = () => {
+const Index: React.FC = () => {
     return (
         <Emoji />
     )

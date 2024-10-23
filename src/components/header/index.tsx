@@ -6,7 +6,7 @@ import { useGlobalContext } from '@/store';
 
 import styles from './index.module.scss';
 
-const Header = () => {
+const Header: React.FC = () => {
     const { state } = useGlobalContext();
     const { userInfo } = state;
 
