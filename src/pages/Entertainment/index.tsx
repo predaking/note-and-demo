@@ -1,29 +1,36 @@
-import React, { useEffect } from 'react';
-import Register from '@/components/register';
+import React, { useState, useEffect } from 'react';
 import { notification } from 'antd';
 
 const ws = new WebSocket('ws://localhost:3000');
 
 const Entertainment = () => {
+    const [status, setStatus] = useState(0);
     useEffect(() => {
         ws.onopen = () => {
             // ws.send('hello');
             console.log('connected');
         };
         ws.onmessage = (e: any) => {
-            const timer = setTimeout(() => {
-                notification.success({
-                    message: e.data,
-                });
-                clearTimeout(timer);
-            }, 1000);
+            const _data = JSON.parse(e.data);
+            if (_data.type === 'matched') {
+                setStatus(1);
+            }   
         };
     }, []);
 
     return (
         <div>
-            <Register />
-            暂无内容
+            {
+                status === 1 ? (
+                    <div>
+                        <h1>匹配成功</h1>
+                    </div>
+                ) : (
+                    <div>
+                        <h1>匹配中...</h1>
+                    </div>
+                )
+            }
         </div>
     )
 }

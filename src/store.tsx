@@ -6,7 +6,11 @@ const { SET_USERINFO } = actionTypes;
 interface ActionType {
     type: string;
     [key: string]: any;
-}
+};
+
+interface ProviderProps {
+    children: ReactNode;
+};
 
 const initValue = {
     userInfo: null
@@ -25,7 +29,7 @@ const Context = createContext<{state: typeof initValue; dispatch: React.Dispatch
 
 const useGlobalContext = () => useContext(Context) || { state: initValue, dispatch: () => {} };
 
-const Provider = ({ children } : { children: any }): JSX.Element => {
+const Provider: React.FC<ProviderProps> = ({ children } : { children: any }) => {
     const [state, dispatch] = useReducer(reducer, initValue);
 
     return (

@@ -1,16 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import VitePluginImporter from "vite-plugin-importer";
 import path from 'path';
 
 export default defineConfig({
     plugins: [
-        react(),
-        VitePluginImporter({
-            libraryName: 'antd',  
-            libraryDirectory: 'es',  
-            style: 'css', // 默认为 'css'，你也可以选择 'less' 
-        })
+        react()
     ],
     resolve: {
         alias: [{

@@ -18,9 +18,12 @@ const Register = () => {
     const [open, setOpen] = useState<boolean>(false);
     const [form] = Form.useForm();
     const { state, dispatch } = useGlobalContext();
+    const { userInfo } = state;
 
     useEffect(() => {
-        isLogin();
+        if (location.pathname === '/entertainment') {
+            isLogin();
+        }
     }, []);
 
     const isLogin = async () => {

@@ -1,17 +1,62 @@
-const clients = new Set();
+const playerPool = new Set();
+const rooms = {};
 
-const broadcast = (user) => {
-    for (const client of clients) {
-        console.log('client: ', client);
-        client.ws.send(`${user.name}已加入`);
+/**
+ * @description 广播
+ * @param {*} players 
+ * @param {*} data 
+ */
+const broadcast = (players, data) => {
+    for (const player of players) {
+        player.ws.send(JSON.stringify(data));
     }
+};
+
+/**
+ * @description 匹配玩家
+ * @param {*} player 
+ */
+const matchPlayer = (player) => {
+    const _name = player.user.name;
+    const playerList = Array.from(playerPool);
+    const hasPlayer = playerList.find(player => player.user.name === _name);
+
+    if (playerPool.size === 0 && !hasPlayer) {
+        playerPool.add(player);
+    } else {
+        const players = Array.from(playerPool);
+        const waitingPlayer = players.pop();
+        playerPool.delete(waitingPlayer);
+        const _players = [player, waitingPlayer];
+        const room = createRoom(_players);
+        broadcast(_players, {
+            ...room,
+            type: 'matched'
+        });
+        // playerPool.clear();
+    }
+};
+
+/**
+ * @description 创建房间
+ * @param {*} players 
+ * @returns 
+ */
+const createRoom = (players) => {
+    const roomId = `房间${Date.now()}`;
+    const room = {
+        players: players.map(player => player.user),
+        status: 0,
+        roomId
+    };
+    rooms[roomId] = room;
+    return room;
 };
 
 const init = (wss) => {
     wss.on('connection', function connection (ws, req) {
         const user = req?.session?.loginUser;
-        clients.add({ ws, user });
-        broadcast(user);
+        matchPlayer({ ws, user });
         ws.on('message', function receive () {
 
         });
