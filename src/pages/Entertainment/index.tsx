@@ -12,7 +12,11 @@ const Entertainment = () => {
         };
         ws.onmessage = (e: any) => {
             const _data = JSON.parse(e.data);
+            console.log('_data: ', _data);
             if (_data.type === 'matched') {
+                notification.open({
+                    message: '匹配成功'
+                });
                 setStatus(1);
             }   
         };
