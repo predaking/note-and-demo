@@ -45,7 +45,7 @@ app.post('/convert', upload.single('file'), async (req, res) => {
 
         // 发送 PNG 文件到客户端
         res.contentType('image/png');
-        res.send(pngData);
+        res.send(`data:image/png;base64,${pngData.toString('base64')}`);
     } catch (error) {
         console.error('Error during conversion:', error);
         res.status(500).send('Conversion failed');

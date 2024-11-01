@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Upload } from 'antd';
+import { Upload, message } from 'antd';
 
 const SOURCE_URL = 'https://guonei-cos.koocdn.com/common/2f34d4722bff4481804ff19816233095.wmf';
 
@@ -8,10 +8,19 @@ const Conversion: React.FC = () => {
     const [src, setSrc] = useState('');
 
     const onChange = async (info: any) => {
-        const { status, response } = info.file;
-        if (status === 'done') {
-            const blob = new Blob([response]);
-            setSrc(URL.createObjectURL(blob));
+        if (info.file.status === 'uploading') {
+            return;
+        }
+        if (info.file.status === 'done') {
+            try {
+                const base64Url = info.file.response;
+                setSrc(base64Url);
+            } catch (error) {
+                console.error('Error:', error);
+                message.error('Error while processing the response.');
+            }
+        } else if (info.file.status === 'error') {
+            message.error(`${info.file.name} file upload failed.`);
         }
     }
 
