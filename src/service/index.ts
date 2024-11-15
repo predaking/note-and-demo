@@ -20,7 +20,7 @@ export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: 
 export const request = (url: string, data: any = {}, method: string = 'GET') => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open(method, `${host}${url}`, true);
+        xhr.open(method, 'https://aibox.neibu.koolearn.com/tool/tts/send_long_tts_result', true);
         xhr.withCredentials = true;
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         xhr.send(JSON.stringify(data));

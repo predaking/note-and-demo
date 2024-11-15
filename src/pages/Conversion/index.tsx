@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Upload, message } from 'antd';
+import { request } from '@/service';
 
 const SOURCE_URL = 'https://guonei-cos.koocdn.com/common/2f34d4722bff4481804ff19816233095.wmf';
 
@@ -30,21 +31,21 @@ const Conversion: React.FC = () => {
     return (
         <div>
             <Upload.Dragger
-                action={'http://localhost:9090/convert'}
+                action={'https://aibox.neibu.koolearn.com/wmf-convertion/convert'}
                 onChange={onChange}
                 showUploadList={false}
                 name='file'
             >
                 Upload
             </Upload.Dragger>
-            <div 
+            <div
                 style={{
                     marginTop: '20px',
                 }}
             >
                 <canvas ref={ctxRef} />
             </div>
-            <div 
+            <div
                 style={{
                     marginTop: '20px',
                 }}
