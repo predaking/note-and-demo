@@ -1,61 +1,68 @@
-const express = require('express');
-const multer = require('multer');
-const cors = require('cors');
 const fs = require('fs');
-const { exec } = require('child_process');
-const { promisify } = require('util');
 const path = require('path');
-
-const app = express();
-
-const upload = multer({ dest: 'uploads/' });
-
-app.use(cors({
-	origin: 'http://localhost:5173',
-	credentials: true,
-}));
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-const execAsync = promisify(exec);
-const readFileAsync = promisify(fs.readFile);
-const unlinkAsync = promisify(fs.unlink);
-
-app.post('/convert', upload.single('file'), async (req, res) => {
-    const inputWmfPath = req.file.path;
-    const outputPngPath = path.join(path.dirname(inputWmfPath), path.basename(inputWmfPath, '.wmf') + '.png');
-
-    try {
-        // 使用 LibreOffice 将 WMF 转换为 PNG
-        console.log(`Converting ${inputWmfPath} to PNG using LibreOffice...`);
-        await execAsync(`soffice --headless --convert-to png ${inputWmfPath} --outdir ${path.dirname(inputWmfPath)}`);
-
-        // 检查是否生成了 PNG 文件
-        if (!fs.existsSync(outputPngPath)) {
-            throw new Error('Failed to convert WMF to PNG using LibreOffice.');
-        }
-
-        // 使用 ImageMagick 裁剪图片
-        console.log(`Trimming PNG image using ImageMagick...`);
-        await execAsync(`convert ${outputPngPath} -trim +repage ${outputPngPath}`);
-
-        // 读取生成的 PNG 文件
-        const pngData = await readFileAsync(outputPngPath);
-
-        // 发送 PNG 文件到客户端
-        res.contentType('image/png');
-        res.send(`data:image/png;base64,${pngData.toString('base64')}`);
-    } catch (error) {
-        console.error('Error during conversion:', error);
-        res.status(500).send('Conversion failed');
-    } finally {
-        // 删除中间生成的文件
-        await unlinkAsync(inputWmfPath).catch(console.error);
-        if (fs.existsSync(outputPngPath)) await unlinkAsync(outputPngPath).catch(console.error);
+const ft = require('fastify')({ 
+    logger: true,
+    http2: true,
+    https: {
+        key: fs.readFileSync(path.resolve(__dirname, '../predaking.key')),
+        cert: fs.readFileSync(path.resolve(__dirname, '../predaking.crt'))
     }
 });
 
+const { execute } = require('./db');
+const password = require('../password');
+const { result } = require('./enums');
 
-// server.requestTimeout = 1000; 可以手动设置超时时间
-app.listen(9090);
+ft.register(require('@fastify/mysql'), {
+    promise: true,
+    connectionString: `mysql://root:${password}@localhost/predaking`
+});
+
+ft.post('/login', async (req, reply) => {
+    const { name, password } = req.body;
+    const findUser = `select * from user where name = '${name}' and password = '${password}'`;
+    try {
+        // const user = await execute(ft, findUser);
+        await ft.mysql.getConnection((err, client) => {
+            console.log('debug: ', err, client);
+            if (err) {
+                return reply.send({ code: 1, msg: '登录失败' });
+            }
+    
+            client.query(findUser, (err, result) => {
+                client.release();
+                if (err) {
+                    return reply.send({ code: 1, msg: '登录失败' });
+                }
+                reply.send({ code: 0, msg: '登录成功' });
+            });
+        });
+        // console.log('user: ', user);
+        // reply.send({ code: 0, msg: '登录成功' });
+    } catch (error) {
+        ft.log.error(error);
+        return { code: 1, msg: '登录失败' };
+    }
+});
+
+ft.post('/test', async (_, reply) => {
+    const client = await ft.mysql.getConnection();
+    const [rows] = await client.query('select * from user');
+    client.release();
+    reply.send({ ...result, data: rows });
+});
+
+ft.setErrorHandler((error, req, reply) => {
+    ft.log.error(error);
+    reply.send({ code: 1, msg: '服务器错误' });
+});
+
+ft.listen({
+    port: 3000
+}, (err, address) => {
+    if (err) {
+        ft.log.error('err: ' + err);
+        process.exit(1);
+    }
+    ft.log.info(`server listening on ${address}`);
+});
