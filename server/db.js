@@ -1,21 +1,14 @@
-const execute = (ft, sql) => {
-    return new Promise((resolve, reject) => {
-        ft.mysql.getConnection((err, client) => {
-            console.log('debug: ', err, client);
-            if (err) {
-                return reject(err);
-            }
-    
-            client.query(sql, (err, result) => {
-                console.log('debug: ', sql, err, result);
-                client.release();
-                if (err) {
-                    return reject(err);
-                }
-                resolve(result);
-            });
-        });
-    })
+const execute = async (ft, sql) => {
+    let client;
+    try {
+        const client = await ft.mysql.getConnection();
+        const [rows] = await client.query(sql);
+        client.release();
+        return rows[0];
+    } catch (error) {
+        client && client.release();
+        throw error;
+    }
 }
 
 module.exports = {

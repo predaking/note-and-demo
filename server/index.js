@@ -22,23 +22,11 @@ ft.post('/login', async (req, reply) => {
     const { name, password } = req.body;
     const findUser = `select * from user where name = '${name}' and password = '${password}'`;
     try {
-        // const user = await execute(ft, findUser);
-        await ft.mysql.getConnection((err, client) => {
-            console.log('debug: ', err, client);
-            if (err) {
-                return reply.send({ code: 1, msg: '登录失败' });
-            }
-    
-            client.query(findUser, (err, result) => {
-                client.release();
-                if (err) {
-                    return reply.send({ code: 1, msg: '登录失败' });
-                }
-                reply.send({ code: 0, msg: '登录成功' });
-            });
-        });
-        // console.log('user: ', user);
-        // reply.send({ code: 0, msg: '登录成功' });
+        const user = await execute(ft, findUser);
+        if (!user) {
+            return { code: 1, msg: '用户名或密码错误' };
+        }
+        reply.send({ code: 0, msg: '登录成功' });
     } catch (error) {
         ft.log.error(error);
         return { code: 1, msg: '登录失败' };
