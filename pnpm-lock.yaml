@@ -8,9 +8,24 @@ importers:
 
   .:
     dependencies:
+      '@fastify/cookie':
+        specifier: ^11.0.1
+        version: 11.0.1
+      '@fastify/cors':
+        specifier: ^10.0.1
+        version: 10.0.1
+      '@fastify/formbody':
+        specifier: ^8.0.1
+        version: 8.0.1
       '@fastify/mysql':
         specifier: ^5.0.1
         version: 5.0.1
+      '@fastify/session':
+        specifier: ^11.0.2
+        version: 11.0.2
+      '@fastify/websocket':
+        specifier: ^11.0.1
+        version: 11.0.1
       '@types/react':
         specifier: ^18.3.12
         version: 18.3.12
@@ -71,9 +86,6 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
-      ws:
-        specifier: ^8.18.0
-        version: 8.18.0
     devDependencies:
       '@ant-design/icons':
         specifier: ^4.4.0
@@ -1082,17 +1094,32 @@ packages:
   '@fastify/ajv-compiler@4.0.1':
     resolution: {integrity: sha512-DxrBdgsjNLP0YM6W5Hd6/Fmj43S8zMKiFJYgi+Ri3htTGAowPVG/tG1wpnWLMjufEnehRivUCKZ1pLDIoZdTuw==}
 
+  '@fastify/cookie@11.0.1':
+    resolution: {integrity: sha512-n1Ooz4bgQ5LcOlJQboWPfsMNxIrGV0SgU85UkctdpTlCQE0mtA3rlspOPUdqk9ubiiZn053ucnia4DjTquI4/g==}
+
+  '@fastify/cors@10.0.1':
+    resolution: {integrity: sha512-O8JIf6448uQbOgzSkCqhClw6gFTAqrdfeA6R3fc/3gwTJGUp7gl8/3tbNB+6INuu4RmgVOq99BmvdGbtu5pgOA==}
+
   '@fastify/error@4.0.0':
     resolution: {integrity: sha512-OO/SA8As24JtT1usTUTKgGH7uLvhfwZPwlptRi2Dp5P4KKmJI3gvsZ8MIHnNwDs4sLf/aai5LzTyl66xr7qMxA==}
 
   '@fastify/fast-json-stringify-compiler@5.0.1':
     resolution: {integrity: sha512-f2d3JExJgFE3UbdFcpPwqNUEoHWmt8pAKf8f+9YuLESdefA0WgqxeT6DrGL4Yrf/9ihXNSKOqpjEmurV405meA==}
 
+  '@fastify/formbody@8.0.1':
+    resolution: {integrity: sha512-LPrcadSIK8TrQk510Zdj56fnw7cyHq0/PW0YHGGM8ycGL4X7XAex+FKcwpzB4i5lF9eykc71a4EtcO9AEoByqw==}
+
   '@fastify/merge-json-schemas@0.1.1':
     resolution: {integrity: sha512-fERDVz7topgNjtXsJTTW1JKLy0rhuLRcquYqNR9rF7OcVpCa2OVW49ZPDIhaRRCaUuvVxI+N416xUoF76HNSXA==}
 
   '@fastify/mysql@5.0.1':
     resolution: {integrity: sha512-R03FBuxNV9NnQGSwCkA6cfnt9KTktTuhY5ixh0n1Vxy0gjgYuRtaWh/y9sjKeHP+CbJAX26QhaMcIgKL2n5k7w==}
+
+  '@fastify/session@11.0.2':
+    resolution: {integrity: sha512-JQ/UlIS08Cwh2AjC3UhBAQRe0735Yr+I3GkY8hI7KwXR8N7a1/JooBSHvSmKXOGbq44suvlglUDdd01dBdoLKw==}
+
+  '@fastify/websocket@11.0.1':
+    resolution: {integrity: sha512-44yam5+t1I9v09hWBYO+ezV88+mb9Se2BjgERtzB/68+0mGeTfFkjBeDBe2y+ZdiPpeO2rhevhdnfrBm5mqH+Q==}
 
   '@humanwhocodes/config-array@0.5.0':
     resolution: {integrity: sha512-FagtKFz74XrTl7y6HCzQpwDfXP0yhxe9lHLD1UZxjvZIcbyRz8zTFF/yYNfSfzU414eDwZ1SrO0Qvtyf+wFMQg==}
@@ -2355,6 +2382,9 @@ packages:
   domutils@3.1.0:
     resolution: {integrity: sha512-H78uMmQtI2AhgDJjWeQmHwJJ2bLPD3GMmO7Zja/ZZh84wkm+4ut+IUnUdRa8uCGX88DiVx1j6FRe1XfxEgjEZA==}
 
+  duplexify@4.1.3:
+    resolution: {integrity: sha512-M3BmBhwJRZsSx38lZyhE53Csddgzl5R7xGJNk7CVddZD6CcmwMCH8J+7AprIrQKH7TonKxaCjcv27Qmf+sQ+oA==}
+
   ecc-jsbn@0.1.2:
     resolution: {integrity: sha512-eh9O+hwRHNbG4BLTjEl3nw044CkGm5X6LoaCf7LPp7UU8Qrt47JYNi6nPX8xjW97TKGKm1ouctg0QSpZe9qrnw==}
 
@@ -3606,6 +3636,9 @@ packages:
     resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
     hasBin: true
 
+  mnemonist@0.39.8:
+    resolution: {integrity: sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==}
+
   mongodb-connection-string-url@2.6.0:
     resolution: {integrity: sha512-WvTZlI9ab0QYtTYnuMLgobULWhokRjtC7db9LtcVfJ+Hsnyr5eo6ZtNAt3Ly24XZScGMelOcGtm7lSn0332tPQ==}
 
@@ -3754,6 +3787,9 @@ packages:
   object.values@1.2.0:
     resolution: {integrity: sha512-yBYjY9QX2hnRmZHAjG/f13MzmBzxzYgQhFrke06TTyKY5zSTEqkOeukBzIdVA3j3ulu8Qa3MbVFShV7T2RmGtQ==}
     engines: {node: '>= 0.4'}
+
+  obliterator@2.0.4:
+    resolution: {integrity: sha512-lgHwxlxV1qIg1Eap7LgIeoBWIMFibOjbrYPIPJZcI1mmGAI2m3lNYpK12Y+GBdPQ0U1hRwSord7GIaawz962qQ==}
 
   on-exit-leak-free@2.1.2:
     resolution: {integrity: sha512-0eJJY6hXLGf1udHwfNftBqH+g73EU4B504nZeKpz1sYRKafAghwxEJunB2O7rDZkL4PGfsMVnTXZ2EjibbqcsA==}
@@ -4329,6 +4365,10 @@ packages:
   readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
 
+  readable-stream@3.6.2:
+    resolution: {integrity: sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==}
+    engines: {node: '>= 6'}
+
   readdirp@3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
@@ -4870,6 +4910,9 @@ packages:
   stealthy-require@1.1.1:
     resolution: {integrity: sha512-ZnWpYnYugiOVEY5GkcuJK1io5V8QmNYChG62gSit9pQVGErXtrKuPC55ITaVSukmMta5qpMU7vqLt2Lnni4f/g==}
     engines: {node: '>=0.10.0'}
+
+  stream-shift@1.0.3:
+    resolution: {integrity: sha512-76ORR0DO1o1hlKwTbi/DM3EXWGf3ZJYO8cXX5RJwnul2DEg2oyoZyjLNoQM8WsvZiFKCRfC1O0J7iCvie3RZmQ==}
 
   streamsearch@1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
@@ -6784,11 +6827,26 @@ snapshots:
       ajv-formats: 3.0.1(ajv@8.17.1)
       fast-uri: 3.0.3
 
+  '@fastify/cookie@11.0.1':
+    dependencies:
+      cookie: 1.0.2
+      fastify-plugin: 5.0.1
+
+  '@fastify/cors@10.0.1':
+    dependencies:
+      fastify-plugin: 5.0.1
+      mnemonist: 0.39.8
+
   '@fastify/error@4.0.0': {}
 
   '@fastify/fast-json-stringify-compiler@5.0.1':
     dependencies:
       fast-json-stringify: 6.0.0
+
+  '@fastify/formbody@8.0.1':
+    dependencies:
+      fast-querystring: 1.1.2
+      fastify-plugin: 5.0.1
 
   '@fastify/merge-json-schemas@0.1.1':
     dependencies:
@@ -6798,6 +6856,20 @@ snapshots:
     dependencies:
       fastify-plugin: 5.0.1
       mysql2: 3.12.0
+
+  '@fastify/session@11.0.2':
+    dependencies:
+      fastify-plugin: 5.0.1
+      safe-stable-stringify: 2.5.0
+
+  '@fastify/websocket@11.0.1':
+    dependencies:
+      duplexify: 4.1.3
+      fastify-plugin: 5.0.1
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@humanwhocodes/config-array@0.5.0':
     dependencies:
@@ -6891,7 +6963,9 @@ snapshots:
       source-map: 0.6.1
       string-length: 2.0.0
     transitivePeerDependencies:
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@jest/source-map@24.9.0':
     dependencies:
@@ -8457,6 +8531,13 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
 
+  duplexify@4.1.3:
+    dependencies:
+      end-of-stream: 1.4.4
+      inherits: 2.0.4
+      readable-stream: 3.6.2
+      stream-shift: 1.0.3
+
   ecc-jsbn@0.1.2:
     dependencies:
       jsbn: 0.1.1
@@ -9643,7 +9724,9 @@ snapshots:
       pretty-format: 24.9.0
       throat: 4.1.0
     transitivePeerDependencies:
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   jest-leak-detector@24.9.0:
     dependencies:
@@ -10140,6 +10223,10 @@ snapshots:
     dependencies:
       minimist: 1.2.8
 
+  mnemonist@0.39.8:
+    dependencies:
+      obliterator: 2.0.4
+
   mongodb-connection-string-url@2.6.0:
     dependencies:
       '@types/whatwg-url': 8.2.2
@@ -10340,6 +10427,8 @@ snapshots:
       call-bind: 1.0.7
       define-properties: 1.2.1
       es-object-atoms: 1.0.0
+
+  obliterator@2.0.4: {}
 
   on-exit-leak-free@2.1.2: {}
 
@@ -11009,6 +11098,12 @@ snapshots:
       string_decoder: 1.1.1
       util-deprecate: 1.0.2
 
+  readable-stream@3.6.2:
+    dependencies:
+      inherits: 2.0.4
+      string_decoder: 1.1.1
+      util-deprecate: 1.0.2
+
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.1
@@ -11583,6 +11678,8 @@ snapshots:
   statuses@2.0.1: {}
 
   stealthy-require@1.1.1: {}
+
+  stream-shift@1.0.3: {}
 
   streamsearch@1.1.0: {}
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { notification } from 'antd';
 
-const ws = new WebSocket('ws://localhost:3000');
+const ws = new WebSocket('wss://localhost:3000/ws');
 
 const Entertainment = () => {
     const [status, setStatus] = useState(0);
@@ -9,6 +9,9 @@ const Entertainment = () => {
         ws.onopen = () => {
             // ws.send('hello');
             console.log('connected');
+        };
+        ws.onerror = (e: any) => {
+            console.log('error: ', e);
         };
         ws.onmessage = (e: any) => {
             const _data = JSON.parse(e.data);

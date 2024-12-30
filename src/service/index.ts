@@ -1,6 +1,6 @@
 import { message } from "antd";
 
-const host = 'https://localhost:3000';
+const host = '//localhost:3000';
 
 export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: any) => {
     return new Promise((resolve, reject) => {
@@ -17,10 +17,10 @@ export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: 
     })
 }
 
-export const request = (url: string, data: any = {}, method: string = 'GET') => {
+const request = (method: string = 'get', url: string, data: any = {}) => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open(method, host, true);
+        xhr.open(method, `${host}${url}`, true);
         xhr.withCredentials = true;
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         xhr.send(JSON.stringify(data));
@@ -41,3 +41,11 @@ export const request = (url: string, data: any = {}, method: string = 'GET') => 
         }
     });
 };
+
+export const get = (url: string, data: any = {}) => {
+    return request('GET', url, data);
+}
+
+export const post = (url: string, data: any = {}) => {
+    return request('POST', url, data);
+}

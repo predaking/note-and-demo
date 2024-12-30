@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Input, Button, message } from "antd";
-import { request } from "@/service";
+import { get, post } from "@/service";
 import { useGlobalContext } from "@/store";
 import { actionTypes } from "@/constant";
 
@@ -28,7 +28,7 @@ const Register = () => {
 
     const isLogin = async () => {
         try {
-            const res: any = await request('/isLogin');
+            const res: any = await get('/isLogin');
             dispatch({ type: SET_USERINFO, userInfo: res.data });
             setOpen(false);
         } catch (e) {
@@ -38,7 +38,7 @@ const Register = () => {
 
     const login = () => {
         form.validateFields().then(async (values) => {
-            await request('/login', values, 'post');
+            await post('/login', values);
             localStorage.setItem('name', values.name);
             message.success('登录成功');
             setOpen(false);
@@ -47,7 +47,7 @@ const Register = () => {
 
     const register = () => {
         form.validateFields().then(async (values) => {
-            await request('/register', values, 'post');
+            await post('/register', values);
             message.success('注册成功');
         });
     };
@@ -68,14 +68,14 @@ const Register = () => {
                     name="name"
                     rules={[{ required: true, message: '请输入昵称' }]}
                 >
-                    <Input />
+                    <Input>{null}</Input>
                 </Form.Item>
                 <Form.Item
                     label="密码"
                     name="password"
                     rules={[{ required: true, max: 8, message: '请输入密码' }]}
                 >
-                    <Input type="password" />
+                    <Input type="password">{null}</Input>
                 </Form.Item>
                 <Form.Item
                 >
