@@ -17,8 +17,8 @@ const App: React.FC = () => {
                 {router}
             </Suspense>
             <Register />
-            <Header />
-            <Footer />
+            {/* <Header /> */}
+            {/* <Footer /> */}
         </Provider>
     );
 }

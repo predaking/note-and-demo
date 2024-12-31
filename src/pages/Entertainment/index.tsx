@@ -10,8 +10,8 @@ const Entertainment = () => {
             // ws.send('hello');
             console.log('connected');
         };
-        ws.onerror = (e: any) => {
-            console.log('error: ', e);
+        ws.onerror = (err: any) => {
+            console.log('error: ', err, err.message);
         };
         ws.onmessage = (e: any) => {
             const _data = JSON.parse(e.data);
@@ -28,15 +28,15 @@ const Entertainment = () => {
     return (
         <div>
             {
-                status === 1 ? (
-                    <div>
-                        <h1>匹配成功</h1>
-                    </div>
-                ) : (
-                    <div>
-                        <h1>匹配中...</h1>
-                    </div>
-                )
+                // status === 1 ? (
+                //     <div>
+                //         <h1>匹配成功</h1>
+                //     </div>
+                // ) : (
+                //     <div>
+                //         <h1>匹配中...</h1>
+                //     </div>
+                // )
             }
         </div>
     )

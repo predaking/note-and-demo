@@ -75,7 +75,7 @@ ft.get('/isLogin', (req, _) => {
 });
 
 ft.get('/ws', { websocket: true }, (connection, req) => {
-    connection.socket.send('Hello World');
+    connection.socket.send('hello');
 });
 
 ft.setErrorHandler((error, req, reply) => {
