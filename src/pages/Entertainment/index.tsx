@@ -7,13 +7,13 @@ const Entertainment = () => {
     const [status, setStatus] = useState(0);
     useEffect(() => {
         ws.onopen = () => {
-            // ws.send('hello');
             console.log('connected');
         };
         ws.onerror = (err: any) => {
             console.log('error: ', err, err.message);
         };
         ws.onmessage = (e: any) => {
+            console.log('e: ', e);
             const _data = JSON.parse(e.data);
             console.log('_data: ', _data);
             if (_data.type === 'matched') {
