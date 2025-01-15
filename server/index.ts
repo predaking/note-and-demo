@@ -1,17 +1,23 @@
+import { 
+    FastifyRequest, 
+    FastifyReply,
+} from 'fastify';
 const fs = require('fs');
 const path = require('path');
 const { execute } = require('./db');
 const password = require('../password');
 const { result } = require('./enums');
 const { RedisStore, redisClient } = require('./redis');
+const { init } = require('../socket/server');
 
-const init = async () => {
+const _init = async () => {
     const ft = require('fastify')({ 
         logger: true,
         https: {
             key: fs.readFileSync(path.resolve(__dirname, '../predaking.key')),
             cert: fs.readFileSync(path.resolve(__dirname, '../predaking.crt')),
-        }
+        },
+        // http2: true
     });
     
     await ft.register(require('@fastify/websocket'), {
@@ -44,8 +50,8 @@ const init = async () => {
         connectionString: `mysql://root:${password}@localhost/predaking`
     });
     
-    ft.post('/login', async (req, reply) => {
-        const { name, password } = req.body;
+    ft.post('/login', async (req: FastifyRequest, reply: FastifyReply) => {
+        const { name, password } = req.body as { name: string, password: string };
         const findUser = `select * from user where name = ? and password = ?`;
         try {
             const user = await execute(ft, findUser, [name, password]);
@@ -69,10 +75,13 @@ const init = async () => {
     });
     
     ft.get('/ws', { websocket: true }, (connection, req) => {
-        connection.send('hello');
+        console.log('connected');
+
         connection.onmessage = (message) => {
             console.log('received: ' + message.data);
         }
+
+        init(connection, req);
     });
     
     ft.setErrorHandler((error, req, reply) => {
@@ -91,5 +100,5 @@ const init = async () => {
     });
 };
 
-init();
+_init();
 

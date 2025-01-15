@@ -5,7 +5,7 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "start": "nodemon ./server/index.js",
+        "start": "nodemon",
         "build": "vite build",
         "serve": "vite preview",
         "mock": "node mock/index",

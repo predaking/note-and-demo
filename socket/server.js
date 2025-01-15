@@ -61,35 +61,31 @@ const createRoom = (players) => {
     return room;
 };
 
-const init = (wss) => {
-    wss.on('connection', async function connection (ws, req) {
-        ws.on('message', function receive () {
+const init = async (connection, req) => {
+    const {
+        loginUser: user,
+        room
+    } = req?.session || {};
 
-        });
+    const ws = connection;
 
-        const {
-            loginUser: user,
-            room
-        } = req?.session || {};
+    console.log('room: ', room);
+    console.log('req.session: ', req.session);
 
-        console.log('user: ', req.session);
+    if (room) {
+        ws.send(JSON.stringify({
+            ...room,
+            type: 'matched'
+        }));
+        return;
+    }
 
-        if (room) {
-            ws.send(JSON.stringify({
-                ...room,
-                type: 'matched'
-            }));
-            return;
-        }
-
-        try {
-            const _room = await matchPlayer({ ws, user });
-            req.session.room = _room;
-            req.session.save();
-        } catch (error) {
-            console.log('error: ', error);
-        }
-    });
+    try {
+        const _room = await matchPlayer({ ws, user });
+        req.session.room = _room;
+    } catch (error) {
+        console.log('error: ', error);
+    }
 }
 
 module.exports = {
