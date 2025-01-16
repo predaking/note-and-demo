@@ -4,3 +4,5 @@ class Player {
         this.status = status;
     }
 }
+
+module.exports = Player;

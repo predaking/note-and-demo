@@ -1,4 +1,11 @@
+type UserName = string;
+type MatchStatus = number;
 
+interface User {
+    id: string;
+    name: string;
+    password: string;
+}
 interface Room {
     id: string;
     players: Player[];
@@ -11,7 +18,13 @@ interface Player {
     status: number;
 }
 
+interface Match {
+    pool: Map<UserName, MatchStatus>;
+    rooms: Room[];
+}
+
 module.exports = {
     Room,
-    Player
+    Player,
+    Match
 }

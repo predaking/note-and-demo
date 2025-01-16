@@ -1,5 +1,23 @@
-const playerPool = new Set();
-const rooms = {};
+const redisClient = require('../redis');
+const { matchStatus } = require('../server/enums');
+const Match = require('./classes/Match');
+const Player = require('./classes/Player');
+
+let matches = null;
+
+(async () => {
+    const _matches = await redisClient.hget('match');
+    if (!_matches) {
+        matches = new Match();
+        return;
+    }
+    matches = Match.fromJSON(res);
+})();
+
+console.log('matches: ', matches);
+
+const playerPool = matches.pool || new Set();
+const rooms = matches.rooms || {};
 
 /**
  * @description 广播
@@ -64,28 +82,15 @@ const createRoom = (players) => {
 const init = async (connection, req) => {
     const {
         loginUser: user,
-        room
     } = req?.session || {};
 
     const ws = connection;
 
-    console.log('room: ', room);
     console.log('req.session: ', req.session);
 
-    if (room) {
-        ws.send(JSON.stringify({
-            ...room,
-            type: 'matched'
-        }));
-        return;
-    }
-
-    try {
-        const _room = await matchPlayer({ ws, user });
-        req.session.room = _room;
-    } catch (error) {
-        console.log('error: ', error);
-    }
+    const _player = new Player(user, matchStatus.WAITING);
+    const _user = pool.get(user)
+    const isMatching = pool.get(user).status === matchStatus.;
 }
 
 module.exports = {

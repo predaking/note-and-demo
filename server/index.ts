@@ -1,6 +1,7 @@
 import { 
     FastifyRequest, 
     FastifyReply,
+    FastifyError
 } from 'fastify';
 const fs = require('fs');
 const path = require('path');
@@ -66,7 +67,7 @@ const _init = async () => {
         }
     });
     
-    ft.get('/isLogin', (req, _) => {
+    ft.get('/isLogin', (req: FastifyRequest, _: FastifyReply) => {
         if (req.session.loginUser) {
             return { ...result, code: 0, msg: '已登录' };
         } else {
@@ -74,24 +75,19 @@ const _init = async () => {
         }
     });
     
-    ft.get('/ws', { websocket: true }, (connection, req) => {
+    ft.get('/ws', { websocket: true }, (connection: WebSocket, req: FastifyRequest) => {
         console.log('connected');
-
-        connection.onmessage = (message) => {
-            console.log('received: ' + message.data);
-        }
-
-        init(connection, req);
+        // init(connection, req);
     });
     
-    ft.setErrorHandler((error, req, reply) => {
+    ft.setErrorHandler((error: FastifyError, req: FastifyRequest, reply: FastifyReply) => {
         ft.log.error(error);
         reply.send({ code: 1, msg: '服务器错误' });
     });
     
     ft.listen({
         port: 3000
-    }, (err, address) => {
+    }, (err: FastifyError, address: string) => {
         if (err) {
             ft.log.error('err: ' + err);
             process.exit(1);
