@@ -1,30 +1,30 @@
-type UserName = string;
-type MatchStatus = number;
+export type UserName = string;
 
-interface User {
+export enum MatchStatus {
+    WAITING = 0,
+    MATCHED = 1,
+    PLAYING = 2
+};
+
+export interface UserType {
     id: string;
     name: string;
     password: string;
 }
-interface Room {
+export interface RoomType {
     id: string;
-    players: Player[];
-    status: number;
+    players: PlayerType[];
+    status: MatchStatus;
     max: number;
 }
 
-interface Player {
+export interface PlayerType {
     name: string;
-    status: number;
+    status: MatchStatus;
 }
 
-interface Match {
+export interface MatchType {
     pool: Map<UserName, MatchStatus>;
-    rooms: Room[];
+    rooms: RoomType[];
 }
 
-module.exports = {
-    Room,
-    Player,
-    Match
-}

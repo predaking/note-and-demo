@@ -1,29 +1,34 @@
-const { matchStatus } = require('./enums');
+import { MatchStatus, PlayerType, RoomType } from "../../server/interface";
 
 const MAX = 2;
 
-class Room {
-    constructor (id: string, players: Player[], status: number = matchStatus.WAITING) {
+class Room implements RoomType {
+    id: string;
+    players: PlayerType[];
+    status: MatchStatus;
+    max: number;
+
+    constructor (id: string, players: PlayerType[], status: MatchStatus = MatchStatus.WAITING) {
         this.id = id;
         this.players = players;
         this.status = status;
         this.max = MAX;
     }
 
-    addPlayer (player: Player) {
+    addPlayer (player: PlayerType) {
         if (this.players.length >= this.max) {
             return false;
         }
         this.players.push(player);
         if (this.players.length === this.max) {
-            this.status = matchStatus.MATCHED;
+            this.status = MatchStatus.MATCHED;
         }
         return true;
     }
 
-    removePlayer (player: Player) {
+    removePlayer (player: PlayerType) {
         this.players = this.players.filter(p => p.name !== player.name);
     }
 }
 
-module.exports = Room;    
+export default Room;    

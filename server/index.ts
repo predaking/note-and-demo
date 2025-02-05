@@ -1,18 +1,20 @@
-import { 
+import fastify, { 
     FastifyRequest, 
     FastifyReply,
     FastifyError
 } from 'fastify';
-const fs = require('fs');
-const path = require('path');
-const { execute } = require('./db');
-const password = require('../password');
-const { result } = require('./enums');
-const { RedisStore, redisClient } = require('./redis');
-const { init } = require('../socket/server');
+import fs from 'fs';
+import path from 'path';
+import password from '../password';
+import { execute } from './db';
+import { result } from './enums';
+import { init } from '../socket/server';
+import Redis from './redis';
+
+const { RedisStore, redisClient } = Redis;
 
 const _init = async () => {
-    const ft = require('fastify')({ 
+    const ft = fastify({ 
         logger: true,
         https: {
             key: fs.readFileSync(path.resolve(__dirname, '../predaking.key')),
@@ -75,9 +77,9 @@ const _init = async () => {
         }
     });
     
-    ft.get('/ws', { websocket: true }, (connection: WebSocket, req: FastifyRequest) => {
-        console.log('connected');
-        // init(connection, req);
+    ft.get('/ws', { websocket: true } as any, (connection, req: FastifyRequest | any) => {
+        // console.log('connected');
+        init(connection, req);
     });
     
     ft.setErrorHandler((error: FastifyError, req: FastifyRequest, reply: FastifyReply) => {
@@ -87,7 +89,7 @@ const _init = async () => {
     
     ft.listen({
         port: 3000
-    }, (err: FastifyError, address: string) => {
+    }, (err: Error | null, address: string) => {
         if (err) {
             ft.log.error('err: ' + err);
             process.exit(1);
