@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Modal, Form, Input, Button, message } from "antd";
 import { get, post } from "@/service";
 import { useGlobalContext } from "@/store";

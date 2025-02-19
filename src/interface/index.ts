@@ -10,6 +10,7 @@ export interface UserType {
     id: string;
     name: string;
     password: string;
+    avatar: string;
 }
 export interface RoomType {
     id: string;

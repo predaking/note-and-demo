@@ -1,6 +1,6 @@
 import { 
     MatchType, RoomType, UserName, MatchStatus 
-} from "../../server/interface";
+} from "../../interface";
 
 class Match implements MatchType {
     pool: Map<UserName, MatchStatus>;

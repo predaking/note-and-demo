@@ -1,4 +1,4 @@
-import { MatchStatus, PlayerType, RoomType } from "../../server/interface";
+import { MatchStatus, PlayerType, RoomType } from "../../interface";
 
 const MAX = 2;
 

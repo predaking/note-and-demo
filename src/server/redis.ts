@@ -1,7 +1,12 @@
 import { createClient } from 'redis';
 import RedisStore from 'connect-redis';
 
-const redisClient: any = createClient({
+interface RedisClient extends ReturnType<typeof createClient> {
+    fromJSON: (json: string) => any;
+    toJSON: (data: any) => string;
+}
+
+const redisClient = createClient({
     url: 'redis://localhost:6379'
 });
 

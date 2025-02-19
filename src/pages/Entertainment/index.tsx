@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { notification } from 'antd';
+import ThreeKingdomsDebate from '@/games/ThreeKingdomsDebate';
 
+// 创建WebSocket连接
 const ws = new WebSocket('wss://localhost:3000/ws');
 
 const Entertainment = () => {
@@ -27,17 +29,7 @@ const Entertainment = () => {
 
     return (
         <div>
-            {
-                // status === 1 ? (
-                //     <div>
-                //         <h1>匹配成功</h1>
-                //     </div>
-                // ) : (
-                //     <div>
-                //         <h1>匹配中...</h1>
-                //     </div>
-                // )
-            }
+            <ThreeKingdomsDebate />
         </div>
     )
 }

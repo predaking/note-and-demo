@@ -8,12 +8,12 @@ import { Provider } from './store';
 import 'normalize.css'
 import './index.css';
 
-const App: React.FC = () => {
+const App = () => {
     const router = useRoutes(routes);
 
     return (
         <Provider>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div>Loading...</div>} >
                 {router}
             </Suspense>
             <Register />

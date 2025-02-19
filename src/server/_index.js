@@ -9,7 +9,7 @@ const path = require('path');
 const session = require('express-session');
 const redis = require('redis');
 const RedisStore = require('connect-redis').default;
-const socket = require('../socket/server');
+const socket = require('../src/socket/server');
 
 const { result } = require('./enums');
 const password = require('../password');

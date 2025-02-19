@@ -1,4 +1,4 @@
-import { PlayerType, MatchStatus } from '../../server/interface';
+import { PlayerType, MatchStatus } from '../../interface';
 
 class Player implements PlayerType {
     name: string;

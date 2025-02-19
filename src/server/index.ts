@@ -5,20 +5,20 @@ import fastify, {
 } from 'fastify';
 import fs from 'fs';
 import path from 'path';
-import password from '../password';
+import password from '../../password';
 import { execute } from './db';
 import { result } from './enums';
-import { init } from '../socket/server';
+import { init } from '@/socket/server';
 import Redis from './redis';
 
 const { RedisStore, redisClient } = Redis;
 
 const _init = async () => {
     const ft = fastify({ 
-        logger: true,
+        logger: false,
         https: {
-            key: fs.readFileSync(path.resolve(__dirname, '../predaking.key')),
-            cert: fs.readFileSync(path.resolve(__dirname, '../predaking.crt')),
+            key: fs.readFileSync(path.resolve(__dirname, '../../predaking.key')),
+            cert: fs.readFileSync(path.resolve(__dirname, '../../predaking.crt')),
         },
         // http2: true
     });
@@ -79,7 +79,7 @@ const _init = async () => {
     
     ft.get('/ws', { websocket: true } as any, (connection, req: FastifyRequest | any) => {
         // console.log('connected');
-        init(connection, req);
+        init(connection as any, req);
     });
     
     ft.setErrorHandler((error: FastifyError, req: FastifyRequest, reply: FastifyReply) => {

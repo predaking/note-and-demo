@@ -1,5 +1,6 @@
 import React, { useReducer, createContext, useContext, ReactNode } from 'react';
 import { actionTypes } from '@/constant';
+import { UserType } from './interface';
 
 const { SET_USERINFO } = actionTypes;
 
@@ -12,7 +13,11 @@ interface ProviderProps {
     children: ReactNode;
 };
 
-const initValue = {
+interface StateType {
+    userInfo?: UserType | null;
+};
+
+const initValue: StateType = {
     userInfo: null
 };
 
@@ -29,7 +34,7 @@ const Context = createContext<{state: typeof initValue; dispatch: React.Dispatch
 
 const useGlobalContext = () => useContext(Context) || { state: initValue, dispatch: () => {} };
 
-const Provider: React.FC<ProviderProps> = ({ children } : { children: any }) => {
+const Provider: React.FC<ProviderProps> = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initValue);
 
     return (
