@@ -6,7 +6,7 @@ import { actionTypes } from "@/constant";
 
 import styles from "./index.module.scss";
 
-const { SET_USERINFO } = actionTypes;
+const { SET_USERINFO, SET_OPEN_LOGIN_MODAL } = actionTypes;
 
 interface ResultType {
     code: number;
@@ -15,16 +15,19 @@ interface ResultType {
 }
 
 const Register = () => {
-    const [open, setOpen] = useState<boolean>(false);
     const [form] = Form.useForm();
     const { state, dispatch } = useGlobalContext();
-    const { userInfo } = state;
+    const { openLoginModal } = state;
 
     useEffect(() => {
         if (location.pathname === '/entertainment') {
             isLogin();
         }
     }, []);
+
+    const setOpen = (openLoginModal: boolean) => {
+        dispatch({ type: SET_OPEN_LOGIN_MODAL, openLoginModal });
+    }
 
     const isLogin = async () => {
         try {
@@ -55,7 +58,7 @@ const Register = () => {
     return (
         <Modal
             title="欢迎👏🏻"
-            open={open}
+            open={openLoginModal}
             onCancel={() => setOpen(false)}
             onOk={() => setOpen(false)}
             footer={null}

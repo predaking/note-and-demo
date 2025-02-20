@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import Scene_1 from '../scenes/scenes_1';
 
 const preload = function () {
@@ -17,7 +18,7 @@ const config = {
     width: 800,
     height: 600,
     parent: 'game',
-    scene: Scene_1
+    scene: [Scene_1],
 }
 
 const game = new Phaser.Game(config);

@@ -2,7 +2,10 @@ import React, { useReducer, createContext, useContext, ReactNode } from 'react';
 import { actionTypes } from '@/constant';
 import { UserType } from './interface';
 
-const { SET_USERINFO } = actionTypes;
+const { 
+    SET_USERINFO,
+    SET_OPEN_LOGIN_MODAL
+} = actionTypes;
 
 interface ActionType {
     type: string;
@@ -15,16 +18,20 @@ interface ProviderProps {
 
 interface StateType {
     userInfo?: UserType | null;
+    openLoginModal?: boolean;
 };
 
 const initValue: StateType = {
-    userInfo: null
+    userInfo: null,
+    openLoginModal: false
 };
 
 const reducer = (state: any, action: ActionType) => {
     switch (action.type) {
         case SET_USERINFO:
             return { ...state, userInfo: action.userInfo };
+        case SET_OPEN_LOGIN_MODAL:
+            return {...state, openLoginModal: action.openLoginModal };
         default:
             return state;
     }
