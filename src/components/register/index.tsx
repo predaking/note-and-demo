@@ -1,18 +1,19 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Modal, Form, Input, Button, message } from "antd";
-import { get, post } from "@/service";
+import { post } from "@/service";
 import { useGlobalContext } from "@/store";
 import { actionTypes } from "@/constant";
+import { asyncActions } from "@/store";
+import { ResultType } from "@/interface";
+import crypto from 'crypto';
 
 import styles from "./index.module.scss";
 
-const { SET_USERINFO, SET_OPEN_LOGIN_MODAL } = actionTypes;
-
-interface ResultType {
-    code: number;
-    data: any;
-    message: string;
-}
+const { 
+    SET_USERINFO, 
+    SET_OPEN_LOGIN_MODAL,
+    SET_ISLOGIN
+} = actionTypes;
 
 const Register = () => {
     const [form] = Form.useForm();
@@ -20,8 +21,8 @@ const Register = () => {
     const { openLoginModal } = state;
 
     useEffect(() => {
-        if (location.pathname === '/entertainment') {
-            isLogin();
+        if (location.pathname.includes('/entertainment')) {
+            asyncActions.isLogin(dispatch);
         }
     }, []);
 
@@ -29,19 +30,30 @@ const Register = () => {
         dispatch({ type: SET_OPEN_LOGIN_MODAL, openLoginModal });
     }
 
-    const isLogin = async () => {
-        try {
-            const res: any = await get('/isLogin');
-            dispatch({ type: SET_USERINFO, userInfo: res.data });
-            setOpen(false);
-        } catch (e) {
-            setOpen(true);
-        }
+    const generateSalt = () => {
+        return crypto.randomBytes(16).toString('hex');
+    };
+
+    const hashPassword = (password: string, salt: string) => {
+        return crypto.createHash('md5').update(password + salt).digest('hex');
+    };
+
+    const encryptData = (data: any) => {
+        const salt = generateSalt();
+        const hashedPassword = hashPassword(data.password, salt);
+        return {
+            ...data,
+            salt,
+            hashedPassword
+        };
     }
 
     const login = () => {
         form.validateFields().then(async (values) => {
-            await post('/login', values);
+            const loginData = encryptData(values);
+            const res: ResultType = await post('/login', loginData);
+            dispatch({ type: SET_USERINFO, userInfo: res.data });
+            dispatch({ type: SET_ISLOGIN, isLogin: true});
             localStorage.setItem('name', values.name);
             message.success('登录成功');
             setOpen(false);
@@ -50,7 +62,8 @@ const Register = () => {
 
     const register = () => {
         form.validateFields().then(async (values) => {
-            await post('/register', values);
+            const registerData = encryptData(values);
+            await post('/register', registerData);
             message.success('注册成功');
         });
     };
@@ -71,14 +84,14 @@ const Register = () => {
                     name="name"
                     rules={[{ required: true, message: '请输入昵称' }]}
                 >
-                    <Input>{null}</Input>
+                    <Input />
                 </Form.Item>
                 <Form.Item
                     label="密码"
                     name="password"
                     rules={[{ required: true, max: 8, message: '请输入密码' }]}
                 >
-                    <Input type="password">{null}</Input>
+                    <Input type="password" />
                 </Form.Item>
                 <Form.Item
                 >

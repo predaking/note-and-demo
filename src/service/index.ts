@@ -1,3 +1,4 @@
+import { ResultType } from "@/interface";
 import { message } from "antd";
 
 const host = '//localhost:3000';
@@ -17,7 +18,7 @@ export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: 
     })
 }
 
-const request = (method: string = 'get', url: string, data: any = {}) => {
+const request = (method: string = 'get', url: string, data: any = {}): Promise<ResultType> => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open(method, `${host}${url}`, true);
@@ -26,7 +27,7 @@ const request = (method: string = 'get', url: string, data: any = {}) => {
         xhr.send(JSON.stringify(data));
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                const res = JSON.parse(xhr.response);
+                const res: ResultType = JSON.parse(xhr.response);
                 if (res.code) {
                     message.error(res.msg);
                     reject(res);
@@ -42,10 +43,10 @@ const request = (method: string = 'get', url: string, data: any = {}) => {
     });
 };
 
-export const get = (url: string, data: any = {}) => {
+export const get = (url: string, data: any = {}): Promise<ResultType> => {
     return request('GET', url, data);
 }
 
-export const post = (url: string, data: any = {}) => {
+export const post = (url: string, data: any = {}): Promise<ResultType> => {
     return request('POST', url, data);
 }

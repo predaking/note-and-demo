@@ -1,5 +1,11 @@
 export type UserName = string;
 
+export interface ResultType {
+    code: number;
+    data: any;
+    msg: string;
+};
+
 export enum MatchStatus {
     WAITING = 0,
     MATCHED = 1,

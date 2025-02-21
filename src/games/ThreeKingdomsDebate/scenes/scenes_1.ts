@@ -1,7 +1,7 @@
 class Scene_1 extends Phaser.Scene {
     constructor() {
         super({ key: 'Scene_1' });
-        console.log('this: ', this);
+        console.log('Scene_1: ', this);
     }
 
     private width = 0;
@@ -63,6 +63,13 @@ class Scene_1 extends Phaser.Scene {
         container.on('pointerdown', () => {
             graphics.clear();
             setStyle(true);
+
+            if (!this.registry.get('isLogin')) {
+                this.registry.get('login')();
+                return;
+            }
+
+            this.scene.start('Scene_2');
         });
 
         container.on('pointerup', () => {

@@ -22,5 +22,8 @@ export const emojiRanges = [
 
 export const actionTypes = {
     SET_USERINFO: 'SET_USERINFO',
-    SET_OPEN_LOGIN_MODAL: 'SET_OPEN_LOGIN_MODAL'
+    SET_OPEN_LOGIN_MODAL: 'SET_OPEN_LOGIN_MODAL',
+    SET_LOADING: 'SET_LOADING',
+    SET_ERROR: 'SET_ERROR',
+    SET_ISLOGIN: 'SET_ISLOGIN'
 };

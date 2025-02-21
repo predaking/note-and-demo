@@ -62,7 +62,7 @@ const _init = async () => {
                 return { ...result, code: 1, msg: '用户名或密码错误' };
             }
             req.session.loginUser = user;
-            reply.send({ ...result, code: 0, msg: '登录成功' });
+            reply.send({ code: 0, msg: '登录成功', data: user });
         } catch (error) {
             ft.log.error(error);
             return { ...result, code: 1, msg: '登录失败' };
