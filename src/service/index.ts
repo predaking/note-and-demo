@@ -1,19 +1,25 @@
 import { ResultType } from "@/interface";
 import { message } from "antd";
 
-const host = '//localhost:3000';
+const host = 'https://192.168.1.8:3000';
 
 export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: any) => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                resolve(xhr.response);
-                return;
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    resolve(xhr.response);
+                } else {
+                    reject(new Error(`Upload failed with status: ${xhr.status}`));
+                }
             }
         }
-        xhr.open('post', url, true);
-        // xhr.withCredentials = true; 
+        xhr.onerror = (error) => {
+            reject(error);
+        };
+        xhr.open('post', `${host}${url}`, true);
+        xhr.withCredentials = true;
         xhr.send(data);
     })
 }

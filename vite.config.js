@@ -15,8 +15,8 @@ export default defineConfig({
     },
     server: {
         https: {
-            key: fs.readFileSync(path.resolve(__dirname, 'key.pem')),
-            cert: fs.readFileSync(path.resolve(__dirname, 'cert.pem'))
+            key: fs.readFileSync(path.resolve(__dirname, 'predaking.key')),
+            cert: fs.readFileSync(path.resolve(__dirname, 'predaking.crt'))
         }
     }
 });

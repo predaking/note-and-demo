@@ -10,6 +10,7 @@ import { execute } from './db';
 import { result } from './enums';
 import { init } from '@/socket/server';
 import Redis from './redis';
+import { networkInterfaces } from 'os';
 
 const { RedisStore, redisClient } = Redis;
 
@@ -23,14 +24,35 @@ const _init = async () => {
         // http2: true
     });
     
+    await ft.register(require('@fastify/multipart'), {
+        limits: {
+            fileSize: 10 * 1024 * 1024 // 限制文件大小为10MB
+        }
+    });
+    
     await ft.register(require('@fastify/websocket'), {
         options: {
             maxPayload: 1048576,
         }
     });
-    
+
+    const getLocalIP = () => {
+        const nets: any = networkInterfaces();
+        for (const name of Object.keys(nets)) {
+            for (const net of nets[name]) {
+                // 跳过内部IP和非IPv4地址
+                if (!net.internal && net.family === 'IPv4') {
+                    return net.address;
+                }
+            }
+        }
+        return 'localhost'; // 如果没有找到合适的IP，返回localhost
+    };
+
+    const localIP = getLocalIP();
+    console.log('localIP:', localIP);
     ft.register(require('@fastify/cors'), {
-        origin: 'https://localhost:5173',
+        origin: [`https://${localIP}:5173`, 'https://localhost:5173'],
         credentials: true
     });
     
@@ -76,6 +98,31 @@ const _init = async () => {
             return { ...result, code: 1, msg: '未登录' };
         }
     });
+
+    ft.post('/upload', async (req: FastifyRequest, reply: FastifyReply) => {
+        try {
+            const data = await req.file();
+            if (!data) {
+                return reply.code(400).send({ code: 1, msg: '没有接收到文件' });
+            }
+            
+            const fileBuffer = await data.toBuffer();
+            const fileName = data.filename;
+            const uploadDir = path.join(__dirname, '../../uploads');
+            
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            const filePath = path.join(uploadDir, fileName);
+            fs.writeFileSync(filePath, fileBuffer);
+            
+            reply.send({ code: 0, msg: '文件上传成功', data: { fileName } });
+        } catch (error) {
+            ft.log.error(error);
+            reply.code(500).send({ code: 1, msg: '文件上传失败' });
+        }
+    });
     
     ft.get('/ws', { websocket: true } as any, (connection, req: FastifyRequest | any) => {
         // console.log('connected');
@@ -88,7 +135,8 @@ const _init = async () => {
     });
     
     ft.listen({
-        port: 3000
+        port: 3000,
+        host: '0.0.0.0'
     }, (err: Error | null, address: string) => {
         if (err) {
             ft.log.error('err: ' + err);

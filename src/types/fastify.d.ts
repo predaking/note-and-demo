@@ -6,5 +6,6 @@ declare module 'fastify' {
             loginUser?: User;
         },
         body: any;
+        file: any;
     }
 }

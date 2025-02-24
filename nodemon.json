@@ -1,5 +1,11 @@
 {
-    "watch": ["src/server"],
+    "watch": [
+        "src/server", 
+        "src/socket", 
+        "src/types",
+        "src/interface",
+        "src/games"
+    ],
     "ext": "ts",
     "exec": "ts-node ./src/server/index.ts"
 }
