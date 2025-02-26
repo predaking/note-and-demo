@@ -3,6 +3,7 @@ import {
     CountryEnums,
     CountryColorEnums,
     SkillType,
+    CardLevel,
     SkillDots,
     Quality,
     QualityColorEnums
@@ -21,6 +22,7 @@ class Card implements CardType {
     left: SkillDots;
     right: SkillDots;
     quality: Quality;
+    level: CardLevel;
     qualityColor: keyof typeof QualityColorEnums;
 
     constructor ({ 
@@ -36,7 +38,8 @@ class Card implements CardType {
         left,
         right,
         quality,
-        qualityColor
+        qualityColor,
+        level
     } : CardType) {
         this.id = id;
         this.name = name;
@@ -51,6 +54,7 @@ class Card implements CardType {
         this.right = right;
         this.quality = quality;
         this.qualityColor = qualityColor;
+        this.level = level;
     }
 }
 
