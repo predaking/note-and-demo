@@ -5,53 +5,13 @@ import { useGlobalContext } from "@/store";
 
 const { SET_OPEN_LOGIN_MODAL } = actionTypes;
 
+const wsUrl = 'wss://10.203.81.15:3000/threeKingdomsDebate';
+
 const ThreeKingdomsDebate = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { state, dispatch } = useGlobalContext();
     const { isLogin } = state;
-    const ws = useRef<WebSocket | null>(null);
-
-    useEffect(() => {
-        let _ws = ws.current;
-        const connectWebSocket = () => {
-            if (!_ws || _ws.readyState === WebSocket.CLOSED) {
-                _ws = new WebSocket('wss://localhost:3000/matching');
-
-                _ws.onopen = () => {
-                    console.log('connected');
-                };
-
-                _ws.onerror = (err: any) => {
-                    console.log('error: ', err, err.message);
-                    // 发生错误时尝试重连
-                    setTimeout(connectWebSocket, 3000);
-                };
-
-                _ws.onclose = () => {
-                    console.log('connection closed');
-                    // 连接关闭时尝试重连
-                    setTimeout(connectWebSocket, 3000);
-                };
-
-                _ws.onmessage = (e: any) => {
-                    console.log('e: ', e);
-                    const _data = JSON.parse(e.data);
-                    console.log('_data: ', _data);
-                    if (_data.type === 'matched') {
-
-                    }   
-                };
-            }
-        };
-
-        connectWebSocket();
-
-        return () => {
-            if (_ws) {
-                _ws.close();
-            }
-        };
-    }, []);
+    const wsRef = useRef<WebSocket>(null);
 
     useEffect(() => {
         const _container = containerRef.current;
@@ -64,6 +24,13 @@ const ThreeKingdomsDebate = () => {
                     game.registry.set('login', () => {
                         dispatch({ type: SET_OPEN_LOGIN_MODAL, openLoginModal: true });
                     });
+                    game.registry.set('getWsInstance', () => {
+                        let ws = wsRef.current;
+                        if (!ws) {
+                            ws = new WebSocket(wsUrl);
+                        }
+                        return ws;
+                    })
                 }
             }
         });
@@ -73,7 +40,6 @@ const ThreeKingdomsDebate = () => {
         }
 
         game.registry.set('isLogin', isLogin);
-        console.log('isLogin', isLogin)
 
         return () => {
             if (_container && game.canvas) {

@@ -3,8 +3,7 @@
         "src/server", 
         "src/socket", 
         "src/types",
-        "src/interface",
-        "src/games"
+        "src/interface"
     ],
     "ext": "ts",
     "exec": "ts-node ./src/server/index.ts"

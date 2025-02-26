@@ -1,5 +1,4 @@
 import Redis from '../redis';
-import Match from './match';
 import Player from './player';
 import Room from './room';
 import { RoomType, PlayerType, UserName, MatchStatus } from '../../interface';
@@ -10,15 +9,21 @@ const wsManager = WebSocketManager.getInstance();
 const { redisClient } = Redis;
 
 class MatchManager {
-    private matches: Match;
-    private playerPool: Map<UserName, MatchStatus>;
+    private playerPool: Map<number, { status: MatchStatus; name: string }>;
     private rooms: RoomType[];
 
     constructor() {
-        this.matches = new Match();
-        this.playerPool = this.matches.pool;
-        this.rooms = this.matches.rooms;
+        this.playerPool = new Map();
+        this.rooms = [];
         this.initializeFromRedis();
+    }
+
+    getPlayerPool(): Map<number, { status: MatchStatus; name: string }> {
+        return this.playerPool;
+    }
+
+    getRooms(): RoomType[] {
+        return this.rooms;
     }
 
     private async initializeFromRedis() {
@@ -30,10 +35,8 @@ class MatchManager {
 
             const parsedData = JSON.parse(matchData);
             if (Object.keys(parsedData).length) {
-                this.matches.pool = new Map(parsedData.pool);
-                this.matches.rooms = parsedData.rooms;
-                this.playerPool = this.matches.pool;
-                this.rooms = this.matches.rooms;
+                this.playerPool = new Map(parsedData.pool);
+                this.rooms = parsedData.rooms;
             }
         } catch (err) {
             console.error('Redis initialization error:', err);
@@ -53,7 +56,8 @@ class MatchManager {
     }
 
     private createRoom(players: PlayerType[]): Room {
-        const roomId = `room_${Date.now()}`;
+        const randomId = crypto.randomUUID().slice(0, 8);
+        const roomId = `room_${randomId}`;
         const room = new Room(roomId, players, MatchStatus.MATCHED);
         this.rooms.push(room);
         return room;
@@ -61,25 +65,27 @@ class MatchManager {
 
     public async matchPlayer(player: PlayerType): Promise<string> {
         try {
-            const currentStatus = this.playerPool.get(player.name);
+            const currentPlayerData = this.playerPool.get(player.id);
+            const currentStatus = currentPlayerData?.status;
             
             if (currentStatus === MatchStatus.WAITING) {
                 const waitingPlayer = Array.from(this.playerPool.entries())
-                    .find(([name, status]) => 
-                        name !== player.name && status === MatchStatus.WAITING);
+                    .find(([id, data]) => 
+                        id !== player.id && data.status === MatchStatus.WAITING);
 
                 if (waitingPlayer) {
-                    const [matchedPlayerName] = waitingPlayer;
+                    const [matchedPlayerId, matchedPlayerData] = waitingPlayer;
                     
                     // Update player status
-                    this.playerPool.set(matchedPlayerName, MatchStatus.MATCHED);
-                    this.playerPool.set(player.name, MatchStatus.MATCHED);
+                    this.playerPool.set(matchedPlayerId, { ...matchedPlayerData, status: MatchStatus.MATCHED });
+                    this.playerPool.set(player.id, { name: player.name, status: MatchStatus.MATCHED });
 
                     // Create room and notify players
-                    const matchedPlayer = new Player(matchedPlayerName, MatchStatus.MATCHED);
+                    const matchedPlayer = new Player(matchedPlayerId, matchedPlayerData.name, MatchStatus.MATCHED);
+                    matchedPlayer.name = matchedPlayerData.name;
                     this.createRoom([matchedPlayer, player]);
                     
-                    wsManager.broadcast([player.name, matchedPlayerName], {
+                    wsManager.broadcast([player.id,matchedPlayerId], {
                         type: MatchStatus.MATCHED
                     });
 
@@ -94,8 +100,8 @@ class MatchManager {
         }
     }
 
-    public addPlayer(name: UserName): void {
-        this.playerPool.set(name, MatchStatus.WAITING);
+    public addPlayer(player: PlayerType): void {
+        this.playerPool.set(player.id, { status: MatchStatus.WAITING, name: player.name });
     }
 }
 

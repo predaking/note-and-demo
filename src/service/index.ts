@@ -1,7 +1,7 @@
 import { ResultType } from "@/interface";
 import { message } from "antd";
 
-const host = 'https://192.168.1.8:3000';
+const host = 'https://10.203.81.15:3000';
 
 export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: any) => {
     return new Promise((resolve, reject) => {
@@ -32,7 +32,9 @@ const request = (method: string = 'get', url: string, data: any = {}): Promise<R
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         xhr.send(JSON.stringify(data));
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
+            if (xhr.readyState === 4 && (xhr.status === 200 
+                || xhr.status === 401)
+            ) {
                 const res: ResultType = JSON.parse(xhr.response);
                 if (res.code) {
                     message.error(res.msg);

@@ -63,7 +63,8 @@ const _init = async () => {
         secret: 'THIS_IS_MY_SECRET_KEY_DONT_REMOVE_IT_DONT_SHARE_IT',
         cookie: {
             secure: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000
+            sameSite: true,
+            maxAge: 24 * 60 * 60 * 1000
         },
         store: new RedisStore({
             client: redisClient
@@ -74,20 +75,121 @@ const _init = async () => {
         promise: true,
         connectionString: `mysql://root:${password}@localhost/predaking`
     });
-    
+
+    ft.addHook('onRequest', async (req: FastifyRequest, reply: FastifyReply) => {
+        const whiteList = [
+            '/isLogin',
+            '/login',
+            '/register',
+            '/login/salt',
+        ];
+
+        if (whiteList.includes(req.url)) {
+            return;
+        }
+
+        // 检查token是否存在于cookie中
+        const token = req.cookies.token;
+        if (!token) {
+            return reply.code(401).send({ code: 1, msg: '未授权' });
+        }
+
+        // 从Redis中获取用户ID和token   
+        const storedToken = await redisClient.get(`auth_token:${token}`);
+        if (!storedToken || token !== storedToken) {
+            return reply.code(401).send({ code: 1, msg: '未授权' });
+        }
+    });
+
+    ft.post('/login/salt', async (req: FastifyRequest, reply: FastifyReply) => {
+        const { name } = req.body as { name: string };
+        const findUser = `select * from user where name = ?`;
+        try {
+            const user = await execute(ft, findUser, [name]);
+            if (!user) {
+                return { ...result, code: 1, msg: '用户不存在' };
+            }
+            return { ...result, code: 0, data: { salt: user.salt } };
+        } catch (error) {
+            ft.log.error(error);
+            return { ...result, code: 1, msg: '获取salt失败' };
+        }
+    });
+
     ft.post('/login', async (req: FastifyRequest, reply: FastifyReply) => {
         const { name, password } = req.body as { name: string, password: string };
-        const findUser = `select * from user where name = ? and password = ?`;
+        const findUser = `select * from user where name = ?`;
         try {
-            const user = await execute(ft, findUser, [name, password]);
+            const user = await execute(ft, findUser, [name]);
             if (!user) {
                 return { ...result, code: 1, msg: '用户名或密码错误' };
             }
+            
+            if (password !== user.password) {
+                return { ...result, code: 1, msg: '用户名或密码错误' };
+            }
+            
+            const crypto = require('crypto');
+            // 生成新的token
+            const token = crypto.randomBytes(32).toString('hex');
+            await redisClient.set(`auth_token:${token}`, token, { EX: 24 * 60 * 60 }); // 24小时过期
+            
             req.session.loginUser = user;
-            reply.send({ code: 0, msg: '登录成功', data: user });
+            delete user.password;
+            delete user.salt;
+            delete user.ip;
+            
+            reply.header('Set-Cookie', `token=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`);
+            reply.send({ code: 0, msg: '登录成功', data: { ...user, token } });
         } catch (error) {
             ft.log.error(error);
+            console.log('err: ', error);
             return { ...result, code: 1, msg: '登录失败' };
+        }
+    });
+
+    ft.post('/register', async (req: FastifyRequest, reply: FastifyReply) => {
+        const { name, password, salt } = req.body as { name: string, password: string, salt: string };
+        const findUser = `select * from user where name =?`;
+        
+        // 获取用户IP地址
+        const clientIp = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        console.log('ip: ', clientIp);
+        
+        try {
+            // 检查IP注册次数和最后注册时间
+            const checkIpInfo = `SELECT COUNT(*) as count, MAX(last_register_time) as last_time FROM user WHERE ip = ?`;
+            const ipInfo = await execute(ft, checkIpInfo, [clientIp]);
+            
+            if (ipInfo && ipInfo.count >= 2) {
+                return {...result, code: 1, msg: '该IP已达到最大注册次数限制' };
+            }
+            
+            // 检查是否在60秒内重复注册
+            if (ipInfo && ipInfo.last_register_time) {
+                const lastRegisterTime = new Date(ipInfo.last_register_time).getTime();
+                const now = Date.now();
+                if (now - lastRegisterTime < 60000) { // 60秒内不允许重复注册
+                    return {...result, code: 1, msg: '操作过于频繁，请稍后再试' };
+                }
+            }
+            
+            const user = await execute(ft, findUser, [name]);
+            if (user) {
+                return {...result, code: 1, msg: '用户名已存在' };
+            }
+
+            const crypto = require('crypto');
+            const id = crypto.randomBytes(16).toString('hex');
+            // 使用客户端传来的salt和密码
+            const insertUser = `insert into user (id, name, password, salt, ip, last_register_time) values (?, ?, ?, ?, ?, NOW())`;
+            await execute(ft, insertUser, [id, name, password, salt, clientIp]);
+            req.session.loginUser = { name, salt, ip: clientIp, password };
+            return {...result, code: 0, msg: '注册成功并自动登录', data: { name }};
+        } catch (error) {
+            ft.log.error(error);
+            console.log('error: ', error);
+            return {...result, code: 1, msg: '注册失败' };
         }
     });
     
@@ -124,9 +226,21 @@ const _init = async () => {
         }
     });
     
-    ft.get('/ws', { websocket: true } as any, (connection, req: FastifyRequest | any) => {
-        // console.log('connected');
-        init(connection as any, req);
+    // @ts-ignore
+    ft.get('/threeKingdomsDebate', { websocket: true }, (connection: any, req: FastifyRequest) => {
+        console.log('connected');
+        connection.on('message', (data: string) => {
+            const _data = JSON.parse(data);
+            switch (_data.type) {
+                case 'request':
+                    if (_data.path === '/matching') {
+                        init(connection as any, req);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
     });
     
     ft.setErrorHandler((error: FastifyError, req: FastifyRequest, reply: FastifyReply) => {

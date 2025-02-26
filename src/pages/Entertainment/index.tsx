@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 const Entertainment = () => {
     return (
         <div>
-            <Link to="./threeKingdomsDebate">三国论战</Link>
+            <Link to="./threeKingdomsDebate">论战三国</Link>
         </div>
     )
 }

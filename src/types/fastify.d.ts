@@ -6,6 +6,7 @@ declare module 'fastify' {
             loginUser?: User;
         },
         body: any;
-        file: any;
+        file?: any;
+        cookies?: any;
     }
 }

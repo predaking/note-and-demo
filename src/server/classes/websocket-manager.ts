@@ -1,9 +1,9 @@
 import { FastifyRequest } from 'fastify';
-import { UserName } from '../../interface';
+import { PlayerType } from '../../interface';
 
 class WebSocketManager {
     private static instance: WebSocketManager;
-    private clients: Map<UserName, WebSocket>;
+    private clients: Map<number, WebSocket>;
 
     private constructor() {
         this.clients = new Map();
@@ -16,31 +16,31 @@ class WebSocketManager {
         return WebSocketManager.instance;
     }
 
-    public addClient(name: UserName, ws: WebSocket): void {
-        this.clients.set(name, ws);
+    public addClient(id: number, ws: WebSocket): void {
+        this.clients.set(id, ws);
     }
 
-    public removeClient(name: UserName): void {
-        this.clients.delete(name);
+    public removeClient(id: number): void {
+        this.clients.delete(id);
     }
 
-    public getClient(name: UserName): WebSocket | undefined {
-        return this.clients.get(name);
+    public getClient(id: number): WebSocket | undefined {
+        return this.clients.get(id);
     }
 
-    public broadcast(names: UserName[], data: any): void {
-        for (const name of names) {
-            const client = this.clients.get(name);
+    public broadcast(ids: number[], data: any): void {
+        for (const id of ids) {
+            const client = this.clients.get(id);
             if (client) {
                 client.send(JSON.stringify(data));
             }
         }
     }
 
-    public validateConnection(req: FastifyRequest): { isValid: boolean; user?: { name: string } } {
+    public validateConnection(req: FastifyRequest): { isValid: boolean; user?: PlayerType } {
         const { loginUser: user } = req?.session || {};
         
-        if (!user || !user.name) {
+        if (!user || !user.id) {
             return { isValid: false };
         }
 
