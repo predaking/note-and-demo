@@ -6,6 +6,32 @@ export interface ResultType {
     msg: string;
 };
 
+export interface WSMessageType<T> {
+    type: GameMainWsEventType;
+    subType?: RoomEventType | BattleEventType | MatchStatus;
+    path?: string;
+    timestamp: number;
+    data: T;
+}
+
+export enum GameMainWsEventType {
+    REQUEST = 'request',
+    ERROR = 'error',
+    MATCH = 'match',
+    ROOM = 'room',
+    BATTLE = 'battle'
+}
+
+export enum RoomEventType {
+    DISSOLVED = 0,
+    CREATED = 1
+}
+
+export enum BattleEventType {
+    END = 0,
+    START = 1
+}
+
 export enum MatchStatus {
     WAITING = 0,
     MATCHED = 1,

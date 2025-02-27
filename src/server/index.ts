@@ -11,6 +11,7 @@ import { result } from './enums';
 import { init } from '@/socket/server';
 import Redis from './redis';
 import { networkInterfaces } from 'os';
+import { GameMainWsEventType } from '@/interface';
 
 const { RedisStore, redisClient } = Redis;
 
@@ -232,7 +233,7 @@ const _init = async () => {
         connection.on('message', (data: string) => {
             const _data = JSON.parse(data);
             switch (_data.type) {
-                case 'request':
+                case GameMainWsEventType.REQUEST:
                     if (_data.path === '/matching') {
                         init(connection as any, req);
                     }

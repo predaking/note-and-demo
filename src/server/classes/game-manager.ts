@@ -1,14 +1,14 @@
 import Redis from '../redis';
 import Player from './player';
 import Room from './room';
-import { RoomType, PlayerType, UserName, MatchStatus } from '../../interface';
+import { RoomType, PlayerType, MatchStatus } from '../../interface';
 import WebSocketManager from './websocket-manager';
 
 const wsManager = WebSocketManager.getInstance();
 
 const { redisClient } = Redis;
 
-class MatchManager {
+class GameManager {
     private playerPool: Map<number, { status: MatchStatus; name: string }>;
     private rooms: RoomType[];
 
@@ -28,7 +28,7 @@ class MatchManager {
 
     private async initializeFromRedis() {
         try {
-            const matchData = await redisClient.hGet('matches', 'data');
+            const matchData = await redisClient.hGet('battles', 'data');
             if (!matchData) {
                 return;
             }
@@ -46,7 +46,7 @@ class MatchManager {
     private async saveToRedis() {
         try {
             const playerPoolArray = Array.from(this.playerPool.entries());
-            await redisClient.hSet('battles', 'matches', JSON.stringify({
+            await redisClient.hSet('threeKingdomsDebate', 'battles', JSON.stringify({
                 pool: playerPoolArray,
                 rooms: this.rooms
             }));
@@ -63,7 +63,7 @@ class MatchManager {
         return room;
     }
 
-    public async matchPlayer(player: PlayerType): Promise<string> {
+    public async matchPlayer(player: PlayerType): Promise<PlayerType[]> {
         try {
             const currentPlayerData = this.playerPool.get(player.id);
             const currentStatus = currentPlayerData?.status;
@@ -76,24 +76,21 @@ class MatchManager {
                 if (waitingPlayer) {
                     const [matchedPlayerId, matchedPlayerData] = waitingPlayer;
                     
-                    // Update player status
                     this.playerPool.set(matchedPlayerId, { ...matchedPlayerData, status: MatchStatus.MATCHED });
                     this.playerPool.set(player.id, { name: player.name, status: MatchStatus.MATCHED });
 
-                    // Create room and notify players
                     const matchedPlayer = new Player(matchedPlayerId, matchedPlayerData.name, MatchStatus.MATCHED);
                     matchedPlayer.name = matchedPlayerData.name;
                     this.createRoom([matchedPlayer, player]);
                     
-                    wsManager.broadcast([player.id,matchedPlayerId], {
-                        type: MatchStatus.MATCHED
-                    });
+                    // wsManager.broadcast([player.id,matchedPlayerId], {
+                    //     type: MatchStatus.MATCHED
+                    // });
 
                     await this.saveToRedis();
+                    return [matchedPlayer, player]
                 }
             }
-
-            return JSON.stringify({ type: currentStatus });
         } catch (err) {
             console.error('Match player error:', err);
             throw err;
@@ -105,4 +102,4 @@ class MatchManager {
     }
 }
 
-export default MatchManager;
+export default GameManager;

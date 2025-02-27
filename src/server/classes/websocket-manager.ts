@@ -1,5 +1,5 @@
 import { FastifyRequest } from 'fastify';
-import { PlayerType } from '../../interface';
+import { PlayerType } from '@/interface';
 
 class WebSocketManager {
     private static instance: WebSocketManager;
