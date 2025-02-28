@@ -6,12 +6,13 @@ export interface ResultType {
     msg: string;
 };
 
-export interface WSMessageType<T> {
+export interface WSMessageType<T = any> {
     type: GameMainWsEventType;
-    subType?: RoomEventType | BattleEventType | MatchStatus;
+    subType?: RoomEventType | BattleEventType | MatchStatus | ErrorEventType;
     path?: string;
+    message?: string;
     timestamp: number;
-    data: T;
+    data?: T;
 }
 
 export enum GameMainWsEventType {
@@ -38,6 +39,12 @@ export enum MatchStatus {
     PLAYING = 2
 };
 
+export enum ErrorEventType {
+    TIMEOUT = 0,
+    OFFLINE = 1,
+    UNKNOWN = 2,
+}
+
 export interface UserType {
     id: string;
     name: string;
@@ -62,27 +69,27 @@ export interface MatchType {
     rooms: RoomType[];
 }
 
-export enum CountryEnums {
+export enum CountryEnum {
     '魏' = 0,
     '蜀' = 1,
     '吴' = 2,
     '群' = 3,
 }
 
-export enum CountryColorEnums {
+export enum CountryColorEnum {
     'blue' = 0,
     'green' = 1,
     'red' = 2,
     'yellow' = 3,
 }
 
-export enum SkillTypeEnums {
+export enum SkillTypeEnum {
     '普通' = 0,
     '锁定技' = 1,
     '裁定技' = 2,
 }
 
-export enum QualityColorEnums {
+export enum QualityColorEnum {
     'purple' = 0,
     'yellow' = 1,
     'red' = 2,
@@ -97,7 +104,7 @@ export interface SkillType {
     id: number;
     name: string;
     desc: string;
-    types: SkillTypeEnums[];
+    types: SkillTypeEnum[];
     level: SkillLevel;
 }
 
@@ -105,16 +112,34 @@ export interface CardType {
     id: number;
     name: string;
     image: string;
-    countryId: CountryEnums;
-    countryName: keyof typeof CountryEnums;
-    countryColor: CountryColorEnums;
+    countryId: CountryEnum;
+    countryName: keyof typeof CountryEnum;
+    countryColor: CountryColorEnum;
     skills: SkillType[];
     top: SkillDots;
     bottom: SkillDots;
     left: SkillDots;
     right: SkillDots;
     quality: Quality;
-    qualityColor: keyof typeof QualityColorEnums;
+    qualityColor: keyof typeof QualityColorEnum;
     level: CardLevel;
+}
+
+export interface RoleType {
+    country: CountryEnum;
+    countryName: keyof typeof CountryEnum;
+    role: PlayerType;
+    cards: CardType[];
+}
+
+export interface BattleCardType extends CardType {
+    owner: 0 | 1;
+}
+
+export interface BattleType {
+    roomId: string;
+    grid: { [key: number]: BattleCardType };
+    roles: RoleType[];
+    current: 0 | 1;
 }
 

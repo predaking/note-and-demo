@@ -11,7 +11,7 @@ const redis = require('redis');
 const RedisStore = require('connect-redis').default;
 const socket = require('../src/socket/server');
 
-const { result } = require('./enums');
+const { result } = require('./enum');
 const password = require('../password');
 
 const identityKey = 'skey';

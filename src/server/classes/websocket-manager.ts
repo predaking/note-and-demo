@@ -1,11 +1,11 @@
 import { FastifyRequest } from 'fastify';
-import { PlayerType } from '@/interface';
+import { PlayerType, WSMessageType } from '@/interface';
 
 class WebSocketManager {
     private static instance: WebSocketManager;
     private clients: Map<number, WebSocket>;
 
-    private constructor() {
+    constructor() {
         this.clients = new Map();
     }
 
@@ -28,23 +28,41 @@ class WebSocketManager {
         return this.clients.get(id);
     }
 
-    public broadcast(ids: number[], data: any): void {
+    public broadcast(ids: number[], data: WSMessageType): void {
         for (const id of ids) {
-            const client = this.clients.get(id);
+            const client = this.getClient(id);
             if (client) {
                 client.send(JSON.stringify(data));
             }
         }
     }
 
-    public validateConnection(req: FastifyRequest): { isValid: boolean; user?: PlayerType } {
+    public isClientConnected(id: number): boolean {
+        const client = this.clients.get(id);
+        return client?.readyState === WebSocket.OPEN;
+    }
+
+    public validateConnection(connection: WebSocket, req: FastifyRequest): PlayerType | null {
         const { loginUser: user } = req?.session || {};
         
         if (!user || !user.id) {
-            return { isValid: false };
+            user.id && this.removeClient(user.id);
+            return null;
         }
 
-        return { isValid: true, user };
+        // 添加连接状态监听
+        connection.onclose = () => {
+            console.log(`WebSocket connection closed for user ${user.id}`);
+            this.removeClient(user.id);
+        };
+
+        connection.onerror = (error) => {
+            console.error(`WebSocket error for user ${user.id}:`, error);
+            this.removeClient(user.id);
+        };
+
+        this.addClient(user.id, connection);
+        return user;
     }
 }
 

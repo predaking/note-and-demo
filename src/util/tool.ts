@@ -9,6 +9,15 @@ const tool = {
             }
         });
         return emojis;
+    },
+    /**
+     * @description 获取枚举的key和value
+     * @param enumType 
+     */
+    getKeyValuesFromEnum: (enumType: any) => {
+        const keys = Object.keys(enumType);
+        const len = keys.length;
+        return [keys.slice(0, len / 2), keys.slice(len / 2)];
     }
 };
 

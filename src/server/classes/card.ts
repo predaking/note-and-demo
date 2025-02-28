@@ -1,21 +1,21 @@
 import { 
     CardType,
-    CountryEnums,
-    CountryColorEnums,
+    CountryEnum,
+    CountryColorEnum,
     SkillType,
     CardLevel,
     SkillDots,
     Quality,
-    QualityColorEnums
+    QualityColorEnum
 } from '@/interface';
 
 class Card implements CardType {
     id: number;
     name: string;
     image: string;
-    countryId: CountryEnums;
-    countryName: keyof typeof CountryEnums;
-    countryColor: CountryColorEnums;
+    countryId: CountryEnum;
+    countryName: keyof typeof CountryEnum;
+    countryColor: CountryColorEnum;
     skills: SkillType[];
     top: SkillDots;
     bottom: SkillDots;
@@ -23,7 +23,7 @@ class Card implements CardType {
     right: SkillDots;
     quality: Quality;
     level: CardLevel;
-    qualityColor: keyof typeof QualityColorEnums;
+    qualityColor: keyof typeof QualityColorEnum;
 
     constructor ({ 
         id, 

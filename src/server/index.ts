@@ -1,4 +1,5 @@
 import fastify, { 
+    FastifyInstance,
     FastifyRequest, 
     FastifyReply,
     FastifyError
@@ -7,24 +8,17 @@ import fs from 'fs';
 import path from 'path';
 import password from '../../password';
 import { execute } from './db';
-import { result } from './enums';
+import { result } from './enum';
 import { init } from '@/socket/server';
 import Redis from './redis';
 import { networkInterfaces } from 'os';
 import { GameMainWsEventType } from '@/interface';
+import Fastify from './classes/fastify';
 
 const { RedisStore, redisClient } = Redis;
+const ft: FastifyInstance = Fastify.getInstance();
 
-const _init = async () => {
-    const ft = fastify({ 
-        logger: false,
-        https: {
-            key: fs.readFileSync(path.resolve(__dirname, '../../predaking.key')),
-            cert: fs.readFileSync(path.resolve(__dirname, '../../predaking.crt')),
-        },
-        // http2: true
-    });
-    
+const _init = async () => {    
     await ft.register(require('@fastify/multipart'), {
         limits: {
             fileSize: 10 * 1024 * 1024 // 限制文件大小为10MB
@@ -106,7 +100,7 @@ const _init = async () => {
         const { name } = req.body as { name: string };
         const findUser = `select * from user where name = ?`;
         try {
-            const user = await execute(ft, findUser, [name]);
+            const user = await execute(findUser, [name]);
             if (!user) {
                 return { ...result, code: 1, msg: '用户不存在' };
             }
@@ -121,7 +115,7 @@ const _init = async () => {
         const { name, password } = req.body as { name: string, password: string };
         const findUser = `select * from user where name = ?`;
         try {
-            const user = await execute(ft, findUser, [name]);
+            const user = await execute(findUser, [name]);
             if (!user) {
                 return { ...result, code: 1, msg: '用户名或密码错误' };
             }
@@ -160,7 +154,7 @@ const _init = async () => {
         try {
             // 检查IP注册次数和最后注册时间
             const checkIpInfo = `SELECT COUNT(*) as count, MAX(last_register_time) as last_time FROM user WHERE ip = ?`;
-            const ipInfo = await execute(ft, checkIpInfo, [clientIp]);
+            const ipInfo = await execute(checkIpInfo, [clientIp]);
             
             if (ipInfo && ipInfo.count >= 2) {
                 return {...result, code: 1, msg: '该IP已达到最大注册次数限制' };
@@ -175,7 +169,7 @@ const _init = async () => {
                 }
             }
             
-            const user = await execute(ft, findUser, [name]);
+            const user = await execute(findUser, [name]);
             if (user) {
                 return {...result, code: 1, msg: '用户名已存在' };
             }
@@ -184,7 +178,7 @@ const _init = async () => {
             const id = crypto.randomBytes(16).toString('hex');
             // 使用客户端传来的salt和密码
             const insertUser = `insert into user (id, name, password, salt, ip, last_register_time) values (?, ?, ?, ?, ?, NOW())`;
-            await execute(ft, insertUser, [id, name, password, salt, clientIp]);
+            await execute(insertUser, [id, name, password, salt, clientIp]);
             req.session.loginUser = { name, salt, ip: clientIp, password };
             return {...result, code: 0, msg: '注册成功并自动登录', data: { name }};
         } catch (error) {
@@ -232,6 +226,7 @@ const _init = async () => {
         console.log('connected');
         connection.on('message', (data: string) => {
             const _data = JSON.parse(data);
+            console.log('-data: ', _data);
             switch (_data.type) {
                 case GameMainWsEventType.REQUEST:
                     if (_data.path === '/matching') {
