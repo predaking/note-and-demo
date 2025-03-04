@@ -11,7 +11,8 @@ import {
     RoomEventType, 
     BattleType,
     CountryEnum,
-    CardType
+    CardType,
+    RoleType
 } from '@/interface';
 import util from '@/util';
 import { execute } from '../db';
@@ -186,24 +187,26 @@ class GameManager {
     public async initCardsOfPlayer(countryId: number): Promise<CardType[]>  {
         const sql = `select * from card where country_id = ? ORDER BY RAND() limit 5`;
         const result: CardType[] = await execute(sql, [countryId]);
-        console.log('result: ', result);
         return result;
     }
 
-    public initBattleData(room?: RoomType): BattleType {
+    public async initBattleData(room?: RoomType): Promise<BattleType> {
         // 随机生成两个国家
         const [idList] = getKeyValuesFromEnum(CountryEnum);
         const countryIds = fisherYatesShuffle(idList.map(id => +id)).slice(0, 2);
         console.log('ids: ', countryIds);
 
-        const roles: any = countryIds.map(async (id, index) => {
+        const rolesPromises = countryIds.map(async (id, index) => {
+            const cards = await this.initCardsOfPlayer(id);
             return {
                 country: id,
                 countryName: CountryEnum[id],
                 role: room?.players[index],
-                cards: await this.initCardsOfPlayer(id)
-            };
+                cards
+            } as RoleType;
         });
+
+        const roles = await Promise.all(rolesPromises);
 
         this.battle = {
             roomId: room?.id || '',
@@ -212,7 +215,7 @@ class GameManager {
             current: Math.random() > 0.5 ? 0: 1
         }
 
-        console.log('this.battle: ', this.battle);
+        console.log('battle: ', this.battle);
 
         return this.battle;
     }
