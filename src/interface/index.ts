@@ -83,12 +83,6 @@ export enum CountryColorEnum {
     'yellow' = 3,
 }
 
-export enum SkillTypeEnum {
-    '普通' = 0,
-    '锁定技' = 1,
-    '裁定技' = 2,
-}
-
 export enum QualityColorEnum {
     'purple' = 0,
     'yellow' = 1,
@@ -96,7 +90,6 @@ export enum QualityColorEnum {
 }
 
 export type CardLevel = 1 | 2 | 3 | 4 | 5;
-export type SkillLevel = 1 | 2;
 export type SkillDots = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export type Quality = 0 | 1 | 2;
 
@@ -104,8 +97,8 @@ export interface SkillType {
     id: number;
     name: string;
     desc: string;
-    types: SkillTypeEnum[];
-    level: SkillLevel;
+    isLock: boolean;
+    isJudge: boolean;
 }
 
 export interface CardType {

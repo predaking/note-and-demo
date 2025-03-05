@@ -18,7 +18,20 @@ const tool = {
         const keys = Object.keys(enumType);
         const len = keys.length;
         return [keys.slice(0, len / 2), keys.slice(len / 2)];
-    }
+    },
+    underscoreToCamelCase: (obj: any): any => {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                let newKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                if (newKey !== key) {
+                    obj[newKey] = obj[key];
+                    delete obj[key];
+                }
+            }
+        }
+
+        return obj;
+    },
 };
 
 export default tool;

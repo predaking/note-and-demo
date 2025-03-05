@@ -1,6 +1,7 @@
 import Redis from '../redis';
 import Player from './player';
 import Room from './room';
+import Card from './card';
 import WebSocketManager from './websocket-manager';
 import { 
     RoomType, 
@@ -12,7 +13,9 @@ import {
     BattleType,
     CountryEnum,
     CardType,
-    RoleType
+    RoleType,
+    CountryColorEnum,
+    QualityColorEnum
 } from '@/interface';
 import util from '@/util';
 import { execute } from '../db';
@@ -25,17 +28,12 @@ const { redisClient } = Redis;
 class GameManager {
     private playerPool: Map<number, { status: MatchStatus; name: string }>;
     private rooms: RoomType[];
-    private battle: BattleType;
+    private battles: Map<string, BattleType>;
 
     constructor() {
         this.playerPool = new Map();
         this.rooms = [];
-        this.battle = {
-            roomId: '',
-            grid: [],
-            roles: [],
-            current: 0
-        };
+        this.battles = new Map();
         this.initializeFromRedis();
     }
 
@@ -45,6 +43,10 @@ class GameManager {
 
     getRooms(): RoomType[] {
         return this.rooms;
+    }
+
+    getBattles(): Map<string, BattleType> {
+        return this.battles;
     }
 
     private async initializeFromRedis() {
@@ -58,7 +60,7 @@ class GameManager {
             if (Object.keys(parsedData).length) {
                 this.playerPool = new Map(parsedData.pool);
                 this.rooms = parsedData.rooms;
-                this.battle = parsedData.battle;
+                this.battles = new Map(parsedData.battles);
             }
         } catch (err) {
             console.error('Redis initialization error:', err);
@@ -67,11 +69,12 @@ class GameManager {
 
     private async saveToRedis() {
         try {
-            const playerPoolArray = Array.from(this.playerPool.entries());
+            const pool = Array.from(this.playerPool.entries());
+            const battles = Array.from(this.battles.entries());
             await redisClient.hSet('threeKingdomsDebate', 'battles', JSON.stringify({
-                pool: playerPoolArray,
+                pool,
                 rooms: this.rooms,
-                battle: this.battle
+                battles
             }));
         } catch (err) {
             console.error('Save to Redis error:', err);
@@ -184,40 +187,61 @@ class GameManager {
         this.playerPool.set(player.id, { status: MatchStatus.WAITING, name: player.name });
     }
 
-    public async initCardsOfPlayer(countryId: number): Promise<CardType[]>  {
+    public async initCardsOfPlayer(countryId: number) {
         const sql = `select * from card where country_id = ? ORDER BY RAND() limit 5`;
-        const result: CardType[] = await execute(sql, [countryId]);
-        return result;
+        const cards = await execute(sql, [countryId]);
+
+        const promiseList = cards.map(async (card: any) => {
+            let skills = [];
+            if (card.skills?.length) {
+                const skillPromises = card.skills.map(async ({ id }: { id: number }) => {
+                    const sql = `select * from skill where id = ?`;
+                    const [_skills] = await execute(sql, [id]);
+                    return _skills;
+                });
+                skills = await Promise.all(skillPromises);
+            }
+            return {
+                ...card,
+                skills
+            }
+        });
+
+        return await Promise.all(promiseList);
     }
 
-    public async initBattleData(room?: RoomType): Promise<BattleType> {
+    public async initBattleData(room: RoomType): Promise<BattleType> {
         // 随机生成两个国家
         const [idList] = getKeyValuesFromEnum(CountryEnum);
         const countryIds = fisherYatesShuffle(idList.map(id => +id)).slice(0, 2);
-        console.log('ids: ', countryIds);
 
         const rolesPromises = countryIds.map(async (id, index) => {
             const cards = await this.initCardsOfPlayer(id);
+
             return {
                 country: id,
                 countryName: CountryEnum[id],
-                role: room?.players[index],
-                cards
+                role: room.players[index],
+                cards: cards.map((card: any) => new Card({
+                    ...card,
+                    countryName: CountryEnum[card.countryId],
+                    countryColor: CountryColorEnum[card.countryId],
+                    qualityColor: QualityColorEnum[card.quality]
+                })),
             } as RoleType;
         });
 
         const roles = await Promise.all(rolesPromises);
 
-        this.battle = {
-            roomId: room?.id || '',
+        this.battles.set(room.id, {
+            roomId: room.id,
             grid: {},
             roles,
-            current: Math.random() > 0.5 ? 0: 1
-        }
+            current: 0,
+        });
 
-        console.log('battle: ', this.battle);
-
-        return this.battle;
+        await this.saveToRedis();
+        return this.battles.get(room.id)!;
     }
 }
 

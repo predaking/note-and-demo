@@ -100,7 +100,8 @@ const _init = async () => {
         const { name } = req.body as { name: string };
         const findUser = `select * from user where name = ?`;
         try {
-            const user = await execute(findUser, [name]);
+            const [user] = await execute(findUser, [name]);
+            console.log('user: ', user);
             if (!user) {
                 return { ...result, code: 1, msg: '用户不存在' };
             }
@@ -115,7 +116,7 @@ const _init = async () => {
         const { name, password } = req.body as { name: string, password: string };
         const findUser = `select * from user where name = ?`;
         try {
-            const user = await execute(findUser, [name]);
+            const [user] = await execute(findUser, [name]);
             if (!user) {
                 return { ...result, code: 1, msg: '用户名或密码错误' };
             }
@@ -169,7 +170,7 @@ const _init = async () => {
                 }
             }
             
-            const user = await execute(findUser, [name]);
+            const [user] = await execute(findUser, [name]);
             if (user) {
                 return {...result, code: 1, msg: '用户名已存在' };
             }
@@ -226,7 +227,7 @@ const _init = async () => {
         console.log('connected');
         connection.on('message', (data: string) => {
             const _data = JSON.parse(data);
-            console.log('-data: ', _data);
+
             switch (_data.type) {
                 case GameMainWsEventType.REQUEST:
                     if (_data.path === '/matching') {
