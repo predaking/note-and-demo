@@ -77,10 +77,10 @@ export enum CountryEnum {
 }
 
 export enum CountryColorEnum {
-    'blue' = 0,
-    'green' = 1,
-    'red' = 2,
-    'yellow' = 3,
+    '0x2468a2' = 0,
+    '0x00ae9d' = 1,
+    '0xef4136' = 2,
+    '0xfcaf17' = 3,
 }
 
 export enum QualityColorEnum {

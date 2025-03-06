@@ -31,6 +31,7 @@ class WebSocketManager {
     public broadcast(ids: number[], data: WSMessageType): void {
         for (const id of ids) {
             const client = this.getClient(id);
+
             if (client) {
                 client.send(JSON.stringify(data));
             }
@@ -39,7 +40,7 @@ class WebSocketManager {
 
     public isClientConnected(id: number): boolean {
         const client = this.clients.get(id);
-        return client?.readyState === WebSocket.OPEN;
+        return client?.readyState === 1; // WebSocket.OPEN
     }
 
     public validateConnection(connection: WebSocket, req: FastifyRequest): PlayerType | null {

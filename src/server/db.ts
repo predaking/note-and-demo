@@ -10,7 +10,7 @@ export const execute = async (sql: string, params: any = []) => {
         const client = await ft.mysql.getConnection();
         const [rows] = await client.query(sql, params);
         client.release();
-        const res = rows.map((row: any) => underscoreToCamelCase(row));
+        const res = Array.isArray(rows) ? rows.map((row: any) => underscoreToCamelCase(row)) : underscoreToCamelCase(rows);
         return res;
     } catch (error) {
         client && client.release();

@@ -29,8 +29,10 @@ export const init = async (connection: WebSocket, req: FastifyRequest): Promise<
 
         const _pool = gameManager.getPlayerPool();
         const userInfo = _pool.get(id);
+
+        console.log('userInfo', userInfo);
     
-        if (userInfo && userInfo.status === MatchStatus.PLAYING) {
+        if (userInfo && userInfo.status === MatchStatus.MATCHED) {
             const rooms = gameManager.getRooms();
             const battles = gameManager.getBattles();
 
@@ -51,6 +53,7 @@ export const init = async (connection: WebSocket, req: FastifyRequest): Promise<
 
         const player = new Player(id, name, MatchStatus.WAITING);
         const matchedPlayers = await gameManager.matchPlayer(player);
+
         wsManager.broadcast([player.id], {
             type: GameMainWsEventType.MATCH,
             subType: MatchStatus.MATCHED,

@@ -51,12 +51,13 @@ class GameManager {
 
     private async initializeFromRedis() {
         try {
-            const matchData = await redisClient.hGet('battles', 'data');
+            const matchData = await redisClient.hGet('threeKingdomsDebate', 'battles');
             if (!matchData) {
                 return;
             }
 
             const parsedData = JSON.parse(matchData);
+            console.log('parsedData: ', parsedData);
             if (Object.keys(parsedData).length) {
                 this.playerPool = new Map(parsedData.pool);
                 this.rooms = parsedData.rooms;
@@ -125,6 +126,8 @@ class GameManager {
                             id !== player.id && 
                             data.status === MatchStatus.WAITING &&
                             wsManager.isClientConnected(id));
+
+                    console.log('waiting: ', waitingPlayer);
 
                     if (waitingPlayer) {
                         const [matchedPlayerId, matchedPlayerData] = waitingPlayer;

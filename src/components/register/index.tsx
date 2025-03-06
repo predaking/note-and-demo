@@ -70,12 +70,6 @@ const Register = () => {
             };
             const loginRes: ResultType = await post('/login', loginData);
             if (loginRes.code === 0) {
-                // // 从响应头获取Token
-                // const token = loginRes.headers?.['x-auth-token'];
-                // if (token) {
-                //     // 将Token存储在内存中
-                //     window.sessionStorage.setItem('auth_token', token);
-                // }
                 dispatch({ type: SET_USERINFO, userInfo: loginRes.data });
                 dispatch({ type: SET_ISLOGIN, isLogin: true});
                 localStorage.setItem('name', values.name);
