@@ -25,18 +25,19 @@ class Scene_2 extends Phaser.Scene {
         const container = this.add.container(x, y);
         container.setSize(EDGE_LEN, EDGE_LEN);
 
-        const border = this.add.graphics();
-        border.fillStyle(+_countryColor);
-        border.fillRect(-(EDGE_LEN - 10) / 2, -(EDGE_LEN - 10) / 2, EDGE_LEN - 10, EDGE_LEN - 10);
-        container.add(border);
+        const graphics = this.add.graphics();
+        // graphics.fillStyle(+_countryColor);
+        
+        // graphics.fillRect(-EDGE_LEN / 2, -EDGE_LEN / 2 + 5, EDGE_LEN - 10, EDGE_LEN - 10);
+        container.add(graphics);
 
-        const text = this.add.text(0, 0, card.name, {
-            fontSize: '32px',
-            color: '#fff', // `#${_countryColor.slice(2)}`,
-            fontStyle: 'bold'
-        });
-        text.setOrigin(0.5);
-        container.add(text);
+        // const text = this.add.text(0, 0, card.name, {
+        //     fontSize: '32px',
+        //     color: '#fff', // `#${_countryColor.slice(2)}`,
+        //     fontStyle: 'bold'
+        // });
+        // text.setOrigin(0.5);
+        // container.add(text);
 
         const createSkillDots = (x: number, y: number, value: number) => {
             const container = this.add.container(x, y);
