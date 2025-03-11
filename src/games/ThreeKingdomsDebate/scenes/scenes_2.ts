@@ -1,4 +1,13 @@
-import { BattleEventType, BattleType, CardType, CountryColorEnum, GameMainWsEventType, MatchStatus, RoomType } from "@/interface";
+import { 
+    BattleEventType, 
+    BattleType, 
+    CardType, 
+    CountryColorEnum, 
+    GameMainWsEventType, 
+    MatchStatus, 
+    RoomType, 
+    SkillType
+} from "@/interface";
 
 const EDGE_LEN = 160;
 class Scene_2 extends Phaser.Scene {
@@ -14,11 +23,105 @@ class Scene_2 extends Phaser.Scene {
     private dotTimer = 0;
     private ws: WebSocket | null = null;
     private isMatching = true;
-    private room: RoomType | null = null;
-    private battle: BattleType | null = null;
     private cards: Phaser.GameObjects.Sprite[] = [];
     private selectedCard: Phaser.GameObjects.Sprite | null = null;
     private gridPositions: { x: number; y: number }[][] = [];
+
+    private renderSkills(skills: SkillType[]) {
+        const container = this.add.container(-EDGE_LEN / 2, EDGE_LEN / 2 - ((skills.length - 1) * 18 + 10));
+        
+        skills.forEach((skill, index) => {
+            const backColor = (skill.isJudge || skill.isLock) ? 0xEEAB11 : 0x1179EE;
+            const polygon = this.add.polygon(20, index * 18, "0 16 30 16 40 8 30 0 0 0", backColor);
+            polygon.setInteractive();
+            let popup: Phaser.GameObjects.Container | null = null;
+            let tooltip: Phaser.GameObjects.Container | null = null;
+
+            polygon.on('pointerover', () => {
+                const text = this.add.text(0, 0, skill.desc, {
+                    fontSize: 16,
+                    padding: {
+                        top: 5,
+                        bottom: 5,
+                        left: 5,
+                        right: 5
+                    },
+                    color: '#ffffff',
+                    lineSpacing: 4,
+                    backgroundColor: '#000000',
+                    wordWrap: { width: 160, useAdvancedWrap: true }
+                });
+                // text.setOrigin(0.5);
+                tooltip = this.add.container(polygon.x + 30, polygon.y - 20, [text]);
+                tooltip.setDepth(100);
+                container.add(tooltip);
+            });
+
+            polygon.on('pointerout', () => {
+                if (tooltip) {
+                    tooltip.destroy();
+                    container.remove(tooltip);
+                    tooltip = null;
+                }
+            });
+
+            polygon.on('pointerdown', () => {
+                if (popup) {
+                    popup.destroy();
+                }
+                popup = this.add.container(polygon.x + 30, polygon.y - 20);
+                const bg = this.add.graphics();
+                bg.fillStyle(0x000000, 0.8);
+                bg.fillRect(0, 0, 180, 100);
+                popup.add(bg);
+                const text = this.add.text(10, 10, skill.desc, {
+                    fontSize: 14,
+                    color: '#ffffff',
+                    wordWrap: { width: 160 }
+                });
+                popup.add(text);
+                setTimeout(() => {
+                    if (popup) {
+                        popup.destroy();
+                        popup = null;
+                    }
+                }, 3000);
+            });
+
+            const text = this.add.text(20 - 2, index * 18 + 1, skill.name, {
+                fontSize: 12,
+                padding: {
+                    top: 2
+                }
+            });
+            text.setOrigin(0.5, 0.5);
+            container.add(polygon);
+            container.add(text);
+        });
+
+        return container;
+    }
+
+    private createSkillDots(x: number, y: number, value: number) {
+        const container = this.add.container(x, y);
+        const graphics = this.add.graphics();
+        graphics.lineStyle(2, 0xcccccc);
+        graphics.fillStyle(0x000000);
+        graphics.strokeRoundedRect(-10, -10, 20, 20, 5);
+        graphics.fillRoundedRect(-10, -10, 20, 20, 5);
+        container.add(graphics);
+
+        const skilldot = this.add.text(0, 0, String(value), {
+            fontSize: '14px',
+            color: '#ffffff',
+            fontStyle: 'bold',
+            align: 'center'
+        });
+        skilldot.setOrigin(0.5, 0.5);
+        container.add(skilldot);
+
+        return container;
+    };
 
     private createCard(x: number, y: number, card: CardType) {
         const _countryColor = CountryColorEnum[card.countryId];
@@ -31,34 +134,16 @@ class Scene_2 extends Phaser.Scene {
         // graphics.fillRect(-EDGE_LEN / 2, -EDGE_LEN / 2 + 5, EDGE_LEN - 10, EDGE_LEN - 10);
         container.add(graphics);
 
-        // const text = this.add.text(0, 0, card.name, {
-        //     fontSize: '32px',
-        //     color: '#fff', // `#${_countryColor.slice(2)}`,
-        //     fontStyle: 'bold'
-        // });
-        // text.setOrigin(0.5);
-        // container.add(text);
-
-        const createSkillDots = (x: number, y: number, value: number) => {
-            const container = this.add.container(x, y);
-            const graphics = this.add.graphics();
-            graphics.lineStyle(2, 0xcccccc);
-            graphics.fillStyle(0x000000);
-            graphics.strokeRoundedRect(-10, -10, 20, 20, 5);
-            graphics.fillRoundedRect(-10, -10, 20, 20, 5);
-            container.add(graphics);
-
-            const skilldot = this.add.text(0, 0, String(value), {
-                fontSize: '14px',
-                color: '#ffffff',
-                fontStyle: 'bold',
-                align: 'center'
-            });
-            skilldot.setOrigin(0.5, 0.5);
-            container.add(skilldot);
-    
-            return container;
-        };
+        const text = this.add.text(0, 2, card.name, {
+            fontSize: '32px',
+            color: `#${_countryColor.slice(2)}`,
+            fontStyle: 'bold',
+            padding: {
+                top: 2
+            }
+        });
+        text.setOrigin(0.5);
+        container.add(text);
 
         const skillDots = [{
             value: card.top,
@@ -79,9 +164,13 @@ class Scene_2 extends Phaser.Scene {
         }];
 
         skillDots.forEach(({ value, x, y }) => {
-            const skillDotContainer = createSkillDots(x, y, value);
+            const skillDotContainer = this.createSkillDots(x, y, value);
             container.add(skillDotContainer);
         });
+
+        const skills = this.renderSkills(card.skills);
+
+        container.add(skills);
 
         container.setInteractive(new Phaser.Geom.Rectangle(0, 0, EDGE_LEN, EDGE_LEN), Phaser.Geom.Rectangle.Contains);
 
@@ -129,12 +218,13 @@ class Scene_2 extends Phaser.Scene {
     }
 
     private renderCards() {
+        const battle = <BattleType>this.data.get('battle');
         const {
             roomId,
             grid,
             roles,
             current
-        } = this.battle!;
+        } = battle;
         this.gridPositions[0].forEach((pos, index) => {
             this.createCard(pos.x, pos.y, roles[0].cards[index]);
         });
@@ -244,8 +334,9 @@ class Scene_2 extends Phaser.Scene {
 
     private handleMessage(event: MessageEvent) {
         const data = JSON.parse(event.data);
-        this.room = data.data.room;
-        this.battle = data.data.battle;
+        this.data.set('room', data.data.room);
+        this.data.set('battle', data.data.battle);
+
         if (data.type === GameMainWsEventType.BATTLE && data.subType === BattleEventType.START) {
             this.matchingText!.destroy();
             this.isMatching = false;
