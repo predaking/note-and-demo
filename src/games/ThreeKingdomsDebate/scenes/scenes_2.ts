@@ -1,11 +1,11 @@
-import { 
-    BattleEventType, 
-    BattleType, 
-    CardType, 
-    CountryColorEnum, 
-    GameMainWsEventType, 
-    MatchStatus, 
-    RoomType, 
+import {
+    BattleEventType,
+    BattleType,
+    CardType,
+    CountryColorEnum,
+    GameMainWsEventType,
+    MatchStatus,
+    RoomType,
     SkillType
 } from "@/interface";
 
@@ -16,6 +16,7 @@ class Scene_2 extends Phaser.Scene {
         console.log('Scene_2: ', this);
     }
 
+    private isPc = false;
     private width = 0;
     private height = 0;
     private matchingText: Phaser.GameObjects.Text | null = null;
@@ -29,64 +30,57 @@ class Scene_2 extends Phaser.Scene {
 
     private renderSkills(skills: SkillType[]) {
         const container = this.add.container(-EDGE_LEN / 2, EDGE_LEN / 2 - ((skills.length - 1) * 18 + 10));
-        
+
         skills.forEach((skill, index) => {
             const backColor = (skill.isJudge || skill.isLock) ? 0xEEAB11 : 0x1179EE;
             const polygon = this.add.polygon(20, index * 18, "0 16 30 16 40 8 30 0 0 0", backColor);
             polygon.setInteractive();
             let popup: Phaser.GameObjects.Container | null = null;
             let tooltip: Phaser.GameObjects.Container | null = null;
+            let desc: Phaser.GameObjects.Text | null = null;
+            let timer: any = null;
 
-            polygon.on('pointerover', () => {
-                const text = this.add.text(0, 0, skill.desc, {
-                    fontSize: 16,
-                    padding: {
-                        top: 5,
-                        bottom: 5,
-                        left: 5,
-                        right: 5
-                    },
-                    color: '#ffffff',
-                    lineSpacing: 4,
-                    backgroundColor: '#000000',
-                    wordWrap: { width: 160, useAdvancedWrap: true }
-                });
-                // text.setOrigin(0.5);
-                tooltip = this.add.container(polygon.x + 30, polygon.y - 20, [text]);
-                tooltip.setDepth(100);
-                container.add(tooltip);
-            });
-
-            polygon.on('pointerout', () => {
-                if (tooltip) {
-                    tooltip.destroy();
-                    container.remove(tooltip);
-                    tooltip = null;
-                }
-            });
-
-            polygon.on('pointerdown', () => {
-                if (popup) {
-                    popup.destroy();
-                }
-                popup = this.add.container(polygon.x + 30, polygon.y - 20);
-                const bg = this.add.graphics();
-                bg.fillStyle(0x000000, 0.8);
-                bg.fillRect(0, 0, 180, 100);
-                popup.add(bg);
-                const text = this.add.text(10, 10, skill.desc, {
-                    fontSize: 14,
-                    color: '#ffffff',
-                    wordWrap: { width: 160 }
-                });
-                popup.add(text);
-                setTimeout(() => {
-                    if (popup) {
-                        popup.destroy();
-                        popup = null;
+            const show = () => {
+                desc = this.add.text(0, 0, skill.desc,
+                    {
+                        fontSize: 16,
+                        padding: {
+                            top: 5,
+                            bottom: 5,
+                            left: 5,
+                            right: 5
+                        },
+                        color: '#FFE400',
+                        lineSpacing: 4,
+                        backgroundColor: '#000000',
+                        wordWrap: { width: 160, useAdvancedWrap: true }
                     }
-                }, 3000);
-            });
+                );
+                tooltip = this.add.container(polygon.x + 30, polygon.y - 20);
+                tooltip.add(desc);
+                container.add(tooltip);
+            };
+
+            const hide = () => {
+                if (!tooltip) {
+                    return;
+                }
+                tooltip.destroy();
+            };
+
+            if (this.isPc) {
+                polygon.on('pointerover', show);
+                polygon.on('pointerout', hide);
+            } else {
+                polygon.on('pointerdown', () => {
+                    if (timer) {
+                        clearTimeout(timer);
+                        timer = null;
+                    }
+                    setTimeout(hide, 3000);
+                    show();
+                });
+            }
 
             const text = this.add.text(20 - 2, index * 18 + 1, skill.name, {
                 fontSize: 12,
@@ -123,14 +117,14 @@ class Scene_2 extends Phaser.Scene {
         return container;
     };
 
-    private createCard(x: number, y: number, card: CardType) {
+    private createCard(x: number, y: number, card: CardType, draggable: boolean = false) {
         const _countryColor = CountryColorEnum[card.countryId];
         const container = this.add.container(x, y);
         container.setSize(EDGE_LEN, EDGE_LEN);
 
         const graphics = this.add.graphics();
         // graphics.fillStyle(+_countryColor);
-        
+
         // graphics.fillRect(-EDGE_LEN / 2, -EDGE_LEN / 2 + 5, EDGE_LEN - 10, EDGE_LEN - 10);
         container.add(graphics);
 
@@ -152,7 +146,7 @@ class Scene_2 extends Phaser.Scene {
         }, {
             value: card.bottom,
             x: 0,
-            y: EDGE_LEN / 2 - 12 
+            y: EDGE_LEN / 2 - 12
         }, {
             value: card.left,
             x: -EDGE_LEN / 2 + 12,
@@ -169,52 +163,16 @@ class Scene_2 extends Phaser.Scene {
         });
 
         const skills = this.renderSkills(card.skills);
-
         container.add(skills);
 
         container.setInteractive(new Phaser.Geom.Rectangle(0, 0, EDGE_LEN, EDGE_LEN), Phaser.Geom.Rectangle.Contains);
-
         this.input.setDraggable(container);
-        // this.cards.push(_card);
-
-        container.on('dragstart', () => {
-            // this.selectedCard = _card;
-            container.setDepth(1);
-        });
-
-        container.on('drag', (pointer: Phaser.Input.Pointer) => {
-            container.x = pointer.x;
-            container.y = pointer.y;
-        });
-
-        container.on('dragend', () => {
-            container.setDepth(0);
-            const dropPosition = this.findNearestGridPosition(container.x, container.y);
-            if (dropPosition) {
-                container.x = dropPosition.x;
-                container.y = dropPosition.y;
-            }
-            // this.selectedCard = null;
-        });
 
         return container;
     }
 
-    private findNearestGridPosition(x: number, y: number) {
-        let nearestPosition = { x: 0, y: 0 };
-        let minDistance = Infinity;
-
-        this.gridPositions.forEach(column => {
-            column.forEach(pos => {
-                const distance = Phaser.Math.Distance.Between(x, y, pos.x, pos.y);
-                if (distance < minDistance && distance < 80) {
-                    minDistance = distance;
-                    nearestPosition = pos;
-                }
-            });
-        });
-
-        return nearestPosition;
+    private renderZone(x: number, y: number) {
+        this.add.zone(x, y, EDGE_LEN, EDGE_LEN).setRectangleDropZone(EDGE_LEN, EDGE_LEN);
     }
 
     private renderCards() {
@@ -227,6 +185,9 @@ class Scene_2 extends Phaser.Scene {
         } = battle;
         this.gridPositions[0].forEach((pos, index) => {
             this.createCard(pos.x, pos.y, roles[0].cards[index]);
+        });
+        this.gridPositions[1].forEach((pos) => {
+            this.renderZone(pos.x, pos.y);
         });
         this.gridPositions[2].forEach((pos, index) => {
             this.createCard(pos.x, pos.y, roles[1].cards[index]);
@@ -242,27 +203,24 @@ class Scene_2 extends Phaser.Scene {
         this.matchingText.setOrigin(0.5);
     }
 
-    private createCenterGrid () {
-        const grid = new Phaser.GameObjects.Grid(
-            this, 
-            0, 
-            0, 
-            480, 
-            480, 
-            EDGE_LEN, 
-            EDGE_LEN, 
-            0xffffff, 
-            1, 
-            0x000000, 
+    private createCenterGrid() {
+        const grid = this.add.grid(
+            0,
+            0,
+            480,
+            480,
+            EDGE_LEN,
+            EDGE_LEN,
+            0xffffff,
+            1,
+            0x000000,
             1
         );
-        this.add.existing(grid);
         return grid;
     }
 
-    private createSideGrid () {
-        const grid = new Phaser.GameObjects.Grid(
-            this,
+    private createSideGrid() {
+        const grid = this.add.grid(
             0,
             0,
             EDGE_LEN,
@@ -274,7 +232,6 @@ class Scene_2 extends Phaser.Scene {
             0x000000,
             1
         );
-        this.add.existing(grid);
         return grid;
     }
 
@@ -286,7 +243,7 @@ class Scene_2 extends Phaser.Scene {
         // 计算网格的总宽度和高度
         const totalWidth = this.scale.width;
         const totalHeight = this.scale.height;
-        
+
         // 计算每个网格的位置
         const gridSpacing = totalWidth / 3;
         const leftX = gridSpacing / 2;
@@ -345,13 +302,51 @@ class Scene_2 extends Phaser.Scene {
             this.matchingText!.setText('用户已在游戏中');
             this.isMatching = false;
             this.renderContent();
-        } 
+        }
+    }
+
+    private registerEvents() {
+        this.input.on('drag', (
+            _: Phaser.Input.Pointer, 
+            container: Phaser.GameObjects.Container, 
+            dragX: any, dragY: any
+        ) => {
+            container.x = dragX;
+            container.y = dragY;
+        });
+
+        this.input.on('dragstart', () => {
+            // container.setData('startX', container.x);
+            // container.setData('startY', container.y);
+        });
+
+        this.input.on('dragend', (
+            _: Phaser.Input.Pointer, 
+            container: Phaser.GameObjects.Container, 
+            dropped: boolean
+        ) => {
+            if (!dropped) {
+                container.x = container.input!.dragStartX;
+                container.y = container.input!.dragStartY;
+            }
+        });
+
+        this.input.on('drop', (
+            _: Phaser.Input.Pointer, 
+            container: Phaser.GameObjects.Container,
+            dropZone: Phaser.GameObjects.Container,
+        ) => {
+            container.x = dropZone.x;
+            container.y = dropZone.y;
+            container.input!.enabled = false;
+        });
     }
 
     preload() {
         this.width = this.scale.width;
         this.height = this.scale.height;
         this.ws = this.registry.get('getWsInstance')();
+        this.isPc = !!this.sys.game.device.os.desktop;
         console.log('this.ws: ', this.ws);
         if (this.ws) {
             this.ws.onmessage = this.handleMessage.bind(this);
@@ -363,6 +358,7 @@ class Scene_2 extends Phaser.Scene {
 
     create() {
         this.renderIsMatching();
+        this.registerEvents();
     }
 
     update(_time: number, _delta: number): void {
