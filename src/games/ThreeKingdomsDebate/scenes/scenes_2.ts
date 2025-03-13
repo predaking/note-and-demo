@@ -268,9 +268,9 @@ class Scene_2 extends Phaser.Scene {
                 y: gridY - 320 + i * EDGE_LEN
             })),
             // 中间网格位置
-            Array(3).fill(0).map((_, i) => ({
-                x: centerX,
-                y: gridY - EDGE_LEN + i * EDGE_LEN
+            Array(9).fill(0).map((_, i) => ({
+                x: centerX - EDGE_LEN + (i % 3) * EDGE_LEN,
+                y: gridY - EDGE_LEN + Math.floor(i / 3) * EDGE_LEN
             })),
             // 右侧网格位置
             Array(5).fill(0).map((_, i) => ({
@@ -336,9 +336,15 @@ class Scene_2 extends Phaser.Scene {
             container: Phaser.GameObjects.Container,
             dropZone: Phaser.GameObjects.Container,
         ) => {
+            if (dropZone.getData('occupied')) {
+                container.x = container.input!.dragStartX;
+                container.y = container.input!.dragStartY;
+                return;
+            }
             container.x = dropZone.x;
             container.y = dropZone.y;
             container.input!.enabled = false;
+            dropZone.setData('occupied', true);
         });
     }
 
