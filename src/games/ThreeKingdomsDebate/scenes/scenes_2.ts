@@ -306,6 +306,7 @@ class Scene_2 extends Phaser.Scene {
     }
 
     private registerEvents() {
+        console.log('data: ', this.data);
         this.input.on('drag', (
             _: Phaser.Input.Pointer, 
             container: Phaser.GameObjects.Container, 
