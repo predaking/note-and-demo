@@ -1,8 +1,8 @@
 import { ResultType } from "@/interface";
 import { message } from "antd";
 
-// const host = 'https://10.203.81.15:3000';
-const host = 'https://192.168.1.54:3000';
+const host = 'https://10.203.81.15:3000';
+// const host = 'https://192.168.1.54:3000';
 
 
 export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: any) => {
@@ -29,7 +29,7 @@ export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: 
 const request = (method: string = 'get', url: string, data: any = {}): Promise<ResultType> => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open(method, `${host}${url}`, true);
+        xhr.open(method, url.includes('http') ? url : `${host}${url}`, true);
         xhr.withCredentials = true;
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         xhr.send(JSON.stringify(data));
