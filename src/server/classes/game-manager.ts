@@ -196,6 +196,7 @@ class GameManager {
 
         const promiseList = cards.map(async (card: any) => {
             let skills = [];
+            console.log('skill: ', card.skills);
             if (card.skills?.length) {
                 const skillPromises = card.skills.map(async ({ id }: { id: number }) => {
                     const sql = `select * from skill where id = ?`;

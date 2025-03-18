@@ -1,7 +1,9 @@
 import { ResultType } from "@/interface";
 import { message } from "antd";
 
-const host = 'https://10.203.81.15:3000';
+// const host = 'https://10.203.81.15:3000';
+const host = 'https://192.168.1.54:3000';
+
 
 export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: any) => {
     return new Promise((resolve, reject) => {

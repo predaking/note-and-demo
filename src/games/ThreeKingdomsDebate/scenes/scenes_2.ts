@@ -32,31 +32,38 @@ class Scene_2 extends Phaser.Scene {
         const container = this.add.container(-EDGE_LEN / 2, EDGE_LEN / 2 - ((skills.length - 1) * 18 + 10));
 
         skills.forEach((skill, index) => {
-            const backColor = (skill.isJudge || skill.isLock) ? 0xEEAB11 : 0x1179EE;
-            const polygon = this.add.polygon(20, index * 18, "0 16 30 16 40 8 30 0 0 0", backColor);
-            polygon.setInteractive();
-            let popup: Phaser.GameObjects.Container | null = null;
+            const backColor = (skill?.isJudge || skill?.isLock) ? 0xEEAB11 : 0x1179EE;
+
+            // 创建 Nine Slice（修正边距）
+            const nineSliceSprite = this.add.nineslice(
+                20, index * 18,
+                'skill',
+                0,
+                40, 16,
+                10, 10, 4, 4 // 边距调整
+            );
+            nineSliceSprite.setTint(backColor);
+            nineSliceSprite.setInteractive();
+
             let tooltip: Phaser.GameObjects.Container | null = null;
             let desc: Phaser.GameObjects.Text | null = null;
             let timer: any = null;
 
             const show = () => {
-                desc = this.add.text(0, 0, skill.desc,
-                    {
-                        fontSize: 16,
-                        padding: {
-                            top: 5,
-                            bottom: 5,
-                            left: 5,
-                            right: 5
-                        },
-                        color: '#FFE400',
-                        lineSpacing: 4,
-                        backgroundColor: '#000000',
-                        wordWrap: { width: 160, useAdvancedWrap: true }
-                    }
-                );
-                tooltip = this.add.container(polygon.x + 30, polygon.y - 20);
+                desc = this.add.text(0, 0, skill.desc, {
+                    fontSize: 16,
+                    padding: {
+                        top: 5,
+                        bottom: 5,
+                        left: 5,
+                        right: 5
+                    },
+                    color: '#FFE400',
+                    lineSpacing: 4,
+                    backgroundColor: '#000000',
+                    wordWrap: { width: 160, useAdvancedWrap: true }
+                });
+                tooltip = this.add.container(nineSliceSprite.x + 30, nineSliceSprite.y - 20);
                 tooltip.add(desc);
                 container.add(tooltip);
             };
@@ -69,10 +76,10 @@ class Scene_2 extends Phaser.Scene {
             };
 
             if (this.isPc) {
-                polygon.on('pointerover', show);
-                polygon.on('pointerout', hide);
+                nineSliceSprite.on('pointerover', show);
+                nineSliceSprite.on('pointerout', hide);
             } else {
-                polygon.on('pointerdown', () => {
+                nineSliceSprite.on('pointerdown', () => {
                     if (timer) {
                         clearTimeout(timer);
                         timer = null;
@@ -89,7 +96,7 @@ class Scene_2 extends Phaser.Scene {
                 }
             });
             text.setOrigin(0.5, 0.5);
-            container.add(polygon);
+            container.add(nineSliceSprite);
             container.add(text);
         });
 
@@ -308,8 +315,8 @@ class Scene_2 extends Phaser.Scene {
     private registerEvents() {
         console.log('data: ', this.data);
         this.input.on('drag', (
-            _: Phaser.Input.Pointer, 
-            container: Phaser.GameObjects.Container, 
+            _: Phaser.Input.Pointer,
+            container: Phaser.GameObjects.Container,
             dragX: any, dragY: any
         ) => {
             container.x = dragX;
@@ -322,8 +329,8 @@ class Scene_2 extends Phaser.Scene {
         });
 
         this.input.on('dragend', (
-            _: Phaser.Input.Pointer, 
-            container: Phaser.GameObjects.Container, 
+            _: Phaser.Input.Pointer,
+            container: Phaser.GameObjects.Container,
             dropped: boolean
         ) => {
             if (!dropped) {
@@ -333,7 +340,7 @@ class Scene_2 extends Phaser.Scene {
         });
 
         this.input.on('drop', (
-            _: Phaser.Input.Pointer, 
+            _: Phaser.Input.Pointer,
             container: Phaser.GameObjects.Container,
             dropZone: Phaser.GameObjects.Container,
         ) => {
@@ -361,6 +368,7 @@ class Scene_2 extends Phaser.Scene {
                 this.matching();
             }
         }
+        this.load.image('skill', '../assets/images/skill.svg');
     }
 
     create() {
