@@ -1,10 +1,6 @@
 import { ResultType } from "@/interface";
 import { message } from "antd";
 
-const host = 'https://10.203.81.15:3000';
-// const host = 'https://192.168.1.54:3000';
-
-
 export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: any) => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -20,7 +16,7 @@ export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: 
         xhr.onerror = (error) => {
             reject(error);
         };
-        xhr.open('post', `${host}${url}`, true);
+        xhr.open('post', url, true);
         xhr.withCredentials = true;
         xhr.send(data);
     })
@@ -29,12 +25,12 @@ export const formUpload = (url: string, data: XMLHttpRequestBodyInit, options?: 
 const request = (method: string = 'get', url: string, data: any = {}): Promise<ResultType> => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open(method, url.includes('http') ? url : `${host}${url}`, true);
+        xhr.open(method, url, true);
         xhr.withCredentials = true;
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         xhr.send(JSON.stringify(data));
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && (xhr.status === 200 
+            if (xhr.readyState === 4 && (xhr.status === 200
                 || xhr.status === 401)
             ) {
                 const res: ResultType = JSON.parse(xhr.response);
@@ -59,4 +55,37 @@ export const get = (url: string, data: any = {}): Promise<ResultType> => {
 
 export const post = (url: string, data: any = {}): Promise<ResultType> => {
     return request('POST', url, data);
+}
+
+const read = (reader?: any, decoder?: any, resolve?: any, callback?: any) => {
+    reader?.read().then(({ done, value } : { done: any, value: any }) => {
+        if (done) {
+            resolve();
+            return;
+        };
+        const chunk = decoder.decode(value);
+        callback(JSON.parse(chunk));
+        read(reader, decoder, resolve, callback);
+    });
+}
+
+export const streamRequest = (url: string, method: 'GET' | 'POST', body: any, callback: Function, headers?: any): Promise<ResultType> => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(headers || {}) 
+                },
+                body: JSON.stringify(body)
+            })
+    
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+            read(reader, decoder, resolve, callback);
+        } catch (error) {
+            reject(error);
+        }
+    })
 }

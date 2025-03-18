@@ -62,7 +62,7 @@ const asyncActions = {
     isLogin: async (dispatch: React.Dispatch<ActionType>) => {
         dispatch({ type: 'SET_LOADING', loading: true });
         try {
-            await get('/isLogin');
+            await get('/api/isLogin');
             dispatch({ type: SET_OPEN_LOGIN_MODAL, openLoginModal: false });
             dispatch({ type: SET_ISLOGIN, isLogin: true });
         } catch (error: any) {

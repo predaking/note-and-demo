@@ -1,28 +1,36 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Input } from 'antd';
-import { post } from "@/service";
+import { streamRequest } from "@/service";
+// @ts-ignore
+import Markdown from 'react-markdown';
 
 import styles from './index.module.scss';
 
 const Ai = () => {
-    // const [result, setResult] = useState<string>('');
+    const [result, setResult] = useState<string>('');
     const [prompt, setPrompt] = useState<string>('');
 
-    const requests = async () => {
-        const res = await post('http://localhost:11434/api/generate', {
-            prompt: prompt || '你好'
-        });
-        console.log('res: ', res);
+    const handleData = (data: any) => {
+        if (data.done) {
+            return;
+        }
+        setResult((prev) => prev + data.response);
     }
 
-    useEffect(() => {
-
-    });
+    const requests = async () => {
+        setResult('');
+        streamRequest('/ollama/api/generate', 'POST', {
+            prompt: prompt || '请简单介绍你，30字左右',
+            model: 'llama3.2',
+            stream: true
+        }, handleData);
+    }
 
     return (
         <div
             className={styles.container}
         >
+            <Markdown>{result}</Markdown>
             <Input.TextArea
                 className={styles.input}
                 value={prompt}
@@ -30,7 +38,7 @@ const Ai = () => {
                 placeholder="请输入"
                 autoSize={{ minRows: 12 }}
             />
-            <Button 
+            <Button
                 className={styles.submit}
                 type="primary"
                 onClick={requests}

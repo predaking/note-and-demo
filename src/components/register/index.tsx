@@ -57,7 +57,7 @@ const Register = () => {
     const login = () => {
         form.validateFields().then(async (values) => {
             // 先获取用户的salt
-            const res: ResultType = await post('/login/salt', { name: values.name });
+            const res: ResultType = await post('/api/login/salt', { name: values.name });
             if (res.code === 1) {
                 message.error(res.msg || '用户不存在');
                 return;
@@ -68,7 +68,7 @@ const Register = () => {
                 name: values.name,
                 password: hashedPassword
             };
-            const loginRes: ResultType = await post('/login', loginData);
+            const loginRes: ResultType = await post('/api/login', loginData);
             if (loginRes.code === 0) {
                 dispatch({ type: SET_USERINFO, userInfo: loginRes.data });
                 dispatch({ type: SET_ISLOGIN, isLogin: true});
@@ -84,7 +84,7 @@ const Register = () => {
     const register = () => {
         form.validateFields().then(async (values) => {
             const registerData = await encryptData(values);
-            const res: ResultType = await post('/register', registerData);
+            const res: ResultType = await post('/api/register', registerData);
             dispatch({ type: SET_USERINFO, userInfo: res.data });
             message.success(res.msg || '注册成功');
             setOpen(false);

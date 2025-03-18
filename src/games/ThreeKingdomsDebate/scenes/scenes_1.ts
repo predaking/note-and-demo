@@ -64,8 +64,8 @@ class Scene_1 extends Phaser.Scene {
             graphics.clear();
             setStyle(true);
 
-            if (!this.registry.get('isLogin')) {
-                this.registry.get('login')();
+            if (!this.registry.get('/isLogin')) {
+                this.registry.get('/login')();
                 return;
             }
 
