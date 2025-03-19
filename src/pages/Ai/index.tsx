@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Button, Input } from 'antd';
 import { streamRequest } from "@/service";
 // @ts-ignore
