@@ -1,6 +1,40 @@
 # 目录
 
++ 函数
++ 高阶函数
++ 迭代器
 + other
+
+## 函数
+
+### reverse
+
+`reverse()` 函数用于将列表中的元素反转，与 js 中的不同，它的返回值是 None，并非列表
+
+## 高阶函数
+
+### map
+
+返回一个迭代器，可通过 `list()` 等函数将其转换为列表、元组等其他数据类型
+
+## 迭代器
+
+可迭代对象(Iterable)：实现了 `__iter__` 方法的对象，如列表、元组、字典、集合、字符串等
+迭代器(Iterator)：实现了 `__iter__` 与 `__next__` 方法的对象，如生成器、带有 yield 的函数、map object、filter object 等
+
+通过 `iter()` 函数可以将可迭代对象转换为迭代器
+
+可通过 `isinstance()` 函数判断对象是否为可迭代对象或迭代器
+
+```python
+from collections.abc import Iterable, Iterator
+a = [1, 2, 3]
+b = iter(a)
+print(isinstance(a, Iterable))  # True
+print(isinstance(a, Iterator))  # False
+print(isinstance(b, Iterable))  # True
+print(isinstance(b, Iterator))  # True
+```
 
 ## other
 
