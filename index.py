@@ -1,12 +1,24 @@
-def is_palindrome(n):
-    _n = list(str(n))
-    _n.reverse()
-    return ''.join(_n) == str(n)
+class Screen(object):
+    @property
+    def width(self):
+        return self._width
+    
+    @width.setter
+    def width(self, val):
+        self._width = val
+
+    @property
+    def resolution(self):
+        return 786432  
 
 # 测试:
-output = filter(is_palindrome, range(1, 1000))
-print('1~1000:', list(output))
-if list(filter(is_palindrome, range(1, 200))) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101, 111, 121, 131, 141, 151, 161, 171, 181, 191]:
-    print('测试成功!')
+s = Screen()
+s.width = 1024
+s.height = 768
+print('resolution =', s.resolution)
+if s.resolution == 786432:
+    print('测试通过!')
 else:
     print('测试失败!')
+
+s.resolution = 123
