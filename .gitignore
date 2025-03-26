@@ -5,3 +5,4 @@ password.ts
 openssl.cnf
 private
 # uploads
+.venv
