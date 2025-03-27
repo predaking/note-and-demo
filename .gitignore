@@ -6,3 +6,4 @@ openssl.cnf
 private
 # uploads
 .venv
+.env
