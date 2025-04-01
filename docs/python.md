@@ -42,6 +42,20 @@ print(isinstance(b, Iterator))  # True
 
 ## other
 
+### 什么是GIL
+
+GIL(Global Interpreter Lock)：全局互斥锁，是 Python 解释器（CPython：最常用的解释器）的一种机制，用于确保同一时刻只有一个线程在执行 Python 字节码，从而避免多线程并发执行时的线程安全问题
+
+作用：
+1. 保证线程安全：确保同一时刻只有一个线程在执行 Python 字节码，从而避免多线程并发执行时的线程安全问题
+2. 简化解释器实现：简化 CPython 解释器的并发控制逻辑，不需要对内部数据进行复杂的加解锁
+
+注意：
+
+1. GIL 是 Python 解释器的特性，并非 Python 本身的特性，Python 是跨平台的，不同平台的解释器可能会有不同的 GIL 实现
+2. GIL 是为了避免多线程并发执行时的线程安全问题，而不是为了提高 Python 程序的执行效率
+3. GIL 会导致 Python 程序的多线程性能下降，特别是在 CPU 密集型任务中，因为 GIL 会导致线程在执行 Python 字节码时无法被切换，从而导致线程无法充分利用 CPU 资源
+
 ### 什么是WSGI
 
 WSGI(Web Server Gateway Interface)：是 Python Web 服务器（例如 nginx、apache）和 Web 应用程序（例如 flask）之间的一种简单而通用的接口。常用的 WSGI 服务器有 gunicorn
