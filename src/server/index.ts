@@ -6,7 +6,6 @@ import fastify, {
 } from 'fastify';
 import fs from 'fs';
 import path from 'path';
-import password from '../../password';
 import { execute } from './db';
 import { result } from './enum';
 import { init } from '@/socket/server';
@@ -14,6 +13,12 @@ import Redis from './redis';
 import { networkInterfaces } from 'os';
 import { GameMainWsEventType } from '@/interface';
 import Fastify from './classes/fastify';
+import dotenv from 'dotenv';
+const _env = dotenv.config({
+    path: path.resolve(__dirname, '../../.env')
+});
+
+const password = _env.parsed?.password;
 
 const { RedisStore, redisClient } = Redis;
 const ft: FastifyInstance = Fastify.getInstance();
@@ -44,10 +49,10 @@ const _init = async () => {
         return 'localhost'; // 如果没有找到合适的IP，返回localhost
     };
 
-    const localIP = getLocalIP();
-    console.log('localIP:', localIP);
+    // const localIP = getLocalIP();
+    // console.log('localIP:', localIP);
     ft.register(require('@fastify/cors'), {
-        origin: [`https://${localIP}:5173`, 'https://localhost:5173'],
+        origin: 'https://localhost:8888',
         credentials: true
     });
     

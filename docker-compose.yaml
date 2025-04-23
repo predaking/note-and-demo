@@ -1,0 +1,63 @@
+services:
+  db: 
+    image: mysql:8.0
+    container_name: db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${password}
+      MYSQL_DATABASE: ${database}
+      MYSQL_USER: ${user}
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./db/_create.sql:/docker-entrypoint-initdb.d/_create.sql
+
+    
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    restart: always
+
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: node
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=${host}
+      - DB_USER=${user}
+      - DB_PASSWORD=${password}
+      - DB_DATABASE=${database}
+      - DB_PORT=${port}
+    depends_on:
+      - db
+      - redis
+
+  fe:
+    build: ./
+    container_name: fe
+    ports:
+      - "8888:8888"
+    depends_on:
+      - node
+    
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./dist:/usr/share/nginx/html:ro
+    depends_on:
+      - fe
+      - node
+    restart: always

@@ -14,6 +14,7 @@ export default defineConfig({
         }],
     },
     server: {
+        port: 8888,
         https: {
             key: fs.readFileSync(path.resolve(__dirname, 'predaking.key')),
             cert: fs.readFileSync(path.resolve(__dirname, 'predaking.crt'))
@@ -25,7 +26,7 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/ollama/, '')
             },
             '/api': {
-                target: 'https://10.203.81.15:3000',
+                target: 'https://localhost:3000',
                 // target: '//192.168.1.54:3000',
                 changeOrigin: true,
                 secure: false,
