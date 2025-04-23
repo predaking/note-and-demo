@@ -7,3 +7,4 @@ private
 # uploads
 .venv
 .env
+nginx/ssl/
