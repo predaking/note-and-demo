@@ -17,8 +17,8 @@ const App = () => {
                 {router}
             </Suspense>
             <Register />
-            {/* <Header /> */}
-            {/* <Footer /> */}
+            <Header />
+            <Footer />
         </Provider>
     );
 }
