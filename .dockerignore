@@ -1,0 +1,14 @@
+node_modules
+.git
+.vscode
+coverage
+*.log
+*.md
+dist
+server
+db
+mysql-data
+rust
+redis-data
+.env.development
+.env.production

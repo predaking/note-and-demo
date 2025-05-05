@@ -1,10 +1,10 @@
 -- predaking.card definition
-CREATE DATABASE predaking;
+CREATE DATABASE IF NOT EXISTS predaking; # 修正行
 USE predaking;
 
 CREATE TABLE `card` (
   `id` tinyint NOT NULL,
-  `name` varchar(4) NOT NULL,
+  `name` varchar(10) NOT NULL,
   `image` varchar(100) DEFAULT NULL,
   `country_id` tinyint NOT NULL,
   `skills` json DEFAULT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE `card` (
 
 CREATE TABLE `skill` (
   `id` tinyint NOT NULL AUTO_INCREMENT,
-  `name` varchar(4) NOT NULL,
+  `name` varchar(20) NOT NULL,
   `desc` varchar(100) NOT NULL,
   `is_judge` tinyint(1) NOT NULL DEFAULT '0',
   `is_lock` tinyint(1) NOT NULL,

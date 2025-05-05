@@ -6,8 +6,8 @@ import Demo from '../scenes/demo';
 
 const config = {
     type: Phaser.AUTO,
-    width: 1200,
-    height: 900,
+    width: window.innerWidth - 40,
+    height:  (window.innerWidth - 40) * 3 / 4,
     parent: 'game',
     // scene: [Scene_1, Scene_2, Scene_3],
     // scene: [Scene_2],

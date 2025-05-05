@@ -6,10 +6,10 @@ import {
     RoomEventType,
     BattleEventType,
     ErrorEventType
-} from '@/interface';
-import Player from '@/server/classes/player';
-import WebSocketManager from '@/server/classes/websocket-manager';
-import GameManager from '@/server/classes/game-manager';
+} from '../interface';
+import Player from '../classes/player';
+import WebSocketManager from '../classes/websocket-manager';
+import GameManager from '../classes/game-manager';
 
 const wsManager = WebSocketManager.getInstance();
 

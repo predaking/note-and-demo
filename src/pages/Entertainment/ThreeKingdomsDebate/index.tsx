@@ -5,8 +5,7 @@ import { useGlobalContext } from "@/store";
 
 const { SET_OPEN_LOGIN_MODAL } = actionTypes;
 
-const wsUrl = 'wss://localhost:3000/threeKingdomsDebate';
-// const wsUrl = 'wss://192.168.1.54:3000/threeKingdomsDebate';
+const wsUrl = '/ws/threeKingdomsDebate';
 
 const ThreeKingdomsDebate = () => {
     const containerRef = useRef<HTMLDivElement>(null);

@@ -1,4 +1,4 @@
-import fastify, { 
+import { 
     FastifyInstance,
     FastifyRequest, 
     FastifyReply,
@@ -8,19 +8,31 @@ import fs from 'fs';
 import path from 'path';
 import { execute } from './db';
 import { result } from './enum';
-import { init } from '@/socket/server';
+import { init } from './socket/server';
 import Redis from './redis';
-import { networkInterfaces } from 'os';
-import { GameMainWsEventType } from '@/interface';
+import { GameMainWsEventType } from './interface';
 import Fastify from './classes/fastify';
 import dotenv from 'dotenv';
-const _env = dotenv.config({
-    path: path.resolve(__dirname, '../../.env')
+
+const envFile = process.env.NODE_ENV === 'production' 
+    ? '.env.production' 
+    : '.env.development';
+
+dotenv.config({
+    path: path.resolve(__dirname, `../../${envFile}`)
 });
 
-const password = _env.parsed?.password;
+const { 
+    DB_PASSWORD, 
+    DB_USER, 
+    DB_HOST, 
+    DB_DATABASE, 
+    DB_PORT,
+    LOCAL_PORT,
+} = process.env || {};
 
 const { RedisStore, redisClient } = Redis;
+
 const ft: FastifyInstance = Fastify.getInstance();
 
 const _init = async () => {    
@@ -36,23 +48,17 @@ const _init = async () => {
         }
     });
 
-    const getLocalIP = () => {
-        const nets: any = networkInterfaces();
-        for (const name of Object.keys(nets)) {
-            for (const net of nets[name]) {
-                // 跳过内部IP和非IPv4地址
-                if (!net.internal && net.family === 'IPv4') {
-                    return net.address;
-                }
-            }
-        }
-        return 'localhost'; // 如果没有找到合适的IP，返回localhost
-    };
+    ft.register(require('@fastify/static'), {
+        root: path.join(__dirname, '../../docs/'),
+        prefix: '/docs/',
+        list: true,
+        redirect: true,
+        wildcard: true,
+        index: false
+    });
 
-    // const localIP = getLocalIP();
-    // console.log('localIP:', localIP);
     ft.register(require('@fastify/cors'), {
-        origin: 'https://localhost:8888',
+        origin: `https://localhost:${LOCAL_PORT || 8080}`,
         credentials: true
     });
     
@@ -62,7 +68,7 @@ const _init = async () => {
         // secret: fs.readFileSync(path.resolve(__dirname, '../secret-key')),
         secret: 'THIS_IS_MY_SECRET_KEY_DONT_REMOVE_IT_DONT_SHARE_IT',
         cookie: {
-            secure: true,
+            // secure: true,
             sameSite: true,
             maxAge: 24 * 60 * 60 * 1000
         },
@@ -71,10 +77,19 @@ const _init = async () => {
         })
     });
     
-    ft.register(require('@fastify/mysql'), {
-        promise: true,
-        connectionString: `mysql://root:${password}@localhost/predaking`
-    });
+    // 添加 try-catch 来捕获 MySQL 连接错误
+    try {
+        console.log('debug: ', DB_HOST, DB_USER, DB_PORT);
+        await ft.register(require('@fastify/mysql'), {
+            promise: true,
+            connectionString: `mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}`
+        });
+        ft.log.info('MySQL connected successfully.'); // 添加成功连接日志
+    } catch (error) {
+        ft.log.error('Failed to connect to MySQL:', error); // 记录详细错误
+        // 连接失败时可以选择退出进程，或者根据需要处理
+        // process.exit(1); 
+    }
 
     ft.addHook('onRequest', async (req: FastifyRequest, reply: FastifyReply) => {
         const whiteList = [
@@ -82,9 +97,10 @@ const _init = async () => {
             '/login',
             '/register',
             '/login/salt',
+            '/health',
         ];
 
-        if (whiteList.includes(req.url)) {
+        if (whiteList.includes(req.url) || req.url.startsWith('/docs')) {
             return;
         }
 
@@ -191,6 +207,49 @@ const _init = async () => {
             ft.log.error(error);
             console.log('error: ', error);
             return {...result, code: 1, msg: '注册失败' };
+        }
+    });
+    
+    ft.get('/health', async (req: FastifyRequest, reply: FastifyReply) => {
+        try {
+            // 检查Redis连接状态
+            const redisStatus = redisClient.isReady ? 'connected' : 'disconnected';
+            
+            // 检查MySQL连接状态
+            let mysqlStatus = 'unknown';
+            try {
+                await execute('SELECT 1');
+                mysqlStatus = 'connected';
+            } catch (error) {
+                mysqlStatus = 'disconnected';
+            }
+            
+            // 获取服务器运行时间（毫秒）
+            const uptime = process.uptime() * 1000;
+            
+            return {
+                ...result,
+                code: 0,
+                msg: 'healthy',
+                data: {
+                    status: 'running',
+                    uptime,
+                    redis: redisStatus,
+                    mysql: mysqlStatus,
+                    timestamp: new Date().toISOString()
+                }
+            };
+        } catch (error) {
+            ft.log.error(error);
+            return reply.code(500).send({
+                ...result,
+                code: 1,
+                msg: 'unhealthy',
+                data: {
+                    status: 'error',
+                    error: error
+                }
+            });
         }
     });
     

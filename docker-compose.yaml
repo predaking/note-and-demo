@@ -5,13 +5,14 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${password}
-      MYSQL_DATABASE: ${database}
-      MYSQL_USER: ${user}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      # 移除MYSQL_USER配置，因为我们要使用root用户
     volumes:
       - ./mysql-data:/var/lib/mysql
-      - ./db/_create.sql:/docker-entrypoint-initdb.d/_create.sql
-
+      - ./db:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+    # 添加上面的命令行参数以使用更兼容的认证插件
     
   redis:
     image: redis:alpine
@@ -22,42 +23,32 @@ services:
       - ./redis-data:/data
     restart: always
 
-  node:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
-    container_name: node
+  server:
+    build: ./server
+    container_name: server
     ports:
       - "3000:3000"
     environment:
-      - DB_HOST=${host}
-      - DB_USER=${user}
-      - DB_PASSWORD=${password}
-      - DB_DATABASE=${database}
-      - DB_PORT=${port}
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_PORT=${DB_PORT}
+      - REDIS_HOST=redis
     depends_on:
       - db
       - redis
+    restart: always
 
-  fe:
-    build: ./
-    container_name: fe
+  frontend:
+    build: .
+    container_name: frontend
     ports:
-      - "8888:8888"
+      - "8080:80"
+      - "8443:443"
+    environment:
+      - API_URL=https://server:3000  # 改为HTTP
     depends_on:
-      - node
-    
-  nginx:
-    build: ./nginx
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./dist:/usr/share/nginx/html:ro
-    depends_on:
-      - fe
-      - node
+      - server
     restart: always

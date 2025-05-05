@@ -1,4 +1,4 @@
-import { PlayerType, MatchStatus } from '../../interface';
+import { PlayerType, MatchStatus } from '../interface';
 
 class Player implements PlayerType {
     id: number;

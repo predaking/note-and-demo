@@ -8,10 +8,10 @@ class Fastify {
     public static getInstance(): FastifyInstance {
         if (!Fastify.instance) {
             Fastify.instance = fastify({ 
-                logger: false,
+                logger: true,
                 https: {
-                    key: fs.readFileSync(path.resolve(__dirname, '../../../predaking.key')),
-                    cert: fs.readFileSync(path.resolve(__dirname, '../../../predaking.crt')),
+                    key: fs.readFileSync(path.resolve(__dirname, '../../predaking.key')),
+                    cert: fs.readFileSync(path.resolve(__dirname, '../../predaking.crt')),
                 },
                 // http2: true
             });;

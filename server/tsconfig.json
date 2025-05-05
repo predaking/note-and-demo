@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "target": "es2020",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true,
+        "outDir": "./dist",
+        "strict": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": ".",
+        "paths": {                              // 添加路径别名配置
+            "@/*": ["src/*"]
+        },
+        "typeRoots": ["./node_modules/@types", "./src/types"], // 添加这一行，明确指定类型声明文件的位置
+        "resolveJsonModule": true // 添加这一行，允许导入 JSON 文件
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ],
+    "ts-node": {
+        "files": true,
+        "require": ["tsconfig-paths/register"]
+    } 
+}

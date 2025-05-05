@@ -69,7 +69,13 @@ const read = (reader?: any, decoder?: any, resolve?: any, callback?: any) => {
     });
 }
 
-export const streamRequest = (url: string, method: 'GET' | 'POST', body: any, callback: Function, headers?: any): Promise<ResultType> => {
+export const streamRequest = (
+    url: string, 
+    method: 'GET' | 'POST', 
+    body: any, 
+    callback: Function, 
+    headers?: any
+): Promise<ResultType> => {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await fetch(url, {

@@ -6,8 +6,11 @@ interface RedisClient extends ReturnType<typeof createClient> {
     toJSON: (data: any) => string;
 }
 
+// 使用环境变量或默认为localhost
+const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+
 const redisClient = createClient({
-    url: 'redis://redis:6379'
+    url: `redis://${REDIS_HOST}:6379`
 });
 
 redisClient.on('error', (err: Error) => {

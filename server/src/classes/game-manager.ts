@@ -1,4 +1,4 @@
-import Redis from '../redis';
+import Redis from '@/redis';
 import Player from './player';
 import Room from './room';
 import Card from './card';
@@ -12,15 +12,13 @@ import {
     RoomEventType, 
     BattleType,
     CountryEnum,
-    CardType,
     RoleType,
     CountryColorEnum,
     QualityColorEnum
 } from '@/interface';
-import util from '@/util';
 import { execute } from '../db';
+import { fisherYatesShuffle, getKeyValuesFromEnum } from '@/utils';
 
-const { fisherYatesShuffle, getKeyValuesFromEnum } = util;
 const wsManager = WebSocketManager.getInstance();
 
 const { redisClient } = Redis;

@@ -1,7 +1,5 @@
 import Fastify from "./classes/fastify";
-import util from "@/util";
-
-const { underscoreToCamelCase } = util;
+import { underscoreToCamelCase } from './utils';
 
 export const execute = async (sql: string, params: any = []) => {
     let client: any;

@@ -5,7 +5,8 @@ import Header from './components/header';
 import Footer from './components/footer';
 import Register from './components/register';
 import { Provider } from './store';
-import 'normalize.css'
+import 'normalize.css';
+import 'antd/dist/reset.css';
 import './index.css';
 
 const App = () => {

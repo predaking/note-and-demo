@@ -8,3 +8,7 @@ private
 .venv
 .env
 nginx/ssl/
+mysql-data/
+redis-data/
+.env.development
+.env.production
