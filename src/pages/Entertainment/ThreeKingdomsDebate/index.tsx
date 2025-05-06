@@ -14,6 +14,7 @@ const ThreeKingdomsDebate = () => {
     const wsRef = useRef<WebSocket>(null);
 
     useEffect(() => {
+        console.log('isLogin', isLogin);
         const _container = containerRef.current;
         const game = new Phaser.Game({
             ...config,

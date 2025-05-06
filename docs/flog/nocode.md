@@ -6,7 +6,7 @@
 
 ## 整体结构
 
-![整体结构](../../assets/img/flog/main.excalidraw.png)
+![整体结构](../../resource/img/flog/main.excalidraw.png)
 
 整体工具分为三大部分：
 其中中间为编辑区、左侧为组件部分、右侧为组件相关属性配置区。

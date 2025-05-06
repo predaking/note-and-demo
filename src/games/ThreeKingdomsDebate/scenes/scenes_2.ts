@@ -368,7 +368,7 @@ class Scene_2 extends Phaser.Scene {
                 this.matching();
             }
         }
-        this.load.image('skill', '../assets/images/skill.svg');
+        this.load.image('skill', '../resource/images/skill.svg');
     }
 
     create() {

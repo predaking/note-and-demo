@@ -33,7 +33,7 @@
 ```
 等价于
 
-![CSP](/assets/html1-1.png "CSP")
+![CSP](/resource/html1-1.png "CSP")
 
 当然还有`child-src`等其他属性。
 
@@ -170,18 +170,6 @@
     </g>
 </svg>
 ```
-
-## DOM
-
-### append 与 appendChild 异同
-
-相同点，都可以在父级插入节点
-
-不同点：
-
-+ `append`方法较新，可接收字符串参数。`appendChild`不允许
-+ `append`无任何返回，`appendChild`可返回添加的节点
-+ `append`可以同时接收多个节点，`appendChild`只可以接收一个
 
 ### IntersectionObserver
 

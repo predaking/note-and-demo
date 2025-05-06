@@ -40,3 +40,5 @@ export const getKeyValuesFromEnum = (enumType: any) => {
     const len = keys.length;
     return [keys.slice(0, len / 2), keys.slice(len / 2)];
 }
+
+export const isProd = process.env.NODE_ENV === 'production';

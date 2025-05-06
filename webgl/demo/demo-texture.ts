@@ -71,8 +71,8 @@ function initTexture(gl: WebGLRenderingContext, program: WebGLProgram) {
         loadTexture(image1);
     }
 
-    image1.src = '../../assets/books.jpg';
-    image.src = '../../assets/titter.gif';
+    image1.src = '../../resource/books.jpg';
+    image.src = '../../resource/titter.gif';
 }
 
 function main() {

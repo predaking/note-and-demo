@@ -27,7 +27,7 @@
 
 `React-Dnd`整个工具库总体包含三大块核心：
 
-![核心组成](../../assets/img/flog/react-dnd.excalidraw.png)
+![核心组成](../../resource/img/flog/react-dnd.excalidraw.png)
 
 其中`React-Dnd`负责向下层提供api，内部通过`Dnd-core`处理拖拽逻辑，并通过`Backend`适配不同环境下的交互方式。
 

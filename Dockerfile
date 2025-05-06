@@ -1,29 +1,35 @@
-FROM node:22-alpine
+# 构建阶段
+FROM node:22-alpine AS builder
 
-# 安装nginx
-RUN apk add --no-cache nginx
-
-# 设置工作目录
 WORKDIR /app
 
 # 复制package.json和安装依赖
 COPY package*.json ./
 RUN npm install -g pnpm
-RUN npm install -g ts-node
 RUN pnpm install
 
-# 复制应用代码
-COPY . .
+# 只复制必要的源代码文件
+COPY src/ ./src/
+COPY public/ ./public/
+COPY vite.config.js ./
+COPY tsconfig.json ./
+COPY index.html ./
+COPY predaking.crt ./
+COPY predaking.key ./
+COPY resource/ ./resource/
 
 # 构建React应用
 RUN pnpm build
 
-# 创建nginx目录
-RUN mkdir -p /run/nginx
+# 生产阶段
+FROM nginx:alpine
 
-# 确保nginx的html目录存在并清空
-RUN mkdir -p /usr/share/nginx/html && rm -rf /usr/share/nginx/html/*
-RUN cp -r dist/* /usr/share/nginx/html/
+# 复制构建结果
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# 复制docs目录到Nginx服务器
+COPY ./docs /usr/share/nginx/html/docs
+COPY ./resource /usr/share/nginx/html/resource
 
 # 复制nginx配置
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
@@ -35,8 +41,7 @@ RUN mkdir -p /etc/nginx/ssl
 COPY ./nginx/ssl/ /etc/nginx/ssl/
 
 # 暴露端口
-EXPOSE 80 443 3000
+EXPOSE 80 443
 
-# 启动应用
-# 不使用启动脚本，直接在CMD中启动服务
-CMD sh -c "nginx -g 'daemon off;'"
+# 启动nginx
+CMD ["nginx", "-g", "daemon off;"]

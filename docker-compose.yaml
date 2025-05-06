@@ -46,7 +46,7 @@ services:
     container_name: frontend
     ports:
       - "8080:80"
-      - "8443:443"
+      - "443:443"
     environment:
       - API_URL=https://server:3000  # 改为HTTP
     depends_on:

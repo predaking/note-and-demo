@@ -119,6 +119,26 @@ if (options & OPTION_B) {
 }
 ```
 
+### DOM
+
+#### appendChild 与 append 区别
+
+相同点：
+
++ 都是向父节点中添加子节点，如果子节点已经存在则会替换掉原有的子节点
+
+不同点：
++ `appendChild`只能添加一个节点，`append`可以添加多个可以是混合类型的节点
++ `appendChild`返回添加的节点，`append`返回undefined
+
+#### clientWidth、offsetWidth、scrollWidth 区别
+
+| 属性 | 描述 | 包括的部分 | 不包括的部分 |
+| --- | --- | --- | --- |
+| offsetWidth |	元素的布局宽度，包括边框、内边距和滚动条（如果存在）| 边框、内边距、滚动条（如果存在）| 外边距、溢出内容（不占用额外空间）
+| clientWidth |	元素内部可视区域的宽度，包括内边距，但不包括边框、外边距和滚动条 | 内边距 |	边框、外边距、滚动条、溢出内容
+| scrollWidth |	元素内容的实际宽度，包括溢出的部分| 内容宽度（包括溢出部分）| 边框、外边距、滚动条（不占用额外空间）
+
 ### 杂项
 
 #### script标签的defer与async属性的用法与区别
@@ -187,14 +207,14 @@ console.log('script end')
 + esm 输出的是值的引用，输入输出指向同一个地址，内部变化会影响外部；cjs 输出的是值得拷贝，内部变化不会影响外部，只有重新导入才会更新
 + esm 异步加载；cjs 同步加载
 
-### 尾调用与尾递归
+#### 尾调用与尾递归
 
 函数返回非单纯的函数调用（类似return b() + 1;）会使得执行栈存储每次调用的记录，太占用内存。
 所以需要进行尾调用优化，使得每次调用都用内层调用替换外层调用，这样始终只需存储一条调用记录，但是
 只是在严格模式下生效，因为非严格模式下会有arguments与func.caller记录调用信息。
 尾递归可以通过添加参数默认值、函数柯里化等方式实现
 
-### delete
+#### delete
 
 `delete`关键字返回值为`boolearn`类型，表示是否删除成功。无法删除通过`var`、`let`、`const`声明的变量。
 
@@ -206,6 +226,85 @@ age = 21;
 
 console.log(delete name); // false
 console.log(delete age); // true
+```
+
+#### IntersectionObserver
+
+提供了一种异步检测目标元素与其祖先元素交叉状态的方法。因此可以用来更好的处理图片懒加载、滚动加载等场景。需要注意的是兼容性问题，移动端ios12以下暂不支持，需要合适的polyfill或者降级写法
+
+示例：图片懒加载：
+
+```js
+const config = {
+    rootMargin: '0px',
+    threshold: 0
+};
+
+const observer = new IntersectionObserver((entries, self) => {
+    entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+            const img = entry.target;
+            const src = img.dataset.src;
+            if (src) {
+                img.src = src;
+                img.removeAttribute('data-src');
+            }
+            self.unobserve(entry.target);
+        }
+    });
+}, config);
+
+images.forEach((img) => observer.observe(img));
+```
+
+上面定义了一个`IntersectionObserver`监测器，之后为每一张图片节点订阅该监测器，其内部通过遍历依次判断目标节点与祖先元素`root`（默认为视口）是否相交，若相交，则展示图片。并且监测器还可以接收一个`config`参数用于精细化处理监测行为。例如其中`rootMargin`默认参照`root`元素，可设置其他值从而扩展与收缩其边界，从而改变相交位置与时机。另外一个属性`threshold`则表示在目标元素的可见比例判定相交触发监听回调，值介乎0~1之间。也可设置为一个数组，分别在不同的可见比例处触发回调。
+
+### MutationObserver
+
+`MutationObserver`可以监听 DOM 树的变化，前身是`Mutation Events`，该功能是 DOM3 Events 规范的一部分。
+
+**用法**： 可通过该构造函数创建一个实例，并且构造函数接收一个在 DOM 发生改变时候触发的回调函数，回调函数可接收两个参数：`mutations`收集 DOM 发生改变的集合，`observer`指向该实例。
+
+`MutationObserver`实例有三个实例方法：
+
++ `observe`: 开始监听，并且接受两个参数：
+  + `targetNode`: 要监听变化的目标节点
+  + `options`: 监听配置项，可以在此设置监听规则，常见比如`childList: true`，表示监听子节点变化
+
++ `takeRecords`: 返回已监听但并未被实例的回调函数处理的所有匹配的 DOM 改变的列表，使变更队列保持为空。常见适用场景是在断开监听前获取到所有未处理的变更，以便在停止监听后作相应的处理。
+
++ `disconnect`: 断开监听
+
+```javascript
+const node = document.querySelector("#test");
+
+// 修改DOM节点
+const handleClick = function () {
+    const div = document.createElement("div");
+    const text = document.createTextNode("div");
+    node.appendChild(div);
+    div.appendChild(text);
+}
+
+const observerOptions = {
+    childList: true,
+    attributes: true
+};
+
+const callback = function (mutations) {
+    console.log(mutations);
+}
+
+const observer = new MutationObserver(callback);
+observer.observe(node, observerOptions);
+
+const mutations = observer.takeRecords();
+
+if (mutations) {
+    callback(mutations);
+}           
+
+observer.disconnect(); 
 ```
   
 ## typescript

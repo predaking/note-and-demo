@@ -18,8 +18,10 @@ const envFile = process.env.NODE_ENV === 'production'
     ? '.env.production' 
     : '.env.development';
 
+const _path = path.resolve(__dirname, `../../${envFile}`);
+
 dotenv.config({
-    path: path.resolve(__dirname, `../../${envFile}`)
+    path: _path
 });
 
 const { 
@@ -48,14 +50,14 @@ const _init = async () => {
         }
     });
 
-    ft.register(require('@fastify/static'), {
-        root: path.join(__dirname, '../../docs/'),
-        prefix: '/docs/',
-        list: true,
-        redirect: true,
-        wildcard: true,
-        index: false
-    });
+    // ft.register(require('@fastify/static'), {
+    //     root: path.resolve(__dirname, '../../docs/'),
+    //     prefix: '/docs/',
+    //     list: true,
+    //     redirect: true,
+    //     wildcard: true,
+    //     index: false
+    // });
 
     ft.register(require('@fastify/cors'), {
         origin: `https://localhost:${LOCAL_PORT || 8080}`,
@@ -68,7 +70,7 @@ const _init = async () => {
         // secret: fs.readFileSync(path.resolve(__dirname, '../secret-key')),
         secret: 'THIS_IS_MY_SECRET_KEY_DONT_REMOVE_IT_DONT_SHARE_IT',
         cookie: {
-            // secure: true,
+            secure: true,
             sameSite: true,
             maxAge: 24 * 60 * 60 * 1000
         },

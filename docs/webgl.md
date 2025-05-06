@@ -5,7 +5,7 @@
 webgl 每次绘制需要两个着色器：顶点着色器 与 片段着色器，每个着色器都是一个方法，一个顶点着色器加一个片段着色器链接在一起放在一个着色程序当中，一个 webgl 应用往往会有多个着色程序
 
 例：初始化一个点：
-![工作原理-初始换一个点](../assets/img/webgl/process.excalidraw.png)
+![工作原理-初始换一个点](../resource/img/webgl/process.excalidraw.png)
 
 ### 顶点着色器(vertex shader)
 

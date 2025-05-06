@@ -1,5 +1,5 @@
 import React from 'react';
-import icon from '../../../assets/icon.png';
+import icon from '../../../resource/icon.png';
 import styles from './index.module.scss';
 
 const Footer: React.FC = () => {

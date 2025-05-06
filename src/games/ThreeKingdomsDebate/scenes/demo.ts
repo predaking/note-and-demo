@@ -5,7 +5,7 @@ class Demo extends Phaser.Scene {
     }
 
     preload() {
-        this.load.setBaseURL('/assets/threeKingdomsDebate/img/')
+        this.load.setBaseURL('/resource/threeKingdomsDebate/img/')
         this.load.svg('skill', 'skill.svg')
     }
 

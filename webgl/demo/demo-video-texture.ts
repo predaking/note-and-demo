@@ -42,9 +42,9 @@ function main() {
     };
 
     const buffers = initPositionBuffer(gl);
-    // const texture = loadTexture(gl, 'assets/demo.jpg');
+    // const texture = loadTexture(gl, 'resource/demo.jpg');
     const texture = loadTexture(gl);
-    const video = setupVideo("assets/video/demo.mp4");
+    const video = setupVideo("resource/video/demo.mp4");
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
     let cubeRotation = 0.0;
