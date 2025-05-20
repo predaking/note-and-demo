@@ -100,6 +100,7 @@ const _init = async () => {
             '/register',
             '/login/salt',
             '/health',
+            '/sse'
         ];
 
         if (whiteList.includes(req.url) || req.url.startsWith('/docs')) {
@@ -287,6 +288,36 @@ const _init = async () => {
             reply.code(500).send({ code: 1, msg: '文件上传失败' });
         }
     });
+
+    ft.get('/sse', (req, reply) => {
+        reply.raw.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+        });
+
+        // 发送初始连接成功消息
+        // reply.raw.write(`id: ${Date.now()}\n`);
+        // reply.raw.write(`event: connected\n`);
+        // reply.raw.write(`data: 连接已建立\n\n`);
+
+        // 定期发送数据
+        const intervalId = setInterval(() => {
+            const now = new Date().toISOString();
+            reply.raw.write(JSON.stringify({
+                id: Date.now(),
+                event: 'message',
+                data: now
+            }));
+        }, 1000);
+
+        // 处理客户端断开连接
+        req.raw.on('close', () => {
+            clearInterval(intervalId);
+            ft.log.info('SSE 客户端断开连接');
+        });
+    })
     
     // @ts-ignore
     ft.get('/threeKingdomsDebate', { websocket: true }, (connection: any, req: FastifyRequest) => {

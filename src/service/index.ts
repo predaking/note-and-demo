@@ -71,21 +71,22 @@ const read = (reader?: any, decoder?: any, resolve?: any, callback?: any) => {
 
 export const streamRequest = (
     url: string, 
-    method: 'GET' | 'POST', 
-    body: any, 
     callback: Function, 
     headers?: any
 ): Promise<ResultType> => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<ResultType>(async (resolve, reject) => {
         try {
-            const response = await fetch(url, {
-                method,
+            const options: RequestInit = {
                 headers: { 
                     'Content-Type': 'application/json',
                     ...(headers || {}) 
                 },
-                body: JSON.stringify(body)
-            })
+            };
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                ...options
+            });
     
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();

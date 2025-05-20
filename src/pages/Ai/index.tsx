@@ -14,16 +14,12 @@ const Ai = () => {
         if (data.done) {
             return;
         }
-        setResult((prev) => prev + data.response);
+        setResult((prev) => prev + data.data);
     }
 
-    const requests = async () => {
+    const requests = () => {
         setResult('');
-        streamRequest('/ollama/api/generate', 'POST', {
-            prompt: prompt || '请简单介绍你，30字左右',
-            model: 'llama3.2',
-            stream: true
-        }, handleData);
+        streamRequest('/api/sse', handleData);
     }
 
     return (
