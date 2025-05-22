@@ -5,6 +5,7 @@ import { streamRequest } from "@/service";
 import Markdown from 'react-markdown';
 
 import styles from './index.module.scss';
+import RichText from "@/components/richText";
 
 const Ai = () => {
     const [result, setResult] = useState<string>('');
@@ -27,12 +28,9 @@ const Ai = () => {
             className={styles.container}
         >
             <Markdown>{result}</Markdown>
-            <Input.TextArea
-                className={styles.input}
+            <RichText
                 value={prompt}
-                onChange={(e: any) => setPrompt(e.target.value)}
-                placeholder="请输入"
-                autoSize={{ minRows: 12 }}
+                onChange={(value) => setPrompt(value)}
             />
             <Button
                 className={styles.submit}
