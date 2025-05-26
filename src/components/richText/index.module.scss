@@ -5,7 +5,7 @@
     height: 100%;
     min-height: 200px;
     background-color: #fff;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
 
     .content {
         width: inherit;
@@ -13,10 +13,16 @@
         min-height: 200px;
         margin: 0 auto;
         padding: 16px;
+        padding-bottom: 40px;
         box-sizing: border-box;
     }
 
-    .content::placeholder {
+    .content:focus-visible {
+        outline-color: transparent;
+    }
+
+    .content[contenteditable]:empty:not(:focus)::before {
+        content: attr(data-placeholder);
         color: #ccc;
     }
 
@@ -30,8 +36,15 @@
         display: flex;
         gap: 10px;
 
-        .icon {
+        span {
             cursor: pointer;
+        }
+    }
+
+    :global {
+        .image {
+            max-width: 200px;
+            display: block;
         }
     }
 }
