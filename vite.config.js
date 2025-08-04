@@ -43,5 +43,12 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/ws/, '')
             }
         }
+    },
+    css: {
+        postcss: {
+            plugins: [
+                require('autoprefixer'),
+            ],
+        }
     }
 });

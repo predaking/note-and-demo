@@ -48,7 +48,7 @@ services:
       - "8080:80"
       - "443:443"
     environment:
-      - API_URL=https://server:3000  # 改为HTTP
+      - API_URL=https://server:3000  
     depends_on:
       - server
     restart: always

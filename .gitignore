@@ -12,3 +12,4 @@ mysql-data/
 redis-data/
 .env.development
 .env.production
+written-exam
